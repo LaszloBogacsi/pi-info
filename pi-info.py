@@ -1,5 +1,8 @@
+from datetime import datetime
+
 from flask import Flask
 import paho.mqtt.client as mqtt
+import json
 
 app = Flask(__name__)
 topic = "sensor/temperature"
@@ -18,11 +21,13 @@ def on_connect(client, userdata, flags, rc):
 
 
 def on_message(client, userdata, message):
-    decoded_message = str(message.payload.decode("utf-8"))
-    print(decoded_message)
+    json_message = json.loads(message.payload)
+    json_message["timestamp"] = str(datetime.now())
+    print(json_message)
+    # decoded_message = str(message.payload.decode("utf-8"))
     global latest_message
-    latest_message = decoded_message
-    client.publish(topic2, decoded_message)
+    latest_message = json_message
+    client.publish(topic2, str(json_message))
 
 
 @app.route("/")
@@ -39,7 +44,7 @@ if __name__ == "__main__":
     client.username_pw_set("<username here>", "<password here>")
     client.connect(host_on_pi)
     client.loop_start()
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=9080)
 
 
 
