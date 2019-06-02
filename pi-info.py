@@ -41,7 +41,7 @@ if __name__ == "__main__":
     host_on_pi = "192.168.1.205"
     client.on_connect = on_connect
     client.on_message = on_message
-    client.username_pw_set("<username here>", "<password here>")
+    client.username_pw_set("lbhautmqttuser", "Q$L#s#$SXv^U=?5S8XrE")
     client.connect(host_on_pi)
     client.loop_start()
     app.run(host='0.0.0.0', port=9080)
