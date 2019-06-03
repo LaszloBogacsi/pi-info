@@ -14,8 +14,12 @@
  install mosquitto: `sudo apt-get install mosquitto -y`  
  install mosquitto client `sudo apt-get install mosquitto-clients -y`  
  edit the conf file: `sudo nano /etc/mosquitto/mosquitto.conf`  
- add these lines to allow only authenticated clients to connect  
- ``` allow_anonymous false password_file /etc/mosquitto/pwfile listener 1883 ```  
+ add these lines to allow only authenticated clients to connect    
+ ``` 
+ allow_anonymous false 
+ password_file /etc/mosquitto/pwfile 
+ listener 1883 
+ ```  
  create an encrypted password for a username at the specified password file location   
  `sudo mosquitto_passwd -c /etc/mosquitto/pwfile <username>`    
  
