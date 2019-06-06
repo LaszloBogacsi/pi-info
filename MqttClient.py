@@ -38,8 +38,7 @@ class MqttClient:
         save_temperature({"timestamp": json_message['timestamp'],
                           "temperature": json_message['temperature'],
                           "status": json_message['status'],
-                          "sensor_location": "living room",
-                          "uuid": uuid.uuid4()})
+                          "sensor_location": json_message['sensor_location']})
         print(json_message)
         self.latest_message = json_message
         client.publish(self.topic2, str(json_message))
