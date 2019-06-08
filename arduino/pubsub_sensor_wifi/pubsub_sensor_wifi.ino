@@ -29,7 +29,9 @@ void onConnectionEstablished() {
    Serial.println(jsonMsg);
    client.publish(temperature_topic, jsonMsg); // You can activate the retain flag by setting the third parameter to true
    Serial.println("About to go sleep for 20 mins...");
+   delay(1000);
    ESP.deepSleep(sleeptimeInSeconds * 1000000); // D0 connected to RST
+   delay(100);
 }
 
 void loop() {
