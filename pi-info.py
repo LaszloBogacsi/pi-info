@@ -3,19 +3,18 @@ from flask import Flask
 
 from Credentials import Credentials
 from applicationConfig import Config
+from blueprints.sensor_info import sensor_info
+
 Config('config.ini')
 
 from MqttClient import MqttClient
 
 app = Flask(__name__)
+app.register_blueprint(sensor_info)
+
 mqtt_config = Config.get_mqtt_config()
 mqttClient = MqttClient(Credentials(mqtt_config['MQTT_USERNAME'], mqtt_config['MQTT_PASSWORD']),
                         mqtt_config['MQTT_HOST'])
-
-
-@app.route("/")
-def home():
-    return "Hello, World!\nThe current temperature is: " + "some message" + " C"
 
 
 def init_db(database_config):
