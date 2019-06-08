@@ -19,29 +19,19 @@ void setup() {
 
 long lastMsg = 0;
 String sensor_location = "living_room";
+long sleeptimeInSeconds = 1200; // 20 mins
 void onConnectionEstablished() {
- 
    float newTemp = dht.getTemperature();
    float newHum = dht.getHumidity();
    String status = dht.getStatusString();
 
    String jsonMsg = "{\"status\": \""+ status + "\", \"temperature\":" + newTemp + ", \"humidity\":" + newHum + ", \"sensor_location\": \"" + sensor_location + "\"}";
-//   Serial.println(jsonMsg);
+   Serial.println(jsonMsg);
    client.publish(temperature_topic, jsonMsg); // You can activate the retain flag by setting the third parameter to true
-  
+   Serial.println("About to go sleep for 20 mins...");
+   ESP.deepSleep(sleeptimeInSeconds * 1000000); // D0 connected to RST
 }
+
 void loop() {
   client.loop();
-  long now = millis();
-  // update every 5 mins
-  if (client.isConnected() && (now - lastMsg > 300000))  {
-    lastMsg = now;
-    Serial.println(lastMsg / 1000);
-     float newTemp = dht.getTemperature();
-     float newHum = dht.getHumidity();
-     String status = dht.getStatusString();
-     String jsonMsg = "{\"status\": \""+ status + "\", \"temperature\":" + newTemp + ", \"humidity\":" + newHum + ", \"sensor_location\":\"" + sensor_location + "\"}";
-     client.publish(temperature_topic, jsonMsg); // You can activate the retain flag by setting the third parameter to true
-  }
-  
 }
