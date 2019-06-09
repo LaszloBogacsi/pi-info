@@ -15,3 +15,16 @@ def save_temperature(temp_data):
         conn.commit()
         pool.putconn(conn)
         print("Put away a PostgreSQL connection")
+
+
+def load_all_temperature():
+    conn = pool.getconn()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """SELECT * FROM temperature""")
+        all_temperature = cursor.fetchall()
+        cursor.close()
+        pool.putconn(conn)
+        print("Put away a PostgreSQL connection")
+        return all_temperature

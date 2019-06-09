@@ -1,11 +1,12 @@
+from applicationConfig import Config
+Config('config.ini')
+
 import psycopg2
 from flask import Flask
 
 from Credentials import Credentials
-from applicationConfig import Config
 from blueprints.sensor_info import sensor_info
 
-Config('config.ini')
 
 from MqttClient import MqttClient
 
@@ -60,5 +61,6 @@ def init_db(database_config):
 
 
 if __name__ == "__main__":
+    Config('config.ini')
     init_db(Config.get_database_config())
     app.run(host='0.0.0.0', port=9080)

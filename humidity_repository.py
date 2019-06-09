@@ -10,7 +10,7 @@ def save_humidity(humidity_data):
         cursor = conn.cursor()
         cursor.execute(
             """INSERT INTO humidity(humidity, status, sensor_location, published_time) VALUES (%s, %s, %s, %s)""",
-            (humidity_data['temperature'], humidity_data['status'], humidity_data['sensor_location'], humidity_data['timestamp']))
+            (humidity_data['humidity'], humidity_data['status'], humidity_data['sensor_location'], humidity_data['timestamp']))
         cursor.close()
         conn.commit()
         pool.putconn(conn)

@@ -5,7 +5,12 @@
     <title>Sensor info</title>
 </head>
 <body>
-{{ stuff }}
+<p>temperatures:</p>
+<ul>
+    {% for temperature in temperatures %}
+        <li>{{ temperature }}</li>
+    {% endfor %}
+</ul>
 Hello mate
 </body>
 </html>
