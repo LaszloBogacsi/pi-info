@@ -8,7 +8,7 @@
 <p>temperatures:</p>
 <ul>
     {% for temperature in temperatures %}
-        <li>{{ temperature }}</li>
+        <li>{{ temperature.published_time }}: {{ temperature.temperature }}</li>
     {% endfor %}
 </ul>
 Hello mate
