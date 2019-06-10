@@ -1,2 +1,3 @@
 .idea/
 arduino/secrets.h
+node_modules/

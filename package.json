@@ -1,0 +1,23 @@
+{
+  "name": "pi-info",
+  "version": "1.0.0",
+  "description": "Home automation project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LaszloBogacsi/pi-info.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LaszloBogacsi/pi-info/issues"
+  },
+  "homepage": "https://github.com/LaszloBogacsi/pi-info#readme",
+  "dependencies": {
+    "d3": "^5.9.2"
+  }
+}

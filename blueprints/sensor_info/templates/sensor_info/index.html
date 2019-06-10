@@ -5,12 +5,11 @@
     <title>Sensor info</title>
 </head>
 <body>
-<p>temperatures:</p>
+<p>All measured temperatures to date :</p>
 <ul>
     {% for temperature in temperatures %}
         <li>{{ temperature.published_time }}: {{ temperature.temperature }}</li>
     {% endfor %}
 </ul>
-Hello mate
 </body>
 </html>
