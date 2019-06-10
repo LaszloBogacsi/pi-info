@@ -1,3 +1,7 @@
+import decimal
+import json
+
+from datetime import datetime
 from flask import Blueprint, render_template, abort
 from jinja2 import TemplateNotFound
 
@@ -15,3 +19,19 @@ def show(page):
         return render_template('sensor_info/%s.html' % page, temperatures=all_temperature)
     except TemplateNotFound:
         abort(404)
+
+
+def default_conv(o):
+    if isinstance(o, datetime):
+        return o.isoformat()
+    if isinstance(o, decimal.Decimal):
+        dec = decimal.Decimal(o)
+        return float(dec)
+    return o.__dict__
+
+
+@sensor_info.route('/sensorinfo/data')
+def get_data():
+    all_temp = load_all_temperature()
+    json_string = json.dumps(all_temp, default=default_conv)
+    return json_string
