@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+    <img src="{{ url_for('static', filename='2dFloorplan.png') }}" usemap="#image-map">
+
+    <map name="image-map">
+        <area onclick="console.log('master bedroom')" target="" alt="Master Bedroom" title="Master Bedroom" href="#!"
+              coords="567,868,323,568" shape="rect">
+        <area onclick="console.log('bedroom')" target="" alt="Bedroom" title="Bedroom" href="#!"
+              coords="322,375,567,564" shape="rect">
+        <area onclick="console.log('living room')" target="" alt="Living Room" title="Living Room" href="#!"
+              coords="209,306,212,421,317,421,319,373,526,369,523,288,522,241,514,195,497,146,476,105,433,37,144,221,169,252"
+              shape="poly">
+        <area onclick="console.log('kitchen')" target="" alt="Kitchen" title="Kitchen" href="#!"
+              coords="142,222,13,307,13,489,141,485,143,423,208,420,207,306" shape="poly">
+        <area onclick="console.log('bathroom')" target="" alt="Bathroom" title="Bathroom" href="#!"
+              coords="12,598,163,790" shape="rect">
+        <area onclick="console.log('ensiute bathroom')" target="" alt="En-Suit Bathroom" title="En-Suit Bathroom"
+              href="#!" coords="168,650,318,788" shape="rect">
+        <area onclick="console.log('hall')" target="" alt="Hall" title="Hall" href="#!"
+              coords="14,492,213,492,215,425,317,426,318,645,246,644,246,593,12,592" shape="poly">
+    </map>
+{% endblock %}
