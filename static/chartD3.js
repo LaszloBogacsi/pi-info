@@ -1,6 +1,8 @@
 
-fetch("http://localhost:9080/sensorinfo/data").then(response => response.json())
-        .then(data => loadDataset(data));
+fetch("http://localhost:9080/sensor/data")
+    .then(response => response.json())
+    .catch(error => console.log(error))
+    .then(data => loadDataset(data));
 
 function loadDataset(data) {
     console.log("here");

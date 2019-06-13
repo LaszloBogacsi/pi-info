@@ -1,1 +1,6 @@
-<div>SideNav</div>
+<div><a href="{{ url_for('home.show_home') }}">HOME</a></div>
+<div><a href="{{ url_for('sensors.show_sensors') }}">SENSORS</a></div>
+<div><a href="{#{ url_for('.show_lights') }#}">LIGHTS</a></div>
+<div><a href="{#{ url_for('.show_weather') }#}">WEATHER</a></div>
+<div><a href="{#{ url_for('.show_tube') }#}">TUBE STATUS</a></div>
+<div><a href="{#{ url_for('.show_sys_info') }#}">SYSTEM INFO</a></div>

@@ -6,15 +6,15 @@ import psycopg2
 from flask import Flask
 
 from Credentials import Credentials
-from blueprints.sensor_info import sensor_info
 from blueprints.home import home
+from blueprints.sensors import sensors
 
 
 from MqttClient import MqttClient
 
 app = Flask(__name__)
 app.register_blueprint(home)
-app.register_blueprint(sensor_info)
+app.register_blueprint(sensors)
 
 mqtt_config = Config.get_mqtt_config()
 mqttClient = MqttClient(Credentials(mqtt_config['MQTT_USERNAME'], mqtt_config['MQTT_PASSWORD']),

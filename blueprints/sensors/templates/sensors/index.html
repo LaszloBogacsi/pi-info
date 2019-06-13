@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+{% block content %}
+    {% for sensor in sensors %}
+        <a href="{{ url_for('sensors.show_sensor') }}">
+            <div>
+                <div>Name: {{ sensor.name }}</div>
+                <div>Location: {{ sensor.location }}</div>
+            </div>
+        </a>
+    {% endfor %}
+{% endblock %}

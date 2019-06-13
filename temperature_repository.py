@@ -27,12 +27,24 @@ def load_all_temperature():
         all_temperature = cursor.fetchall()
         all_temp = []
         for temp in all_temperature:
-            all_temp.append(cast_temperature(temp, cursor))
+            all_temp.append(cast_temperature(temp))
 
         cursor.close()
         pool.putconn(conn)
         print("Put away a PostgreSQL connection")
         return all_temp
+
+
+def load_current_temperature():
+    conn = pool.getconn()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM temperature ORDER BY published_time DESC LIMIT 1")
+        current_temperature = cast_temperature(cursor.fetchone())
+        cursor.close()
+        pool.putconn(conn)
+        print("Put away a PostgreSQL connection")
+        return current_temperature
 
 
 class Temperature(object):
@@ -44,7 +56,7 @@ class Temperature(object):
         self.id = id
 
 
-def cast_temperature(value, cur):
+def cast_temperature(value):
     if value is None:
         return None
     return Temperature(value[0], value[1], value[2], value[3], value[4])
