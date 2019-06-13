@@ -1,7 +1,8 @@
 {% extends 'layout.html' %}
 {% block content %}
     {% for sensor in sensors %}
-        <a href="{{ url_for('sensors.show_sensor') }}">
+        <a href="{{ url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='today') }}">
+            <img src="{{ url_for('static', filename='temperature.svg') }}"/>
             <div>
                 <div>Name: {{ sensor.name }}</div>
                 <div>Location: {{ sensor.location }}</div>

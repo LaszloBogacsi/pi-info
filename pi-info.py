@@ -36,7 +36,7 @@ def init_db(database_config):
     temprature_id SERIAL PRIMARY KEY,
     temperature DECIMAL,
     status varchar(20),
-    sensor_location varchar(50),
+    sensor_id INTEGER,
     published_time TIMESTAMP
     
      )
@@ -46,7 +46,7 @@ def init_db(database_config):
     humidity_id SERIAL PRIMARY KEY,
     humidity DECIMAL,
     status varchar(20),
-    sensor_location varchar(50),
+    sensor_id INTEGER,
     published_time TIMESTAMP
     
     )

@@ -38,12 +38,11 @@ class MqttClient:
         save_temperature({"timestamp": json_message['timestamp'],
                           "temperature": json_message['temperature'],
                           "status": json_message['status'],
-                          "sensor_location": json_message['sensor_location']})
-
+                          "sensor_id": json_message['sensor_id']})
         save_humidity({"timestamp": json_message['timestamp'],
                        "humidity": json_message['humidity'],
                        "status": json_message['status'],
-                       "sensor_location": json_message['sensor_location']})
+                       "sensor_id": json_message['sensor_id']})
 
         print(json_message)
         self.latest_message = json_message

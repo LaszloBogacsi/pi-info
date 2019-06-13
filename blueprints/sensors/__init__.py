@@ -2,12 +2,12 @@ import decimal
 import json
 from datetime import datetime
 
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, render_template, abort, request
 from jinja2 import TemplateNotFound
 
-from sensors import SENSORS
+from sensors import SENSORS, get_sensor_by_id
 from statusbar import refresh_statusbar
-from temperature_repository import load_all_temperature
+from temperature_repository import load_all_temperature, load_temperature_for
 
 sensors = Blueprint('sensors', __name__,
                     template_folder='templates')
@@ -23,13 +23,21 @@ def show_sensors(page):
         abort(404)
 
 
-@sensors.route('/sensors/sensor', defaults={'page': 'index'})
-@sensors.route('/sensors/sensor/<page>')
-def show_sensor(page):
+@sensors.route('/sensors/sensor')
+def show_sensor():
+    sensor_id = int(request.args.get('sensor_id', 100))
+    timerange = request.args.get('timerange', 'today')
     try:
-        all_temperature = load_all_temperature()
+        sensor = None
+        if sensor_id is None:
+            print('invalid sensor id  blablablabl')
+        else:
+            int_id = int(sensor_id)
+            sensor = get_sensor_by_id(int_id)
+        if sensor is not None:
+            sensor_temperature = load_temperature_for(sensor, timerange)
         statusbar = refresh_statusbar()
-        return render_template('sensor/%s.html' % page, temperatures=all_temperature, statusbar=statusbar)
+        return render_template('sensor/index.html', sensor=sensor, temperatures=sensor_temperature, statusbar=statusbar)
     except TemplateNotFound:
         abort(404)
 
@@ -45,6 +53,10 @@ def default_conv(o):
 
 @sensors.route('/sensor/data')
 def get_data():
-    all_temp = load_all_temperature()
+    sensor_id = int(request.args.get('sensor_id', 100))
+    timerange = request.args.get('timerange', 'today')
+    int_id = int(sensor_id)
+    sensor = get_sensor_by_id(int_id)
+    all_temp = load_temperature_for(sensor, timerange)
     json_string = json.dumps(all_temp, default=default_conv)
     return json_string

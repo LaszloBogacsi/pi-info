@@ -1,5 +1,5 @@
-
-fetch("http://localhost:9080/sensor/data")
+const queryParams = window.location.search;
+fetch("http://localhost:9080/sensor/data" + queryParams )
     .then(response => response.json())
     .catch(error => console.log(error))
     .then(data => loadDataset(data));
