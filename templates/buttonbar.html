@@ -1,0 +1,5 @@
+{% macro clickableButton(href='#', btnText='', iconType='') %}
+    <a href="{{ href }}">
+        <button class="ui button"><i class="{{ iconType }}"></i>{{ btnText }}</button>
+    </a>
+{% endmacro %}
