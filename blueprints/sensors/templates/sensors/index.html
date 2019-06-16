@@ -1,12 +1,47 @@
 {% extends 'layout.html' %}
 {% block content %}
-    {% for sensor in sensors %}
-        <a href="{{ url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='today') }}">
-            <img src="{{ url_for('static', filename='temperature.svg') }}"/>
-            <div>
-                <div>Name: {{ sensor.name }}</div>
-                <div>Location: {{ sensor.location }}</div>
-            </div>
+    {% macro clickableButton(href='#', active='', btnText='', iconType='') %}
+        <a class="ui button {{ active }}" href="{{ href }}">
+            <i class="{{ iconType }}"></i>
+            {{ btnText }}
         </a>
-    {% endfor %}
+    {% endmacro %}
+    <div class="ui one column grid">
+        <div class="column center aligned">
+            <div class="ui buttons">
+                {{ clickableButton(href='', active='active', btnText='STATUS') }}
+                {{ clickableButton(href='', iconType='list icon', btnText='LIST') }}
+                {{ clickableButton(href='', iconType='chart bar icon', btnText='GRAPH') }}
+            </div>
+        </div>
+    </div>
+
+    <div class="ui five column padded grid">
+        {% for sensor in sensors %}
+            <div class="column">
+                <a href="{{ url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='today') }}">
+                    <div class="ui green card">
+                        <div class="center aligned image">
+                            <img src="{{ url_for('static', filename='temperature.svg') }}">
+                        </div>
+                        <div class="content">
+                            <a class="header">{{ sensor.name }}</a>
+                            <div class="meta">
+                                <span class="date">Joined in 2013</span>
+                            </div>
+                            <div class="description">
+                                {{ sensor.location }}
+                            </div>
+                        </div>
+                        <div class="extra content">
+                            <a>
+                                <i class="user icon"></i>
+                                22 Friends
+                            </a>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

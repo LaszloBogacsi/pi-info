@@ -1,49 +1,35 @@
-import math
-from datetime import datetime
-from temperature_repository import load_current_temperature
+import json
+from urllib import request
+
+api_key = "92334de0a0f6939c969570a910190823"
+north_acton = {
+    "lat": "51.523134",
+    "lon": "-0.261312"
+}
+lat = "lat=" + north_acton["lat"]
+lon = "&lon=" + north_acton["lon"]
+metric_units = "&units=metric"
+api = "&APPID=" + api_key
+params = lat + lon + metric_units + api
+url = "https://api.openweathermap.org/data/2.5/weather?" + params
 
 
-def refresh_statusbar():
-    current_temperature = load_current_temperature()
-    statusbar_data = {
-        "current_temperature": {
-            "indoor": current_temperature.temperature,
-            "since": convert_to_ago(current_temperature.published_time)
-        },
-        "current_weather": {
-            "temp": 20,
-            "symbol": '',
-            "since": ''
-        }
-    }
-    return statusbar_data
+class CurrentWeather(object):
+    def __init__(self, main, description, temperature, icon):
+        self.icon = icon
+        self.temperature = temperature
+        self.description = description
+        self.main = main
 
 
-def convert_to_ago(published_time):
-    delta = datetime.now() - published_time
+def create_current_weather(data):
+    w = data["weather"][0]
+    m = data["main"]
+    return CurrentWeather(main=w["main"], description=w["description"], icon=w["icon"], temperature=m["temp"])
 
-    ago = " ago"
-    days = delta.days
-    day_text = " day" if days == 1 else " days"
-    day_display = str(days) + day_text + ago
-    if days > 0:
-        return day_display
 
-    seconds = delta.seconds
-    hour = math.floor(seconds / 3600)
-    hour_text = " hour" if hour == 1 else " hours"
-    hour_display = str(hour) + hour_text + ago
-    if hour > 0:
-        return hour_display
-
-    minutes = math.floor(seconds % 3600 / 60)
-    minutes_text = " min" if minutes == 1 else " mins"
-    minutes_display = str(minutes) + minutes_text + ago
-    if minutes > 0:
-        return minutes_display
-
-    seconds_text = " sec" if seconds == 1 else " secs"
-    seconds_display = str(seconds) + seconds_text + ago
-    if seconds > 0:
-        return seconds_display
-
+def get_current_weather_info():
+    with request.urlopen(url=url) as response:
+        data = response.read()
+        json_weather_data = json.loads(data)
+        return create_current_weather(json_weather_data)

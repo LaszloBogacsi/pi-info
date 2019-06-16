@@ -18,7 +18,7 @@ sensors = Blueprint('sensors', __name__,
 def show_sensors(page):
     try:
         statusbar = refresh_statusbar()
-        return render_template('sensors/%s.html' % page, sensors=SENSORS, statusbar=statusbar)
+        return render_template('sensors/%s.html' % page, active='sensors', sensors=SENSORS, statusbar=statusbar)
     except TemplateNotFound:
         abort(404)
 
@@ -30,14 +30,14 @@ def show_sensor():
     try:
         sensor = None
         if sensor_id is None:
-            print('invalid sensor id  blablablabl')
+            print('invalid sensor id')
         else:
             int_id = int(sensor_id)
             sensor = get_sensor_by_id(int_id)
         if sensor is not None:
             sensor_temperature = load_temperature_for(sensor, timerange)
         statusbar = refresh_statusbar()
-        return render_template('sensor/index.html', sensor=sensor, temperatures=sensor_temperature, statusbar=statusbar)
+        return render_template('sensor/index.html', active='sensors',sensor=sensor, temperatures=sensor_temperature, statusbar=statusbar)
     except TemplateNotFound:
         abort(404)
 

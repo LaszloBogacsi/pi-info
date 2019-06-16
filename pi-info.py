@@ -4,17 +4,16 @@ Config('config.ini')
 
 import psycopg2
 from flask import Flask
-
 from Credentials import Credentials
 from blueprints.home import home
 from blueprints.sensors import sensors
-
-
+from blueprints.tube_status import tube_status
 from MqttClient import MqttClient
 
 app = Flask(__name__)
 app.register_blueprint(home)
 app.register_blueprint(sensors)
+app.register_blueprint(tube_status)
 
 mqtt_config = Config.get_mqtt_config()
 mqttClient = MqttClient(Credentials(mqtt_config['MQTT_USERNAME'], mqtt_config['MQTT_PASSWORD']),

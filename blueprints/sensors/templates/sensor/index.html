@@ -1,56 +1,41 @@
 {% extends 'layout.html' %}
+
 {% block content %}
-<style type="text/css">
-    /* 13. Basic Styling with CSS */
+    <style type="text/css">
+        /* 13. Basic Styling with CSS */
 
-    /* Style the lines by removing the fill and applying a stroke */
-    .line {
-        fill: none;
-        stroke: #ffab00;
-        stroke-width: 3;
-    }
+        /* Style the lines by removing the fill and applying a stroke */
+        .line {
+            fill: none;
+            stroke: #ffab00;
+            stroke-width: 3;
+        }
 
-    .overlay {
-        fill: none;
-        pointer-events: all;
-    }
+        .overlay {
+            fill: none;
+            pointer-events: all;
+        }
 
-    /* Style the dots by assigning a fill and stroke */
-    .dot {
-        fill: #ffab00;
-        stroke: #fff;
-    }
+        /* Style the dots by assigning a fill and stroke */
+        .dot {
+            fill: #ffab00;
+            stroke: #fff;
+        }
 
-    .focus circle {
-        fill: none;
-        stroke: steelblue;
-    }
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
 
-</style>
-<body>
-<p>All measured temperatures to date :</p>
-<a href="{{ url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='today') }}">
-    <button>Today</button>
-</a>
-<a href="{{ url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='week') }}">
-    <button>Week</button>
-</a>
-<a href="{{ url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='month') }}">
-    <button>Month</button>
-</a>
-<a href="{{ url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='year') }}">
-    <button>Year</button>
-</a>
-<a href="{{ url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='all') }}">
-    <button>All</button>
-</a>
-<ul>
-{#    {% for temperature in temperatures %}#}
-{#        <li>{{ temperature.published_time }}: {{ temperature.temperature }}</li>#}
-{#    {% endfor %}#}
-</ul>
-<div id="chart">
-</div>
-<script src="{{url_for('static', filename='node_modules/d3/dist/d3.min.js')}}"></script>
-<script src="{{url_for('static', filename='chartD3.js')}}"></script>
+    </style>
+    <body>
+    <div class="ui one column grid">
+        <div class="column center aligned">
+            {% include "buttonbar.html" %}
+        </div>
+    </div>
+    <div id="chart">
+    </div>
+    <script src="{{ url_for('static', filename='node_modules/d3/dist/d3.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='chartD3.js') }}"></script>
 {% endblock %}

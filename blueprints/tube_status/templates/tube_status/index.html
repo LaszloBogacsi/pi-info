@@ -1,0 +1,48 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <style>
+        #tube_status_list .header {
+            color: white;
+        }
+
+        #tube_status_list .title {
+            padding-top: 1.4em;
+            padding-bottom: 1.4em;
+        }
+    </style>
+    <div id="tube_status_list" class="ui styled accordion">
+        {% for status in tube_status %}
+            <div style="background-color: {{ status.tube_line.colour_code }}" class="title">
+                <div class="three column ui relaxed grid">
+                    <div style="color: white" class="seven wide column">
+                        <div class="ui large header">{{ status.tube_line.name }}</div>
+                    </div>
+                    <div class="seven wide column">
+                        <div class="ui smalls header">{{ status.description }}
+                            {% if status.reason != '' %}
+                                <i class="exclamation triangle icon"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="two wide right aligned column">
+                        {% if status.reason != '' %}
+                            <i class="dropdown icon"></i>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="content">
+                {% if status.reason != '' %}
+                    <p>{{ status.disruption_category }}</p>
+                    <p>{{ status.reason }}</p>
+                    <p>{{ status.additional_info }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    <script language='javascript'>
+        $(document).ready(function () {
+            $('#tube_status_list').accordion();
+        });
+    </script>
+{% endblock %}

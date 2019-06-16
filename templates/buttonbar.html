@@ -1,5 +1,14 @@
-{% macro clickableButton(href='#', btnText='', iconType='') %}
-    <a href="{{ href }}">
-        <button class="ui button"><i class="{{ iconType }}"></i>{{ btnText }}</button>
+{% macro clickableButton(href='#', active='', btnText='', iconType='') %}
+    <a class="ui button {{ active }}" href="{{ href }}">
+        <i class="{{ iconType }}"></i>
+        {{ btnText }}
     </a>
 {% endmacro %}
+
+<div class="ui buttons">
+    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='today'), active='active', btnText='TODAY') }}
+    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='week'), btnText='WEEK') }}
+    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='month'), btnText='MONTH') }}
+    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='year'), btnText='YEAR') }}
+    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='all'), btnText='ALL') }}
+</div>

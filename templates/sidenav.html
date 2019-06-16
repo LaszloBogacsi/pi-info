@@ -1,6 +1,30 @@
-<div><a href="{{ url_for('home.show_home') }}">HOME</a></div>
-<div><a href="{{ url_for('sensors.show_sensors') }}">SENSORS</a></div>
-<div><a href="{#{ url_for('.show_lights') }#}">LIGHTS</a></div>
-<div><a href="{#{ url_for('.show_weather') }#}">WEATHER</a></div>
-<div><a href="{#{ url_for('.show_tube') }#}">TUBE STATUS</a></div>
-<div><a href="{#{ url_for('.show_sys_info') }#}">SYSTEM INFO</a></div>
+<div class="ui sidebar thin left vertical visible">
+    <div class="ui fluid vertical labeled icon menu">
+        <div class="item logo">
+            HOME HUB
+        </div>
+        <a class="item {% if active == 'home' %}active {% endif %}" href="{{ url_for('home.show_home') }}">
+            <i class="{% if active == 'home' %}teal{% endif %} home icon"></i>
+            HOME</a>
+        <a class="item {% if active == 'sensors' %}active {% endif %}" href="{{ url_for('sensors.show_sensors') }}">
+            <i class="{% if active == 'sensors' %}teal{% endif %} thermometer icon"></i>
+            SENSORS
+        </a>
+        <a class="item">
+            <i class="lightbulb outline icon"></i>
+            LIGHTS
+        </a>
+        <a class="item">
+            <i class="cloud icon"></i>
+            WEATHER
+        </a>
+        <a class="item {% if active == 'tube_status' %}active {% endif %}" href="{{ url_for('tube_status.show_tube_status') }}"">
+            <i class="{% if active == 'tube_status' %}teal{% endif %} train icon"></i>
+            TUBE STATUS
+        </a>
+        <a class="item">
+            <i class="microchip icon"></i>
+            SYSTEM INFO
+        </a>
+    </div>
+</div>

@@ -1,2 +1,22 @@
-<div>Status Bar</div>
-<div>{{ statusbar.current_temperature.indoor.temperature }} - {{ statusbar.current_temperature.indoor.published_time }}</div>
+<div class="ui menu">
+    <a class="item openbtn">
+        <i class="icon content"></i>
+    </a>
+    <a class="item"  href="{{ url_for('sensors.show_sensors') }}">
+        {% include "statusbar_temp.html" %}
+    </a>
+    <a class="item">
+        {{ statusbar.current_weather.temp }} °C
+        {{ statusbar.current_weather.main }}
+        <img src="{{ statusbar.current_weather.symbol_url}}" alt="icon">
+    </a>
+    <a class="item" href="{{ url_for('tube_status.show_tube_status') }}">
+        <div class="ui large red label">
+            {{ statusbar.tube_status.line_name }}
+        </div>
+        {{ statusbar.tube_status.status }}
+    </a>
+    <a class="item">
+        <i class="large yellow lightbulb icon"></i>
+    </a>
+</div>

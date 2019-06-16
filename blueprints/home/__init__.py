@@ -12,6 +12,6 @@ home = Blueprint('home', __name__,
 def show_home(page):
     try:
         statusbar = refresh_statusbar()
-        return render_template('home/%s.html' % page, statusbar=statusbar )
+        return render_template('home/%s.html' % page, active='home', statusbar=statusbar )
     except TemplateNotFound:
         abort(404)
