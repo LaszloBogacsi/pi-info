@@ -1,7 +1,10 @@
+import datetime
 import json
 from urllib import request
 
 from enum import Enum
+
+from dateutil.relativedelta import relativedelta
 
 app_id = "e52f129c"
 api_key = "2a6a3161872d2a2ae3863ac26ea718d7"
@@ -11,6 +14,7 @@ params = api
 url = "https://api.tfl.gov.uk/line/mode/tube/status"
 one_line_url = lambda line_id: "https://api.tfl.gov.uk/Line/" + line_id + "/Status?" + params
 all_lines_url = "https://api.tfl.gov.uk/Line/Mode/tube/Status?" + params
+future_status_one_line = lambda line, from_date, to_date: "https://api.tfl.gov.uk/Line/" + line + "/Status/" + from_date +"/to/"+ to_date + "?" + params
 
 
 class CurrentStatus(object):
@@ -27,19 +31,23 @@ def get_data_for_line(line, data):
 
 
 def create_current_tube_status(data, all_lines):
-    return map(lambda line: create_line_info(get_data_for_line(line, data), line), all_lines)
+    return list((map(lambda line: create_line_info(get_data_for_line(line, data), line)[0], all_lines)))
 
 
-def create_line_info(line_info, tube_line):
-    line_status = line_info.get("lineStatuses", [{}])[0]
-    disruption = line_status.get('disruption', {})
+def make_statuses(status, line):
+    disruption = status.get('disruption', {})
     return CurrentStatus(
-        tube_line=tube_line,
-        description=line_status.get("statusSeverityDescription", ''),
-        reason=line_status.get("reason", ''),
+        tube_line=line,
+        description=status.get("statusSeverityDescription", ''),
+        reason=status.get("reason", ''),
         disruption_category=disruption.get('categoryDescription', ''),
         additional_info=disruption.get('additionalInfo', '')
     )
+
+
+def create_line_info(line_info, tube_line):
+    line_statuses = line_info.get("lineStatuses", [{}])
+    return list(map(lambda status: make_statuses(status, tube_line), line_statuses))
 
 
 class Tube(Enum):
@@ -94,3 +102,13 @@ def get_all_current_tube_status():
         data = response.read()
         json_tube_data = json.loads(data)
         return create_current_tube_status(json_tube_data, TUBE_LINES_ORDERED)
+
+
+def get_future_status_for(tube_line):
+    today = datetime.date.today()
+    two_weeks_from_now = str(today + relativedelta(weeks=0))
+    two_month_from_now = str((today + relativedelta(months=5)))
+    with request.urlopen(url=future_status_one_line(tube_line.id.val, two_weeks_from_now, two_month_from_now)) as response:
+        data = response.read()
+        json_tube_data = json.loads(data)
+        return create_line_info(json_tube_data[0], tube_line)

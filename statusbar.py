@@ -27,7 +27,7 @@ def refresh_if_necessary():
 def reload_data():
     current_temperature = load_current_temperature()
     current_weather = get_current_weather_info()
-    central_line_status = get_current_tube_status(central)
+    central_line_status = get_current_tube_status(central)[0]
     statusbar_data = {
         "current_temperature": {
             "indoor": current_temperature.temperature,

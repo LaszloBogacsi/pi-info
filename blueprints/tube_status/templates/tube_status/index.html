@@ -40,6 +40,17 @@
             </div>
         {% endfor %}
     </div>
+    <div>
+        {% for status in future_status %}
+            <div>{{ status.tube_line.name }}</div>
+            <div class="content">
+                <p>{{ status.disruption_category }}</p>
+                <p>{{ status.reason }}</p>
+                <p>{{ status.additional_info }}</p>
+            </div>
+        {% endfor %}
+
+    </div>
     <script language='javascript'>
         $(document).ready(function () {
             $('#tube_status_list').accordion();
