@@ -8,7 +8,7 @@ home = Blueprint('home', __name__,
 
 
 @home.route('/home', defaults={'page': 'index'})
-@home.route('/home/<page>')
+@home.route('/home/<page>', methods=['GET'])
 def show_home(page):
     try:
         statusbar = refresh_statusbar()

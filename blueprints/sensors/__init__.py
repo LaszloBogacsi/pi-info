@@ -14,7 +14,7 @@ sensors = Blueprint('sensors', __name__,
 
 
 @sensors.route('/sensors', defaults={'page': 'index'})
-@sensors.route('/sensors/<page>')
+@sensors.route('/sensors/<page>', methods=['GET'])
 def show_sensors(page):
     try:
         statusbar = refresh_statusbar()
@@ -23,7 +23,7 @@ def show_sensors(page):
         abort(404)
 
 
-@sensors.route('/sensors/sensor')
+@sensors.route('/sensors/sensor', methods=['GET'])
 def show_sensor():
     sensor_id = int(request.args.get('sensor_id', 100))
     timerange = request.args.get('timerange', 'today')
@@ -51,7 +51,7 @@ def default_conv(o):
     return o.__dict__
 
 
-@sensors.route('/sensor/data')
+@sensors.route('/sensor/data', methods=['GET'])
 def get_data():
     sensor_id = int(request.args.get('sensor_id', 100))
     timerange = request.args.get('timerange', 'today')
