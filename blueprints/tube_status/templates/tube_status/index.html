@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 {% block content %}
     <style>
-        #tube_status_list .header {
+        .white.header {
             color: white;
         }
 
@@ -18,11 +18,11 @@
                     {% for status in tube_status %}
                         <div style="background-color: {{ status.tube_line.colour_code }}" class="title">
                             <div class="three column ui relaxed grid">
-                                <div style="color: white" class="seven wide column">
-                                    <div class="ui large header">{{ status.tube_line.name }}</div>
+                                <div class="seven wide column">
+                                    <div class="ui large white header">{{ status.tube_line.name }}</div>
                                 </div>
                                 <div class="seven wide column">
-                                    <div class="ui smalls header">{{ status.description }}
+                                    <div class="ui small white header">{{ status.description }}
                                         {% if status.reason != '' %}
                                             <i class="exclamation triangle icon"></i>
                                         {% endif %}
@@ -46,40 +46,67 @@
                 </div>
             </div>
             <div class="six wide column">
-                <form action="{{ url_for('tube_status.show_tube_status') }}" method="post">
-
-                    <div class="ui floating labeled selection dropdown">
-                        <input type="hidden" name="line">
-                        <i class="dropdown icon"></i>
-                        <div class="default text">Select a line</div>
-                        <div class="menu">
-                            {% for line in lines %}
-                                <div class="item" data-value="{{ line.id.val }}">
-                                    <div style="background-color: {{ line.colour_code }}"
-                                         class="ui empty circular label"></div>
-                                    {{ line.name }}
-                                </div>
-                            {% endfor %}
+                <div class="ui items">
+                    <div class="item">
+                        <div class="content">
+                            <div class="header">Planned Works:</div>
+                            <div class="meta">and other disruptions in the upcoming two month period</div>
                         </div>
                     </div>
-
-                    <input type="submit" value="search"/>
-                </form>
-                {% for status in future_status %}
-                    <div>{{ status.tube_line.name }}</div>
-                    <div class="content">
-                        <p>{{ status.disruption_category }}</p>
-                        <p>{{ status.reason }}</p>
-                        <p>{{ status.additional_info }}</p>
+                    <div class="item">
+                        <form action="{{ url_for('tube_status.show_tube_status') }}" method="post">
+                            <div class="ui floating labeled selection dropdown">
+                                <input type="hidden" name="line">
+                                <i class="dropdown icon"></i>
+                                <div class="default text">Select a line</div>
+                                <div class="menu">
+                                    {% for line in lines %}
+                                        <div class="item" data-value="{{ line.id.val }}">
+                                            <div style="background-color: {{ line.colour_code }}"
+                                                 class="ui empty circular label"></div>
+                                            {{ line.name }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <button class="ui button" type="submit">Search</button>
+                        </form>
                     </div>
-                {% endfor %}
-
+                </div>
+                <div class="item">
+                    {% if selected_line %}
+                        <div id="tube_planned_work_list" class="ui styled accordion">
+                            <div style="background-color: {{ selected_line.colour_code }}" class="active title">
+                                <div class="two column ui grid">
+                                    <div class="column">
+                                        <div class="ui white large header">{{ selected_line.name }}</div>
+                                    </div>
+                                    <div class="right aligned column">
+                                        <i class="dropdown icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="content active">
+                                {% for status in future_status %}
+                                    <p><strong>{{ status.disruption_category }}</strong></p>
+                                    <p>{{ status.description }}</p>
+                                    <p>{{ status.reason }}</p>
+                                    <p>{{ status.additional_info }}</p>
+                                    <div class="ui horizontal divider">
+                                        <i class="train icon"></i>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
     <script language='javascript'>
         $(document).ready(function () {
             $('#tube_status_list').accordion();
+            $('#tube_planned_work_list').accordion();
             $('.ui.dropdown').dropdown();
         });
     </script>

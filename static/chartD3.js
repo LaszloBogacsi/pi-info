@@ -1,12 +1,20 @@
 const queryParams = window.location.search;
-fetch("http://localhost:9080/sensor/data" + queryParams )
+fetch("http://localhost:9080/sensor/data" + queryParams, {
+    method: 'GET',
+    mode: 'cors',
+    redirect: 'follow',
+    headers: new Headers({
+        'Content-Type': 'application/json'
+    })
+} )
     .then(response => response.json())
     .catch(error => console.log(error))
     .then(data => loadDataset(data));
 
 function loadDataset(data) {
     console.log("here");
-    const dataset = data.map(d => d.temperature);
+    const dataset_temp = data.map(d => d.temperature);
+    const dataset_humidity = data.map(d => d.humidity);
 
 
 // 2. Use the margin convention practice
@@ -15,7 +23,7 @@ function loadDataset(data) {
         , height = window.innerHeight - margin.top - margin.bottom; // Use the window's height
 
 // The number of datapoints
-    const n = dataset.length;
+    const n = dataset_temp.length;
 
 // 5. X scale will use the index of our data
     const xScale = d3.scaleLinear()
@@ -57,13 +65,13 @@ function loadDataset(data) {
 
 // 9. Append the path, bind the data, and call the line generator
     svg.append("path")
-        .datum(dataset) // 10. Binds data to the line
+        .datum(dataset_temp) // 10. Binds data to the line
         .attr("class", "line") // Assign a class for styling
         .attr("d", line); // 11. Calls the line generator
 
 // 12. Appends a circle for each datapoint
     svg.selectAll(".dot")
-        .data(dataset)
+        .data(dataset_temp)
         .enter().append("circle") // Uses the enter().append() method
         .attr("class", "dot") // Assign a class for styling
         .attr("cx", function (d, i) {

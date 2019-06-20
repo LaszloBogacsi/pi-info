@@ -1,8 +1,8 @@
 import datetime
 import json
-from urllib import request
-
 from enum import Enum
+from urllib import request
+from urllib.error import URLError
 
 from dateutil.relativedelta import relativedelta
 
@@ -14,7 +14,7 @@ params = api
 url = "https://api.tfl.gov.uk/line/mode/tube/status"
 one_line_url = lambda line_id: "https://api.tfl.gov.uk/Line/" + line_id + "/Status?" + params
 all_lines_url = "https://api.tfl.gov.uk/Line/Mode/tube/Status?" + params
-future_status_one_line = lambda line, from_date, to_date: "https://api.tfl.gov.uk/Line/" + line + "/Status/" + from_date +"/to/"+ to_date + "?" + params
+future_status_one_line = lambda line, from_date, to_date: "https://api.tfl.gov.uk/Line/" + line + "/Status/" + from_date + "/to/" + to_date + "?" + params
 
 
 class CurrentStatus(object):
@@ -91,24 +91,34 @@ TUBE_LINES_ORDERED = [bakerloo, central, circle, district, hammersmith_and_city,
 
 
 def get_current_tube_status(tube_line):
-    with request.urlopen(url=one_line_url(tube_line.id.val)) as response:
+    try:
+        response = request.urlopen(url=one_line_url(tube_line.id.val))
         data = response.read()
         json_tube_data = json.loads(data)
         return create_line_info(json_tube_data[0], tube_line)
+    except URLError as e:
+        return create_line_info({}, tube_line)
 
 
 def get_all_current_tube_status():
-    with request.urlopen(url=all_lines_url) as response:
+    try:
+        response = request.urlopen(url=all_lines_url)
         data = response.read()
         json_tube_data = json.loads(data)
         return create_current_tube_status(json_tube_data, TUBE_LINES_ORDERED)
+    except URLError as e:
+        return create_line_info({}, TUBE_LINES_ORDERED)
 
 
 def get_future_status_for(tube_line):
     today = datetime.date.today()
     two_weeks_from_now = str(today + relativedelta(weeks=0))
-    two_month_from_now = str((today + relativedelta(months=5)))
-    with request.urlopen(url=future_status_one_line(tube_line.id.val, two_weeks_from_now, two_month_from_now)) as response:
+    two_month_from_now = str((today + relativedelta(months=2)))
+    try:
+        response =  request.urlopen(
+            url=future_status_one_line(tube_line.id.val, two_weeks_from_now, two_month_from_now))
         data = response.read()
         json_tube_data = json.loads(data)
         return create_line_info(json_tube_data[0], tube_line)
+    except URLError as e:
+        return create_line_info({}, tube_line)

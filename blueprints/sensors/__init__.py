@@ -51,7 +51,7 @@ def default_conv(o):
     return o.__dict__
 
 
-@sensors.route('/sensor/data', methods=['GET'])
+@sensors.route('/sensor/data')
 def get_data():
     sensor_id = int(request.args.get('sensor_id', 100))
     timerange = request.args.get('timerange', 'today')

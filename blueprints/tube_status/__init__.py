@@ -28,7 +28,7 @@ def show_tube_status(page):
             tube_line = next((x for x in all_lines if x.id.val == form_data.get('line')), None)
             future_status_for_line = get_future_status_for(tube_line)
             return render_template('tube_status/%s.html' % page, active='tube_status', statusbar=statusbar,
-                                   tube_status=tube_status_all, lines=all_lines, future_status=future_status_for_line )
+                                   tube_status=tube_status_all, lines=all_lines, future_status=future_status_for_line, selected_line=tube_line )
         except TemplateNotFound:
             abort(404)
 

@@ -6,7 +6,6 @@ pool = get_pool
 def save_humidity(humidity_data):
     conn = pool.getconn()
     if conn:
-        print("successfully received connection from connection pool ")
         cursor = conn.cursor()
         cursor.execute(
             """INSERT INTO humidity(humidity, status, sensor_id, published_time) VALUES (%s, %s, %s, %s)""",
@@ -14,4 +13,3 @@ def save_humidity(humidity_data):
         cursor.close()
         conn.commit()
         pool.putconn(conn)
-        print("Put away a PostgreSQL connection")
