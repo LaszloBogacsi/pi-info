@@ -1,11 +1,9 @@
-from repository import get_pool, get_timerange_query, save, load_all, load_one
-
-pool = get_pool
+from repository import get_timerange_query, save, load_all, load_one
 
 
 def save_temperature(temp_data):
-    sql = """INSERT INTO temperature(temperature, status, sensor_id, published_time) VALUES (%s, %s, %s, %s)"""
-    query = sql, (temp_data['temperature'], temp_data['status'], temp_data['sensor_id'], temp_data['timestamp'])
+    query = 'INSERT INTO temperature(temperature, status, sensor_id, published_time) VALUES ({}, {}, {}, {})'.format(
+        temp_data['temperature'], temp_data['status'], temp_data['sensor_id'], temp_data['timestamp'])
     save(query)
 
 
@@ -21,7 +19,7 @@ def load_current_temperature():
 
 def load_temperature_for(sensor, timerange):
     timerange_query = get_timerange_query(timerange)
-    sql = "SELECT * FROM temperature WHERE sensor_id=%s" + timerange_query, (sensor["sensor_id"],)
+    sql = 'SELECT * FROM temperature WHERE sensor_id={}{}'.format(sensor["sensor_id"], timerange_query)
     return load_all(sql, cast_temperature)
 
 

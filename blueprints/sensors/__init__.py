@@ -5,6 +5,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, abort, request
 from jinja2 import TemplateNotFound
 
+from humidity_repository import load_humidity_for
 from sensors import SENSORS, get_sensor_by_id
 from statusbar import refresh_statusbar
 from temperature_repository import load_all_temperature, load_temperature_for
@@ -58,5 +59,7 @@ def get_data():
     int_id = int(sensor_id)
     sensor = get_sensor_by_id(int_id)
     all_temp = load_temperature_for(sensor, timerange)
-    json_string = json.dumps(all_temp, default=default_conv)
+    all_humidity = load_humidity_for(sensor, timerange)
+    all_data = {"temperatures": all_temp, "humidities": all_humidity}
+    json_string = json.dumps(all_data, default=default_conv)
     return json_string

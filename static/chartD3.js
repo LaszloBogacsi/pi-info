@@ -1,48 +1,40 @@
 const queryParams = window.location.search;
-fetch("http://localhost:9080/sensor/data" + queryParams, {
+const requestInit = {
     method: 'GET',
     mode: 'cors',
     redirect: 'follow',
     headers: new Headers({
         'Content-Type': 'application/json'
     })
-} )
+}
+fetch("http://localhost:9080/sensor/data" + queryParams)
     .then(response => response.json())
     .catch(error => console.log(error))
     .then(data => loadDataset(data));
 
 function loadDataset(data) {
     console.log("here");
-    const dataset_temp = data.map(d => d.temperature);
-    const dataset_humidity = data.map(d => d.humidity);
+    const dataset_temp = data.temperatures.map(d => d.temperature);
+    const dataset_humidity = data.humidities.map(d => d.humidity);
 
 
 // 2. Use the margin convention practice
     const margin = {top: 50, right: 50, bottom: 50, left: 50}
-        , width = window.innerWidth - margin.left - margin.right // Use the window's width
+        , width = (window.innerWidth - margin.left - margin.right) * 0.9 // Use the window's width
         , height = window.innerHeight - margin.top - margin.bottom; // Use the window's height
 
-// The number of datapoints
     const n = dataset_temp.length;
 
-// 5. X scale will use the index of our data
-    const xScale = d3.scaleLinear()
-        .domain([0, n - 1]) // input
-        .range([0, width]); // output
-
-// 6. Y scale will use the randomly generate number
-    const yScale = d3.scaleLinear()
-        .domain([0, 40]) // input
-        .range([height, 0]); // output
-
-// 7. d3's line generator
-    const line = d3.line()
-        .x(function (d, i) {
-            return xScale(i);
-        }) // set the x values for the line generator
-        .y(function (d) {
-            return yScale(d);
-        }) // set the y values for the line generator
+    const xScale = d3.scaleLinear().domain([0, n - 1]).range([0, width]);
+    const yScale = d3.scaleLinear().domain([0, 40]).range([height, 0]);
+    const yScale2 = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+    const line_temp = d3.line()
+        .x((d, i) =>  xScale(i)) // set the x values for the line generator
+        .y(d => yScale(d)) // set the y values for the line generator
+        .curve(d3.curveMonotoneX); // apply smoothing to the line
+ const line_humid = d3.line()
+        .x((d, i)  => xScale(i)) // set the x values for the line generator
+        .y(d => yScale2(d)) // set the y values for the line generator
         .curve(d3.curveMonotoneX); // apply smoothing to the line
 
 // 1. Add the SVG to the page and employ #2
@@ -62,12 +54,22 @@ function loadDataset(data) {
     svg.append("g")
         .attr("class", "y axis")
         .call(d3.axisLeft(yScale)); // Create an axis component with d3.axisLeft
+//  Call the right y axis in a group tag
+    svg.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + width + " ,0)")
+        .call(d3.axisRight(yScale2)); // Create an axis component with d3.axisLeft
 
 // 9. Append the path, bind the data, and call the line generator
     svg.append("path")
         .datum(dataset_temp) // 10. Binds data to the line
         .attr("class", "line") // Assign a class for styling
-        .attr("d", line); // 11. Calls the line generator
+        .attr("d", line_temp); // 11. Calls the line generator
+    // add another line for humidity
+    svg.append("path")
+        .datum(dataset_humidity) // 10. Binds data to the line
+        .attr("class", "line2") // Assign a class for styling
+        .attr("d", line_humid); // 11. Calls the line generator
 
 // 12. Appends a circle for each datapoint
     svg.selectAll(".dot")
