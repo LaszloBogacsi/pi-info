@@ -2,7 +2,7 @@ from repository import save, load_all, load_one, get_timerange_query
 
 
 def save_humidity(humidity_data):
-    query = 'INSERT INTO humidity(humidity, status, sensor_id, published_time) VALUES ({}, {}, {}, {})'.format(
+    query = "INSERT INTO humidity(humidity, status, sensor_id, published_time) VALUES ({}, '{}', {}, '{}')".format(
         humidity_data['humidity'], humidity_data['status'], humidity_data['sensor_id'], humidity_data['timestamp'])
     save(query)
 

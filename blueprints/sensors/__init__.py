@@ -52,6 +52,14 @@ def default_conv(o):
     return o.__dict__
 
 
+def make_minute_resolution_data(all_temp):
+    pass
+
+
+def get_data_for_resolution(param, resolution_mins):
+    pass
+
+
 @sensors.route('/sensor/data')
 def get_data():
     sensor_id = int(request.args.get('sensor_id', 100))
@@ -59,6 +67,8 @@ def get_data():
     int_id = int(sensor_id)
     sensor = get_sensor_by_id(int_id)
     all_temp = load_temperature_for(sensor, timerange)
+    resolution_mins = 30
+    get_data_for_resolution(make_minute_resolution_data(all_temp), resolution_mins)
     all_humidity = load_humidity_for(sensor, timerange)
     all_data = {"temperatures": all_temp, "humidities": all_humidity}
     json_string = json.dumps(all_data, default=default_conv)

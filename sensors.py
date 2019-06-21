@@ -18,7 +18,7 @@ class Room(Enum):
     HALL = 'hall'
 
 
-LIVING_ROOM1 = {"sensor_id": 100, "name": "Living Room 1", "location": Room.LIVING_ROOM.value, "type": SensorType.TEMPERATURE_AND_HUMIDITY}
+LIVING_ROOM1 = {"sensor_id": 100, "name": "Living Room 1", "location": Room.LIVING_ROOM.value, "type": SensorType.TEMPERATURE_AND_HUMIDITY, "sampling_rate_mins": 20}
 
 SENSORS = [LIVING_ROOM1]
 
