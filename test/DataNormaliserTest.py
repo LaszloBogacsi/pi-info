@@ -24,7 +24,7 @@ class DataNormaliserTest(unittest.TestCase):
     def test_can_interpolate_between_two_datapoints_with_microseconds(self):
         data1 = [
             Temperature( "001", 20.5, "OK", datetime.strptime("2019-06-16 10:50:30.123456", '%Y-%m-%d %H:%M:%S.%f'), 100),
-            Temperature( "001", 22.5, "OK", datetime.strptime("2019-06-16 10:52:30.456789", '%Y-%m-%d %H:%M:%S.%f'), 100),
+            Temperature( "002", 22.5, "OK", datetime.strptime("2019-06-16 10:52:30.456789", '%Y-%m-%d %H:%M:%S.%f'), 100),
         ]
 
         expected = [
@@ -41,6 +41,17 @@ class DataNormaliserTest(unittest.TestCase):
         actual = make_minute_resolution_data(data1)
         self.assertEqual(actual, expected)
 
+    def test_create_empty_datapoints_for_times_wider_than_tolerance(self):
+        data1 = [
+            Temperature( "001", 20.5, "OK", datetime.strptime("2019-06-16 10:10:30.123456", '%Y-%m-%d %H:%M:%S.%f'), 100),
+            Temperature( "002", 22.5, "OK", datetime.strptime("2019-06-16 10:42:30.456789", '%Y-%m-%d %H:%M:%S.%f'), 100),
+        ]
 
+        expected = []
+        for i in range(11, 43,):
+            padded_minute_str = str(i)
+            expected.append(Temperature( "", 0.0, "OK", datetime.strptime("2019-06-16 10:" + padded_minute_str  + ":00.000000", '%Y-%m-%d %H:%M:%S.%f'), 100))
+        actual = make_minute_resolution_data(data1)
+        self.assertEqual(actual, expected)
 if __name__ == '__main__':
     unittest.main()
