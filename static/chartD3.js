@@ -6,8 +6,11 @@ const requestInit = {
     headers: new Headers({
         'Content-Type': 'application/json'
     })
-}
-fetch("http://localhost:9080/sensor/data" + queryParams)
+};
+
+const url = "http://localhost:9080/sensor/data";
+// const url = "http://192.168.1.184:9080/sensor/data";
+fetch(url + queryParams)
     .then(response => response.json())
     .catch(error => console.log(error))
     .then(data => loadDataset(data));
