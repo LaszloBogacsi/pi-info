@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime
 
 from Temperature import Temperature
-from data.data_normaliser import make_minute_resolution_data
+from data.data_normaliser import make_minute_resolution_data, get_data_for_resolution
 
 
 class DataNormaliserTest(unittest.TestCase):
@@ -53,5 +53,21 @@ class DataNormaliserTest(unittest.TestCase):
             expected.append(Temperature( "", 0.0, "OK", datetime.strptime("2019-06-16 10:" + padded_minute_str  + ":00.000000", '%Y-%m-%d %H:%M:%S.%f'), 100))
         actual = make_minute_resolution_data(data1)
         self.assertEqual(actual, expected)
+
+    def test_can_create_data_for_selected_resolution(self):
+        minute_data = [
+            Temperature( "", 21.0, "OK", datetime.strptime("2019-06-16 10:35:00.000000", '%Y-%m-%d %H:%M:%S.%f'), 100),
+            Temperature( "", 23.0, "OK", datetime.strptime("2019-06-16 10:55:00.000000", '%Y-%m-%d %H:%M:%S.%f'), 100),
+            Temperature( "", 23.0, "OK", datetime.strptime("2019-06-16 11:10:00.000000", '%Y-%m-%d %H:%M:%S.%f'), 100),
+            Temperature( "", 24.0, "OK", datetime.strptime("2019-06-16 11:15:00.000000", '%Y-%m-%d %H:%M:%S.%f'), 100)
+        ]
+        expected = [
+            {datetime.strptime("2019-06-16 10:30:00.000000", '%Y-%m-%d %H:%M:%S.%f'): Temperature( "", 22.0, "OK", datetime.strptime("2019-06-16 10:30:00.000000", '%Y-%m-%d %H:%M:%S.%f'), 100)},
+            {datetime.strptime("2019-06-16 11:00:00.000000", '%Y-%m-%d %H:%M:%S.%f'): Temperature( "", 23.5, "OK", datetime.strptime("2019-06-16 11:00:00.000000", '%Y-%m-%d %H:%M:%S.%f'), 100)},
+        ]
+        actual = get_data_for_resolution(minute_data, 30)
+        self.assertEqual(actual, expected)
+
+
 if __name__ == '__main__':
     unittest.main()
