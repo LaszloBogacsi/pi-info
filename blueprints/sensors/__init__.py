@@ -5,10 +5,10 @@ from datetime import datetime
 from flask import Blueprint, render_template, abort, request, make_response
 from jinja2 import TemplateNotFound
 
-from humidity_repository import load_humidity_for
+from data.data_normaliser import get_data_for_resolution, make_minute_resolution_data
+from sensor_data_repository import load_sensor_data_for
 from sensors import SENSORS, get_sensor_by_id
 from statusbar import refresh_statusbar
-from temperature_repository import load_all_temperature, load_temperature_for
 
 sensors = Blueprint('sensors', __name__,
                     template_folder='templates')
@@ -35,10 +35,10 @@ def show_sensor():
         else:
             int_id = int(sensor_id)
             sensor = get_sensor_by_id(int_id)
-        if sensor is not None:
-            sensor_temperature = load_temperature_for(sensor, timerange)
+        # if sensor is not None:
+            # sensor_temperature = next(value.values for value in load_sensor_data_for(sensor, timerange) if value["type"] == "temperature")["value"]
         statusbar = refresh_statusbar()
-        return render_template('sensor/index.html', active='sensors',sensor=sensor, temperatures=sensor_temperature, statusbar=statusbar)
+        return render_template('sensor/index.html', active='sensors',sensor=sensor, statusbar=statusbar)
     except TemplateNotFound:
         abort(404)
 
@@ -51,19 +51,32 @@ def default_conv(o):
         return float(dec)
     return o.__dict__
 
+
+def datetime_key_fix(o):
+    if isinstance(o, dict):
+        for key in o:
+            o[key] = datetime_key_fix(o[key])
+            if type(key) is datetime:
+                o[key.isoformat()] = o[key]
+                del o[key]
+    return o
+
+
+
+
 @sensors.route('/sensor/data')
 def get_data():
     sensor_id = int(request.args.get('sensor_id', 100))
     timerange = request.args.get('timerange', 'today')
     int_id = int(sensor_id)
     sensor = get_sensor_by_id(int_id)
-    all_temp = load_temperature_for(sensor, timerange)
+    all_sensor_data = load_sensor_data_for(sensor, timerange)
 
     resolution_mins = 30
-    # get_data_for_resolution(make_minute_resolution_data(all_temp), resolution_mins)
+    all_sensor_data_by_resolution = get_data_for_resolution(make_minute_resolution_data(all_sensor_data), resolution_mins)
+    outbound_all_sensor_data_by_resolution = list(map(lambda d: datetime_key_fix(d), all_sensor_data_by_resolution))
+    all_data = {"sensor_data": outbound_all_sensor_data_by_resolution}
 
-    all_humidity = load_humidity_for(sensor, timerange)
-    all_data = {"temperatures": all_temp, "humidities": all_humidity}
     json_string = json.dumps(all_data, default=default_conv)
     response = make_response(json_string)
     response.headers['Access-Control-Allow-Origin'] = '*'

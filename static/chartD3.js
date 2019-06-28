@@ -17,8 +17,8 @@ fetch(url + queryParams)
 
 function loadDataset(data) {
     console.log("here");
-    const dataset_temp = data.temperatures.map(d => d.temperature);
-    const dataset_humidity = data.humidities.map(d => d.humidity);
+    const dataset_temp = data.temperatures.map(d => d.data.value);
+    const dataset_humidity = data.humidities.map(d => d.data.value);
 
 
 // 2. Use the margin convention practice

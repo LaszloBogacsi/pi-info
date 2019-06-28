@@ -1,9 +1,9 @@
-import paho.mqtt.client as mqtt
 import json
 from datetime import datetime
 
-from humidity_repository import save_humidity
-from temperature_repository import save_temperature
+import paho.mqtt.client as mqtt
+
+from sensor_data_repository import save_sensor_data
 
 
 class MqttClient:
@@ -35,15 +35,17 @@ class MqttClient:
         json_message = json.loads(message.payload)
         json_message["timestamp"] = str(datetime.now())
         json_message["topic_origin"] = message.topic
-        save_temperature({"timestamp": json_message['timestamp'],
-                          "temperature": json_message['temperature'],
-                          "status": json_message['status'],
-                          "sensor_id": json_message['sensor_id']})
-        save_humidity({"timestamp": json_message['timestamp'],
-                       "humidity": json_message['humidity'],
-                       "status": json_message['status'],
-                       "sensor_id": json_message['sensor_id']})
+        save_sensor_data(self.get_message(json_message))
 
         print(json_message)
         self.latest_message = json_message
         client.publish(self.topic2, str(json_message))
+
+    def get_message(self, message):
+        return {"timestamp": message['timestamp'],
+                "values" : [
+                    {"type": "temperature", "value":  message['temperature']},
+                    {"type": "humidity", "value":  message['humidity']}
+                ],
+                "status": message['status'],
+                "sensor_id": message['sensor_id']}

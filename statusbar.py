@@ -2,8 +2,8 @@ import math
 from datetime import datetime
 
 from openweather import get_current_weather_info
-from temperature_repository import load_current_temperature
-from tfl_tube_status import get_current_tube_status, Tube, central
+from sensor_data_repository import load_current_sensor_data
+from tfl_tube_status import get_current_tube_status, central
 
 
 def refresh_statusbar():
@@ -25,13 +25,14 @@ def refresh_if_necessary():
 
 
 def reload_data():
-    current_temperature = load_current_temperature()
+    current_sensor_data = load_current_sensor_data()
+    current_temperature = next(value for value in current_sensor_data.values if value["type"] == "temperature")["value"]
     current_weather = get_current_weather_info()
     central_line_status = get_current_tube_status(central)[0]
     statusbar_data = {
         "current_temperature": {
-            "indoor": current_temperature.temperature,
-            "since": convert_to_ago(current_temperature.published_time)
+            "indoor": current_temperature,
+            "since": convert_to_ago(current_sensor_data.published_time)
         },
         "current_weather": {
             "temp": current_weather.temperature,
