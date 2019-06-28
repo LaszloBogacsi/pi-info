@@ -62,8 +62,6 @@ def datetime_key_fix(o):
     return o
 
 
-
-
 @sensors.route('/sensor/data')
 def get_data():
     sensor_id = int(request.args.get('sensor_id', 100))

@@ -87,7 +87,7 @@ def get_data_for_resolution(minute_data, resolution_mins):
 
             def get_average_by_type(value):
                 data_type = value["type"]
-                return {"type": data_type, "value": sum(list(map(lambda b: next(item for item in b.values if item["type"] == data_type)["value"], sensor_datas))) / len(sensor_datas)}
+                return {"type": data_type, "value": decimal.Decimal((sum(list(map(lambda b: next(item for item in b.values if item["type"] == data_type)["value"], sensor_datas))) / len(sensor_datas)).quantize(decimal.Decimal('.01'), rounding=decimal.ROUND_HALF_UP))}
 
             values = list(map(get_average_by_type, a_data.values))
             averaged_data.append({"published_at": time, "data": SensorData(values, a_data.sensor_status, time, a_data.sensor_id)})
