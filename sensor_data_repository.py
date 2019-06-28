@@ -20,7 +20,7 @@ def load_current_sensor_data() -> SensorData:
 
 def load_sensor_data_for(sensor, timerange) -> [SensorData]:
     timerange_query = get_timerange_query(timerange)
-    sql = 'SELECT * FROM sensor_data WHERE sensor_id={}{}'.format(sensor["sensor_id"], timerange_query)
+    sql = 'SELECT * FROM sensor_data WHERE sensor_id={}{} ORDER BY published_time'.format(sensor["sensor_id"], timerange_query)
     return load_all(sql, cast_sensor_data)
 
 
