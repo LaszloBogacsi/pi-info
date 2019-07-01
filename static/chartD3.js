@@ -16,27 +16,28 @@ fetch(url + queryParams)
     .then(data => loadDataset(data));
 
 function loadDataset(data) {
-    console.log("here");
     const dataset_temp = data.sensor_data.map(d => d.data.values.filter(v => v.type === "temperature")[0].value);
     const dataset_humidity = data.sensor_data.map(d => d.data.values.filter(v => v.type === "humidity")[0].value);
-
-
+    const timeScale = data.sensor_data
+        .map(d => d.published_at)
+        .map(dateStr => d3.timeParse("%Y-%m-%dT%H:%M:%S")(dateStr));
+    const dataXRange = d3.extent(timeScale);
 // 2. Use the margin convention practice
     const margin = {top: 50, right: 50, bottom: 50, left: 50}
         , width = (window.innerWidth - margin.left - margin.right) * 0.9 // Use the window's width
-        , height = window.innerHeight - margin.top - margin.bottom; // Use the window's height
+        , height = (window.innerHeight - margin.top - margin.bottom) * 0.9; // Use the window's height
 
     const n = dataset_temp.length;
 
-    const xScale = d3.scaleLinear().domain([0, n - 1]).range([0, width]);
+    const xScale = d3.scaleTime().domain(dataXRange).range([0, width]);
     const yScale = d3.scaleLinear().domain([0, 40]).range([height, 0]);
     const yScale2 = d3.scaleLinear().domain([0, 100]).range([height, 0]);
     const line_temp = d3.line()
-        .x((d, i) =>  xScale(i)) // set the x values for the line generator
+        .x((d, i) =>  xScale(timeScale[i])) // set the x values for the line generator
         .y(d => yScale(d)) // set the y values for the line generator
         .curve(d3.curveMonotoneX); // apply smoothing to the line
- const line_humid = d3.line()
-        .x((d, i)  => xScale(i)) // set the x values for the line generator
+    const line_humid = d3.line()
+        .x((d, i)  => xScale(timeScale[i])) // set the x values for the line generator
         .y(d => yScale2(d)) // set the y values for the line generator
         .curve(d3.curveMonotoneX); // apply smoothing to the line
 
@@ -80,7 +81,7 @@ function loadDataset(data) {
         .enter().append("circle") // Uses the enter().append() method
         .attr("class", "dot") // Assign a class for styling
         .attr("cx", function (d, i) {
-            return xScale(i)
+            return xScale(timeScale[i])
         })
         .attr("cy", function (d) {
             return yScale(d)

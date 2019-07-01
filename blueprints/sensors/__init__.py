@@ -66,11 +66,17 @@ def datetime_key_fix(o):
 def get_data():
     sensor_id = int(request.args.get('sensor_id', 100))
     timerange = request.args.get('timerange', 'today')
+    timerange_resolution_mins = {
+        "today": 30, # every 30 mins, 48 datapoints
+        "week": 360, # every 6 hours, 28 datapoints
+        "month": 1440, # every 1 day, 28-31 datapoints
+        "year": 10080 # every week, 52 datapoints
+    }
     int_id = int(sensor_id)
     sensor = get_sensor_by_id(int_id)
     all_sensor_data = load_sensor_data_for(sensor, timerange)
 
-    resolution_mins = 30
+    resolution_mins = timerange_resolution_mins.get(timerange)
     all_sensor_data_by_resolution = get_data_for_resolution(make_minute_resolution_data(all_sensor_data), resolution_mins)
     outbound_all_sensor_data_by_resolution = list(map(lambda d: datetime_key_fix(d), all_sensor_data_by_resolution))
     all_data = {"sensor_data": outbound_all_sensor_data_by_resolution}
@@ -79,3 +85,4 @@ def get_data():
     response = make_response(json_string)
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
+

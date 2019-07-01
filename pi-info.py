@@ -31,24 +31,6 @@ def init_db(database_config):
 
     create_tables = (
         """
-    CREATE TABLE IF NOT EXISTS temperature (
-    temprature_id SERIAL PRIMARY KEY,
-    temperature DECIMAL,
-    status varchar(20),
-    sensor_id INTEGER,
-    published_time TIMESTAMP
-     )
-    """,
-        """
-    CREATE TABLE IF NOT EXISTS humidity (
-    humidity_id SERIAL PRIMARY KEY,
-    humidity DECIMAL,
-    status varchar(20),
-    sensor_id INTEGER,
-    published_time TIMESTAMP
-    )
-    """,
-        """
     CREATE TABLE IF NOT EXISTS sensor_data (
     sensor_data_id SERIAL PRIMARY KEY,
     type1 varchar(20),

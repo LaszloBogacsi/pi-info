@@ -1,8 +1,6 @@
 import json
-from datetime import datetime
-
 import paho.mqtt.client as mqtt
-
+from datetime import datetime
 from sensor_data_repository import save_sensor_data
 
 
