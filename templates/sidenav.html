@@ -10,8 +10,8 @@
             <i class="{% if active == 'sensors' %}teal{% endif %} thermometer icon"></i>
             SENSORS
         </a>
-        <a class="item">
-            <i class="lightbulb outline icon"></i>
+        <a class="item {% if active == 'lights' %}active {% endif %}" href="{{ url_for('lights.show_lights') }}">
+            <i class="{% if active == 'lights' %}teal{% endif %} lightbulb outline icon"></i>
             LIGHTS
         </a>
         <a class="item">

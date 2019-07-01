@@ -12,10 +12,12 @@ class MqttClient:
         self.latest_message = ""
 
         client = mqtt.Client()
+        self.client = client
         # localhost = "localhost"
         host_on_pi = "192.168.1.205"
         client.on_connect = self.on_connect
         client.on_message = self.on_message
+        client.on_publish = self.on_publish
         client.username_pw_set("lbhautmqttuser", "Q$L#s#$SXv^U=?5S8XrE")
         client.connect(host)
         client.loop_start()
@@ -38,6 +40,12 @@ class MqttClient:
         print(json_message)
         self.latest_message = json_message
         client.publish(self.topic2, str(json_message))
+
+    def on_publish(self, client, userdata, mid):
+        print(mid)
+
+    def publish(self, topic, payload):
+        self.client.publish(topic=topic, payload=payload)
 
     def get_message(self, message):
         return {"timestamp": message['timestamp'],

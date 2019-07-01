@@ -1,0 +1,49 @@
+{% extends 'layout.html' %}
+{% block content %}
+    {% macro clickableButton(href='#', active='', btnText='', iconType='') %}
+        <a class="ui button {{ active }}" href="{{ href }}">
+            <i class="{{ iconType }}"></i>
+            {{ btnText }}
+        </a>
+    {% endmacro %}
+    <div class="ui one column grid">
+        <div class="column center aligned">
+            <div class="ui buttons">
+                {{ clickableButton(href='', active='active', btnText='STATUS') }}
+                {{ clickableButton(href='', iconType='list icon', btnText='LIST') }}
+                {{ clickableButton(href='', iconType='chart bar icon', btnText='GRAPH') }}
+            </div>
+        </div>
+    </div>
+
+    <div class="ui five column padded grid">
+        {% for light in lights %}
+            <div class="column">
+
+                <div class="ui green card">
+                    <a class="ui button" href="{{ url_for('lights.light_status', light_id=light.light_id, status=light.current_status.value) }}">
+
+                    <div class="center aligned image">
+                        <i class="massive {% if light.current_status.value == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
+                    </div>
+                    </a>
+                    <div class="content">
+                        <a class="header">{{ light.name }}</a>
+                        <div class="meta">
+                            <span class="date">Joined in 2013</span>
+                        </div>
+                        <div class="description">
+                            {{ light.location }}
+                        </div>
+                    </div>
+                    <div class="extra content">
+                        <a>
+                            <i class="user icon"></i>
+                            22 Friends
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

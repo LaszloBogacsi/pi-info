@@ -1,6 +1,7 @@
 from applicationConfig import Config
 
 Config('config.ini')
+from blueprints.lights import lights, set_message_client
 
 import psycopg2
 from flask import Flask
@@ -12,12 +13,14 @@ from MqttClient import MqttClient
 
 app = Flask(__name__)
 app.register_blueprint(home)
+app.register_blueprint(lights)
 app.register_blueprint(sensors)
 app.register_blueprint(tube_status)
 
 mqtt_config = Config.get_mqtt_config()
 mqttClient = MqttClient(Credentials(mqtt_config['MQTT_USERNAME'], mqtt_config['MQTT_PASSWORD']),
                         mqtt_config['MQTT_HOST'])
+set_message_client(mqttClient)
 
 
 def init_db(database_config):
