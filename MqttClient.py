@@ -19,8 +19,11 @@ class MqttClient:
         client.on_message = self.on_message
         client.on_publish = self.on_publish
         client.username_pw_set("lbhautmqttuser", "Q$L#s#$SXv^U=?5S8XrE")
-        client.connect(host)
-        client.loop_start()
+        try:
+            client.connect(host)
+            client.loop_start()
+        except:
+            print("connection to mqtt client on " + host + " has failed")
 
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:

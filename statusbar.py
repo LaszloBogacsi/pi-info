@@ -26,7 +26,8 @@ def refresh_if_necessary():
 
 def reload_data():
     current_sensor_data = load_current_sensor_data()
-    current_temperature = next(value for value in current_sensor_data.values if value["type"] == "temperature")["value"]
+    data_row = next((value for value in current_sensor_data.values if value["type"] == "temperature"), None) if current_sensor_data is not None else None
+    current_temperature = data_row["value"] if data_row is not None else "N/A"
     current_weather = get_current_weather_info()
     central_line_status = get_current_tube_status(central)[0]
     statusbar_data = {
