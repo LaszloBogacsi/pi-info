@@ -28,8 +28,12 @@ def create_current_weather(data):
     return CurrentWeather(main=w["main"], description=w["description"], icon=w["icon"], temperature=m["temp"])
 
 
-def get_current_weather_info():
-    with request.urlopen(url=url) as response:
-        data = response.read()
-        json_weather_data = json.loads(data)
-        return create_current_weather(json_weather_data)
+def get_current_weather_info() -> [CurrentWeather]:
+    try:
+        with request.urlopen(url=url) as response:
+            data = response.read()
+            json_weather_data = json.loads(data)
+            return create_current_weather(json_weather_data)
+    except:
+        print("could not connect to openweather api")
+        return None

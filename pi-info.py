@@ -17,12 +17,14 @@ app.register_blueprint(lights)
 app.register_blueprint(sensors)
 app.register_blueprint(tube_status)
 
+mqttClient = None
 in_stub_mode = True
 if not in_stub_mode:
     mqtt_config = Config.get_mqtt_config()
     mqttClient = MqttClient(Credentials(mqtt_config['MQTT_USERNAME'], mqtt_config['MQTT_PASSWORD']),
                         mqtt_config['MQTT_HOST'])
-    set_message_client(mqttClient)
+
+set_message_client(mqttClient)
 
 
 def init_db(database_config):

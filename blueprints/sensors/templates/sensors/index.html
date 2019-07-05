@@ -22,7 +22,7 @@
                 <a href="{{ url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='today') }}">
                     <div class="ui green card">
                         <div class="center aligned image">
-                            <i class="massive thermometer icon"></i>
+                            <img src="{{ url_for('static', filename='temperature.svg') }}">
                         </div>
                         <div class="content">
                             <a class="header">{{ sensor.name }}</a>

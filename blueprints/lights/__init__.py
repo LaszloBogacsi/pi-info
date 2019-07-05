@@ -40,6 +40,13 @@ def show_lights(page):
         abort(404)
 
 
+def publish(topic, payload):
+    if client is not None:
+        client.publish(topic=topic, payload=payload)
+    else:
+        print("can not publish message")
+
+
 @lights.route('/lights/light')
 def light_status():
     light_id = request.args.get('light_id', "1")
@@ -47,5 +54,5 @@ def light_status():
     status = "ON" if status == "OFF" else "OFF"
     payload = "{\"status\":\"" + status + "\",\"relay_id\":\"" + light_id + "\"}"
     topic = "switch/relay"
-    client.publish(topic=topic, payload=payload)
+    publish(topic, payload)
     return redirect(url_for('lights.show_lights', status=status, light_id=light_id))

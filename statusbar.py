@@ -24,22 +24,43 @@ def refresh_if_necessary():
     return statusbar_data_cache
 
 
+def get_current_sensor_data(data):
+    data_row = next((value for value in data.values if value["type"] == "temperature"), None) if data is not None else None
+    current_temp = data_row["value"] if data_row is not None else "N/A"
+    time = convert_to_ago(data_row["published_time"]) if data_row is not None else "N/A"
+    return {
+        "current_temp": current_temp,
+        "time": time
+    }
+
+
+def get_current_weather(data):
+    temp = data.temperature if data is not None else "N/A"
+    main = data.main if data is not None else "N/A"
+    description = data.description if data is not None else "N/A"
+    sym_url = data.icon if data is not None else ""
+    return {
+        "temp": temp,
+        "main": main,
+        "description": description,
+        "symbol_url": "http://openweathermap.org/img/w/" + sym_url + ".png"
+    }
+
+
 def reload_data():
-    current_sensor_data = load_current_sensor_data()
-    data_row = next((value for value in current_sensor_data.values if value["type"] == "temperature"), None) if current_sensor_data is not None else None
-    current_temperature = data_row["value"] if data_row is not None else "N/A"
-    current_weather = get_current_weather_info()
+    current_sensor_data = get_current_sensor_data(load_current_sensor_data())
+    current_weather = get_current_weather(get_current_weather_info())
     central_line_status = get_current_tube_status(central)[0]
     statusbar_data = {
         "current_temperature": {
-            "indoor": current_temperature,
-            "since": convert_to_ago(current_sensor_data.published_time)
+            "indoor": current_sensor_data["current_temp"],
+            "since": current_sensor_data["time"]
         },
         "current_weather": {
-            "temp": current_weather.temperature,
-            "main": current_weather.main,
-            "description": current_weather.description,
-            "symbol_url": "http://openweathermap.org/img/w/" + current_weather.icon + ".png"
+            "temp": current_weather["temp"],
+            "main": current_weather["main"],
+            "description": current_weather["description"],
+            "symbol_url": current_weather["symbol_url"]
         },
         "tube_status": {
             "line_name": central_line_status.tube_line.name,
