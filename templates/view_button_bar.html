@@ -1,0 +1,12 @@
+{% macro clickableButton(href='#', active='', btnText='', iconType='') %}
+    <a class="ui button {{ active }}" href="{{ href }}">
+        <i class="{{ iconType }}"></i>
+        {{ btnText }}
+    </a>
+{% endmacro %}
+
+<div class="ui buttons">
+    {{ clickableButton(href=url_for('sensors.show_sensors', page='status'), active='active' if selected == 'status' else '', btnText='STATUS') }}
+    {{ clickableButton(href=url_for('sensors.show_sensors', page='list'),  active='active' if selected == 'list' else '', iconType='list icon', btnText='LIST') }}
+    {{ clickableButton(href='', iconType='chart bar icon', active='active' if selected == 'graph' else '', btnText='GRAPH') }}
+</div>

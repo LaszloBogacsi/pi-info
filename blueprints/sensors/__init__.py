@@ -14,12 +14,12 @@ sensors = Blueprint('sensors', __name__,
                     template_folder='templates')
 
 
-@sensors.route('/sensors', defaults={'page': 'index'})
+@sensors.route('/sensors', defaults={'page': 'status'})
 @sensors.route('/sensors/<page>', methods=['GET'])
 def show_sensors(page):
     try:
         statusbar = refresh_statusbar()
-        return render_template('sensors/%s.html' % page, active='sensors', sensors=SENSORS, statusbar=statusbar)
+        return render_template('sensors/%s.html' % page, active='sensors', sensors=SENSORS, statusbar=statusbar, selected=page)
     except TemplateNotFound:
         abort(404)
 

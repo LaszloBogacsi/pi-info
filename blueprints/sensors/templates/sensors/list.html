@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="ui one column grid">
+    <div class="column center aligned">
+        {% include "view_button_bar.html" %}
+    </div>
+</div>
+
+
+<table class="ui celled selectable table">
+    <thead>
+    <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Location</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for sensor in sensors %}
+    <tr>
+        <a href="{{ url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='today') }}">
+            <td data-label="Type"><i class="thermometer icon"></i></td>
+            <td data-label="Name">{{ sensor.name }}</td>
+            <td data-label="Location">{{ sensor.location }}</td>
+        </a>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
