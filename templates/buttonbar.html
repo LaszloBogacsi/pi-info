@@ -6,9 +6,9 @@
 {% endmacro %}
 
 <div class="ui buttons">
-    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='today'), active='active', btnText='TODAY') }}
-    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='week'), btnText='WEEK') }}
-    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='month'), btnText='MONTH') }}
-    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='year'), btnText='YEAR') }}
-    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='all'), btnText='ALL') }}
+    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='today'), active='active' if selected == 'today' else '', btnText='TODAY') }}
+    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='week'), active='active' if selected == 'week' else '', btnText='WEEK') }}
+    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='month'), active='active' if selected == 'month' else '', btnText='MONTH') }}
+    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='year'), active='active' if selected == 'year' else '', btnText='YEAR') }}
+    {{ clickableButton(href=url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='all'), active='active' if selected == 'all' else '', btnText='ALL') }}
 </div>

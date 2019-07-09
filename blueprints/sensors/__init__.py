@@ -38,7 +38,7 @@ def show_sensor():
         # if sensor is not None:
             # sensor_temperature = next(value.values for value in load_sensor_data_for(sensor, timerange) if value["type"] == "temperature")["value"]
         statusbar = refresh_statusbar()
-        return render_template('sensor/index.html', active='sensors',sensor=sensor, statusbar=statusbar)
+        return render_template('sensor/index.html', active='sensors',sensor=sensor, statusbar=statusbar, selected=timerange)
     except TemplateNotFound:
         abort(404)
 
