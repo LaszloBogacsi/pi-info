@@ -1,5 +1,4 @@
 from applicationConfig import Config
-
 Config('config.ini')
 from blueprints.lights import lights, set_message_client
 
@@ -9,6 +8,7 @@ from Credentials import Credentials
 from blueprints.home import home
 from blueprints.sensors import sensors
 from blueprints.tube_status import tube_status
+from blueprints.rooms import rooms
 from MqttClient import MqttClient
 
 app = Flask(__name__)
@@ -16,6 +16,7 @@ app.register_blueprint(home)
 app.register_blueprint(lights)
 app.register_blueprint(sensors)
 app.register_blueprint(tube_status)
+app.register_blueprint(rooms)
 
 mqttClient = None
 in_stub_mode = True

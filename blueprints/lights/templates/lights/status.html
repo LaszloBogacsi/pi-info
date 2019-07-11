@@ -8,11 +8,7 @@
     {% endmacro %}
     <div class="ui one column grid">
         <div class="column center aligned">
-            <div class="ui buttons">
-                {{ clickableButton(href='', active='active', btnText='STATUS') }}
-                {{ clickableButton(href='', iconType='list icon', btnText='LIST') }}
-                {{ clickableButton(href='', iconType='chart bar icon', btnText='GRAPH') }}
-            </div>
+            {% include "view_button_bar.html" %}
         </div>
     </div>
 

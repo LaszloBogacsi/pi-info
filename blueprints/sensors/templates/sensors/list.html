@@ -5,7 +5,11 @@
         {% include "view_button_bar.html" %}
     </div>
 </div>
-
+<script>
+    function rowClickHandler(url) {
+        window.location = url;
+    }
+</script>
 
 <table class="ui celled selectable table">
     <thead>
@@ -17,14 +21,13 @@
     </thead>
     <tbody>
     {% for sensor in sensors %}
-    <tr>
-        <a href="{{ url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='today') }}">
-            <td data-label="Type"><i class="thermometer icon"></i></td>
-            <td data-label="Name">{{ sensor.name }}</td>
-            <td data-label="Location">{{ sensor.location }}</td>
-        </a>
+    <tr onclick=rowClickHandler("{{url_for('sensors.show_sensor',sensor_id=sensor.sensor_id,timerange='today')}}")>
+        <td data-label="Type"><i class="thermometer icon"></i></td>
+        <td data-label="Name">{{ sensor.name }}</td>
+        <td data-label="Location">{{ sensor.location }}</td>
     </tr>
     {% endfor %}
     </tbody>
 </table>
 {% endblock %}
+

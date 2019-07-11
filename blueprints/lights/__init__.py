@@ -1,9 +1,9 @@
-from enum import Enum
-
-from flask import Blueprint, render_template, abort, request, redirect, url_for, json
+from flask import Blueprint, render_template, abort, request, redirect, url_for
 from jinja2 import TemplateNotFound
-from sensors import Room
+
+from lights import LIGHTS, LightStatus
 from statusbar import refresh_statusbar
+
 lights = Blueprint('lights', __name__,
                   template_folder='templates')
 client = None
@@ -14,19 +14,14 @@ def set_message_client(c):
     client = c
 
 
-class LightType(Enum):
-    TABLE_LAMP = 'table_lamp'
+def get_buttons(selected):
+    status_button = {"url": url_for('lights.show_lights', page='status'), "active_status": 'active' if selected == 'status' else '', "icon_type": '', "button_text": "STATUS"}
+    list_button = {"url": url_for('lights.show_lights', page='list'), "active_status": 'active' if selected == 'list' else '', "icon_type": 'list icon', "button_text": "LIST"}
+    graph_button = {"url": url_for('lights.show_lights', page='graph'), "active_status": 'active' if selected == 'graph' else '', "icon_type": 'chart bar icon', "button_text": "GRAPH"}
+    return [status_button, list_button, graph_button]
 
 
-class LightStatus(Enum):
-    ON = 'ON'
-    OFF = 'OFF'
-
-light1 = {"light_id": "1", "name": "Light 1", "location": Room.LIVING_ROOM.value, "type": LightType.TABLE_LAMP, "current_status": LightStatus.OFF}
-light2 = {"light_id": "2", "name": "Light 2", "location": Room.LIVING_ROOM.value, "type": LightType.TABLE_LAMP, "current_status": LightStatus.OFF}
-LIGHTS = [light1, light2]
-
-@lights.route('/lights', defaults={'page': 'index'})
+@lights.route('/lights', defaults={'page': 'status'})
 @lights.route('/lights/<page>', methods=['GET'])
 def show_lights(page):
     light_id = request.args.get('light_id', None)
@@ -35,7 +30,8 @@ def show_lights(page):
         next(light for light in LIGHTS if light["light_id"] == light_id)["current_status"] = LightStatus(status)
     try:
         statusbar = refresh_statusbar()
-        return render_template('lights/%s.html' % page, active='lights', lights=LIGHTS, statusbar=statusbar)
+        buttons = get_buttons(selected=page)
+        return render_template('lights/%s.html' % page, active='lights', lights=LIGHTS, statusbar=statusbar, buttons=buttons)
     except TemplateNotFound:
         abort(404)
 
@@ -47,12 +43,15 @@ def publish(topic, payload):
         print("can not publish message")
 
 
-@lights.route('/lights/light')
-def light_status():
+@lights.route('/lights/light', defaults={'page': ''})
+@lights.route('/lights/light/<page>')
+def light_status(page):
     light_id = request.args.get('light_id', "1")
     status = request.args.get('status', 'OFF')
     status = "ON" if status == "OFF" else "OFF"
     payload = "{\"status\":\"" + status + "\",\"relay_id\":\"" + light_id + "\"}"
     topic = "switch/relay"
     publish(topic, payload)
+    if page == 'list':
+        return redirect(url_for('lights.show_lights', page='list', status=status, light_id=light_id))
     return redirect(url_for('lights.show_lights', status=status, light_id=light_id))

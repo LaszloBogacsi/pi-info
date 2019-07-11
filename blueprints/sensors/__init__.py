@@ -2,7 +2,7 @@ import decimal
 import json
 from datetime import datetime
 
-from flask import Blueprint, render_template, abort, request, make_response
+from flask import Blueprint, render_template, abort, request, make_response, url_for
 from jinja2 import TemplateNotFound
 
 from data.data_normaliser import get_data_for_resolution, make_minute_resolution_data
@@ -19,7 +19,8 @@ sensors = Blueprint('sensors', __name__,
 def show_sensors(page):
     try:
         statusbar = refresh_statusbar()
-        return render_template('sensors/%s.html' % page, active='sensors', sensors=SENSORS, statusbar=statusbar, selected=page)
+        buttons = get_buttons(selected=page)
+        return render_template('sensors/%s.html' % page, active='sensors', sensors=SENSORS, statusbar=statusbar, buttons=buttons)
     except TemplateNotFound:
         abort(404)
 
@@ -35,12 +36,20 @@ def show_sensor():
         else:
             int_id = int(sensor_id)
             sensor = get_sensor_by_id(int_id)
-        # if sensor is not None:
-            # sensor_temperature = next(value.values for value in load_sensor_data_for(sensor, timerange) if value["type"] == "temperature")["value"]
         statusbar = refresh_statusbar()
-        return render_template('sensor/index.html', active='sensors',sensor=sensor, statusbar=statusbar, selected=timerange)
+        return render_template('sensor/index.html', active='sensors', sensor=sensor, statusbar=statusbar, selected=timerange)
     except TemplateNotFound:
         abort(404)
+
+
+def get_buttons(selected):
+    status_button = {"url": url_for('sensors.show_sensors', page='status'), "active_status": 'active' if selected == 'status' else '', "icon_type": '',
+                     "button_text": "STATUS"}
+    list_button = {"url": url_for('sensors.show_sensors', page='list'), "active_status": 'active' if selected == 'list' else '', "icon_type": 'list icon',
+                   "button_text": "LIST"}
+    graph_button = {"url": url_for('sensors.show_sensors', page='graph'), "active_status": 'active' if selected == 'graph' else '', "icon_type": 'chart bar icon',
+                    "button_text": "GRAPH"}
+    return [status_button, list_button, graph_button]
 
 
 def default_conv(o):
@@ -67,10 +76,10 @@ def get_data():
     sensor_id = int(request.args.get('sensor_id', 100))
     timerange = request.args.get('timerange', 'today')
     timerange_resolution_mins = {
-        "today": 30, # every 30 mins, 48 datapoints
-        "week": 360, # every 6 hours, 28 datapoints
-        "month": 1440, # every 1 day, 28-31 datapoints
-        "year": 10080 # every week, 52 datapoints
+        "today": 30,  # every 30 mins, 48 datapoints
+        "week": 360,  # every 6 hours, 28 datapoints
+        "month": 1440,  # every 1 day, 28-31 datapoints
+        "year": 10080  # every week, 52 datapoints
     }
     int_id = int(sensor_id)
     sensor = get_sensor_by_id(int_id)
@@ -85,4 +94,3 @@ def get_data():
     response = make_response(json_string)
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
-
