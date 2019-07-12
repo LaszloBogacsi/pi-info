@@ -1,5 +1,10 @@
+in_stub_mode = True
+
 from applicationConfig import Config
-Config('config.ini')
+if in_stub_mode:
+    Config('config_dev.ini')
+else:
+    Config('config.ini')
 from blueprints.lights import lights, set_message_client
 
 import psycopg2
@@ -19,7 +24,6 @@ app.register_blueprint(tube_status)
 app.register_blueprint(rooms)
 
 mqttClient = None
-in_stub_mode = True
 if not in_stub_mode:
     mqtt_config = Config.get_mqtt_config()
     mqttClient = MqttClient(Credentials(mqtt_config['MQTT_USERNAME'], mqtt_config['MQTT_PASSWORD']),

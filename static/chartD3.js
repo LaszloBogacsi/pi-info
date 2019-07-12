@@ -30,7 +30,7 @@ function loadDataset(data) {
     const n = dataset_temp.length;
 
     const xScale = d3.scaleTime().domain(dataXRange).range([0, width]);
-    const yScale = d3.scaleLinear().domain([0, 40]).range([height, 0]);
+    const yScale = d3.scaleLinear().domain([-10, 40]).range([height, 0]);
     const yScale2 = d3.scaleLinear().domain([0, 100]).range([height, 0]);
     const line_temp = d3.line()
         .x((d, i) =>  xScale(timeScale[i])) // set the x values for the line generator

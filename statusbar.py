@@ -27,7 +27,7 @@ def refresh_if_necessary():
 def get_current_sensor_data(data):
     data_row = next((value for value in data.values if value["type"] == "temperature"), None) if data is not None else None
     current_temp = data_row["value"] if data_row is not None else "N/A"
-    time = convert_to_ago(data_row["published_time"]) if data_row is not None else "N/A"
+    time = convert_to_ago(data.published_time) if data_row is not None else "N/A"
     return {
         "current_temp": current_temp,
         "time": time
