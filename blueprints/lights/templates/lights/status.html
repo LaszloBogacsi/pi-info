@@ -1,11 +1,5 @@
 {% extends 'layout.html' %}
 {% block content %}
-    {% macro clickableButton(href='#', active='', btnText='', iconType='') %}
-        <a class="ui button {{ active }}" href="{{ href }}">
-            <i class="{{ iconType }}"></i>
-            {{ btnText }}
-        </a>
-    {% endmacro %}
     <div class="ui one column grid">
         <div class="column center aligned">
             {% include "view_button_bar.html" %}

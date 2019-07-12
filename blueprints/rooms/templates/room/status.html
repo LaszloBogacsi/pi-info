@@ -7,9 +7,21 @@
 </div>
 <h1>{{room}}</h1>
 {% for thing in things %}
-    <h1>{{thing.title}}</h1>
+<h1>{{thing.title}}</h1>
+<div class="ui five column padded grid">
+
     {% for d in thing.data %}
-        {{d.name}}
-    {% endfor %}
+    <div class="column">
+        {% if thing.title == 'Sensors' %}
+            {% include "sensor_card.html" %}
+        {% endif %}
+        {% if thing.title == 'Lights' %}
+            {% include "light_card.html" %}
+        {% endif %}
+    </div>
+
+        {% endfor %}
+</div>
+
 {% endfor %}
 {% endblock %}

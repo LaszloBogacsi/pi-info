@@ -1,0 +1,23 @@
+<div class="ui green card">
+    <a class="ui button" href="{{ url_for('lights.light_status', light_id=d.light_id, status=d.current_status.value) }}">
+
+        <div class="center aligned image">
+            <i class="massive {% if d.current_status.value == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
+        </div>
+    </a>
+    <div class="content">
+        <a class="header">{{ d.name }}</a>
+        <div class="meta">
+            <span class="date">Joined in 2013</span>
+        </div>
+        <div class="description">
+            {{ d.location }}
+        </div>
+    </div>
+    <div class="extra content">
+        <a>
+            <i class="user icon"></i>
+            22 Friends
+        </a>
+    </div>
+</div>

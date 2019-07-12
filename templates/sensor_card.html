@@ -1,0 +1,23 @@
+<div class="ui green card">
+    <a href="{{ url_for('sensors.show_sensor', sensor_id=d.sensor_id, timerange='today') }}">
+
+        <div class="center aligned image">
+            <img src="{{ url_for('static', filename='temperature.svg') }}">
+        </div>
+        <div class="content">
+            <a class="header">{{ d.name }}</a>
+            <div class="meta">
+                <span class="date">Joined in 2013</span>
+            </div>
+            <div class="description">
+                {{ d.location }}
+            </div>
+        </div>
+        <div class="extra content">
+            <a>
+                <i class="user icon"></i>
+                22 Friends
+            </a>
+        </div>
+    </a>
+</div>
