@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="ui one column grid">
+    <div class="column center aligned">
+        {% include "view_button_bar.html" %}
+    </div>
+</div>
+
+<script>
+    function rowClickHandler(url) {
+        window.location = url;
+    }
+</script>
+<h1>{{room}}</h1>
+{% for thing in things %}
+<h1>{{thing.title}}</h1>
+
+<table class="ui celled selectable table">
+    <thead>
+    <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Location</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for d in thing.data %}
+    <tr onclick=rowClickHandler("")>
+        <td data-label="Type"><i class="lightbulb outline icon"></i></td>
+        <td data-label="Name">{{ d.name }}</td>
+        <td data-label="Location">{{ d.location.value }}</td>
+        <td data-label="Status">
+            <div class="center aligned image">
+                <i class="large  lightbulb outline icon"></i>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endfor %}
+{% endblock %}
+
