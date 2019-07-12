@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="ui one column grid">
+    <div class="column center aligned">
+        {% include "view_button_bar.html" %}
+    </div>
+</div>
+<h1>{{room}}</h1>
+{% for thing in things %}
+    <h1>{{thing.title}}</h1>
+    {% for d in thing.data %}
+        {{d.name}}
+    {% endfor %}
+{% endfor %}
+{% endblock %}

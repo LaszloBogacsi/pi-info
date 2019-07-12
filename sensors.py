@@ -17,3 +17,7 @@ SENSORS = [LIVING_ROOM1]
 
 def get_sensor_by_id(sensor_id):
     return filter(lambda sensor: sensor["sensor_id"] == sensor_id, SENSORS).__next__()
+
+
+def get_sensors_by_room(room):
+    return list(filter(lambda sensor: sensor["location"] == room.value, SENSORS))
