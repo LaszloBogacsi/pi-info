@@ -11,8 +11,8 @@ class LightStatus(Enum):
     OFF = 'OFF'
 
 
-light1 = {"light_id": "1", "name": "Light 1", "location": Room.LIVING_ROOM.value, "type": LightType.TABLE_LAMP, "current_status": LightStatus.OFF}
-light2 = {"light_id": "2", "name": "Light 2", "location": Room.LIVING_ROOM.value, "type": LightType.TABLE_LAMP, "current_status": LightStatus.OFF}
+light1 = {"light_id": "1", "name": "Light 1", "location": Room.LIVING_ROOM, "type": LightType.TABLE_LAMP, "current_status": LightStatus.OFF}
+light2 = {"light_id": "2", "name": "Light 2", "location": Room.LIVING_ROOM, "type": LightType.TABLE_LAMP, "current_status": LightStatus.OFF}
 LIGHTS = [light1, light2]
 
 
@@ -21,4 +21,4 @@ def get_light_by_id(light_id):
 
 
 def get_lights_by_room(room):
-    return list(filter(lambda light: light["location"] == room.value, LIGHTS))
+    return list(filter(lambda light: light["location"] == room, LIGHTS))

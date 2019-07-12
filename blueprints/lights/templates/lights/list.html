@@ -22,10 +22,10 @@
     </thead>
     <tbody>
     {% for light in lights %}
-    <tr onclick=rowClickHandler("{{url_for('lights.light_status',page='list',light_id=light.light_id,status=light.current_status.value)}}")>
+    <tr onclick=rowClickHandler("{{url_for('lights.light_status',page='list',light_id=light.light_id,status=light.current_status.value,referer='lights.show_lights')}}")>
         <td data-label="Type"><i class="lightbulb outline icon"></i></td>
         <td data-label="Name">{{ light.name }}</td>
-        <td data-label="Location">{{ light.location }}</td>
+        <td data-label="Location">{{ light.location.value }}</td>
         <td data-label="Status">
             <div class="center aligned image">
                 <i class="large {% if light.current_status.value == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>

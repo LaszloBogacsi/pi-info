@@ -10,7 +10,7 @@ class SensorType(Enum):
 
 
 
-LIVING_ROOM1 = {"sensor_id": 100, "name": "Living Room 1", "location": Room.LIVING_ROOM.value, "type": SensorType.TEMPERATURE_AND_HUMIDITY, "sampling_rate_mins": 20}
+LIVING_ROOM1 = {"sensor_id": 100, "name": "Living Room 1", "location": Room.LIVING_ROOM, "type": SensorType.TEMPERATURE_AND_HUMIDITY, "sampling_rate_mins": 20}
 
 SENSORS = [LIVING_ROOM1]
 
@@ -20,4 +20,4 @@ def get_sensor_by_id(sensor_id):
 
 
 def get_sensors_by_room(room):
-    return list(filter(lambda sensor: sensor["location"] == room.value, SENSORS))
+    return list(filter(lambda sensor: sensor["location"] == room, SENSORS))

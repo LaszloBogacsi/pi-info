@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, abort, request, redirect, url_for
 from jinja2 import TemplateNotFound
 
-from lights import LIGHTS, LightStatus
+from lights import LIGHTS, LightStatus, get_light_by_id
 from statusbar import refresh_statusbar
 
 lights = Blueprint('lights', __name__,
@@ -24,10 +24,6 @@ def get_buttons(selected):
 @lights.route('/lights', defaults={'page': 'status'})
 @lights.route('/lights/<page>', methods=['GET'])
 def show_lights(page):
-    light_id = request.args.get('light_id', None)
-    status = request.args.get('status')
-    if light_id is not None:
-        next(light for light in LIGHTS if light["light_id"] == light_id)["current_status"] = LightStatus(status)
     try:
         statusbar = refresh_statusbar()
         buttons = get_buttons(selected=page)
@@ -47,11 +43,14 @@ def publish(topic, payload):
 @lights.route('/lights/light/<page>')
 def light_status(page):
     light_id = request.args.get('light_id', "1")
+    referer = request.args.get('referer', "lights.show_lights")
     status = request.args.get('status', 'OFF')
     status = "ON" if status == "OFF" else "OFF"
     payload = "{\"status\":\"" + status + "\",\"relay_id\":\"" + light_id + "\"}"
     topic = "switch/relay"
     publish(topic, payload)
+    if light_id is not None:
+        next(light for light in LIGHTS if light["light_id"] == light_id)["current_status"] = LightStatus(status)
     if page == 'list':
-        return redirect(url_for('lights.show_lights', page='list', status=status, light_id=light_id))
-    return redirect(url_for('lights.show_lights', status=status, light_id=light_id))
+        return redirect(url_for(referer, page='list', status=status, light_id=light_id, filter=get_light_by_id(light_id)["location"].name))
+    return redirect(url_for(referer, filter=get_light_by_id(light_id)["location"].name))

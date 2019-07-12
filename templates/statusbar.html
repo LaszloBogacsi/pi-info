@@ -16,7 +16,7 @@
         </div>
         {{ statusbar.tube_status.status }}
     </a>
-    <a class="item">
-        <i class="large yellow lightbulb icon"></i>
+    <a class="item" href="{{ url_for('lights.show_lights') }}">
+        <i class="large {% if statusbar.lights_status.is_on %}yellow{% endif %} lightbulb icon"></i>
     </a>
 </div>

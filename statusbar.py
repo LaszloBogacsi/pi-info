@@ -1,13 +1,10 @@
 import math
 from datetime import datetime
 
+from lights import LIGHTS, LightStatus
 from openweather import get_current_weather_info
 from sensor_data_repository import load_current_sensor_data
 from tfl_tube_status import get_current_tube_status, central
-
-
-def refresh_statusbar():
-    return refresh_if_necessary()
 
 
 last_refreshed = datetime.now()
@@ -15,13 +12,23 @@ last_refreshed = datetime.now()
 statusbar_data_cache = None
 
 
+def refresh_statusbar():
+    always_refresh()
+    return refresh_if_necessary()
+
+
 def refresh_if_necessary():
     now = datetime.now()
     global statusbar_data_cache
     if (statusbar_data_cache is None or ((now - last_refreshed).seconds > 300)):
         statusbar_data_cache = reload_data()
-        return statusbar_data_cache
     return statusbar_data_cache
+
+
+def always_refresh():
+    if statusbar_data_cache is not None:
+        statusbar_data_cache["lights_status"] = {"is_on": get_any_light_status()}
+
 
 
 def get_current_sensor_data(data):
@@ -47,10 +54,15 @@ def get_current_weather(data):
     }
 
 
+def get_any_light_status():
+    return True if next((light for light in LIGHTS if light["current_status"] == LightStatus.ON), None) is not None else False
+
+
 def reload_data():
     current_sensor_data = get_current_sensor_data(load_current_sensor_data())
     current_weather = get_current_weather(get_current_weather_info())
     central_line_status = get_current_tube_status(central)[0]
+    is_any_light_on = get_any_light_status()
     statusbar_data = {
         "current_temperature": {
             "indoor": current_sensor_data["current_temp"],
@@ -65,6 +77,9 @@ def reload_data():
         "tube_status": {
             "line_name": central_line_status.tube_line.name,
             "status": central_line_status.description
+        },
+        "lights_status": {
+            "is_on": is_any_light_on
         }
     }
     return statusbar_data
