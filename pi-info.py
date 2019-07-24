@@ -1,4 +1,4 @@
-in_stub_mode = True
+in_stub_mode = False
 
 from applicationConfig import Config
 if in_stub_mode:
