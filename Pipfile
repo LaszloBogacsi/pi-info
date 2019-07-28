@@ -11,6 +11,7 @@ paho-mqtt = "*"
 psycopg2 = "*"
 python-dateutil = "*"
 mqttclient = "*"
+gunicorn = "*"
 
 [requires]
 python_version = "3.7"

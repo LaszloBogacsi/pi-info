@@ -24,10 +24,13 @@
  `sudo mosquitto_passwd -c /etc/mosquitto/pwfile <username>`    
  
  reboot the pi: `sudo reboot`  
- Mosquitto is ready, 
+ Mosquitto is ready,  
  to verify: 
  To subscribe to a topic: `mosquittto_sub -d -u <usename> -P <password> -t test` 
  To publish a message in a topic: `mosquitto_pub -d -u <usename> -P <password> -t test -m "hello, world"`  
+ install supervisor `sudo apt install supervisor`
+ supervisor is a preferable solution to run the gunicorn server in the background and also start it automatically on reboot  
+ install nginx `sudo apt install nginx`  
  
  ___ 
  ### Arduino IDE setup:  
@@ -55,3 +58,6 @@
   
  to install packages use: `pipenv install <package name>` this will install the required package and save the package name to the *Pipfile*   
  the development server is listening on: `http://localhost:9080/`
+ 
+ ### Deployment:  
+ use `gunicorn` for production web server, a `wsgi` server - *not supported on windows*
