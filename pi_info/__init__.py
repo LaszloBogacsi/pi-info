@@ -1,7 +1,7 @@
-import psycopg2
-from pi_info.Credentials import Credentials
 from pi_info.application_config import Config
 Config('../config.ini')
+import psycopg2
+from pi_info.Credentials import Credentials
 from pi_info.mqtt.MqttClient import MqttClient
 from pi_info.mqtt.message_handler import MessageHandler
 from pi_info.repository.sensor_data_repository import save_sensor_data
