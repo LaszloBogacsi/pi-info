@@ -1,0 +1,3 @@
+recursive-include pi_info/templates *
+recursive-include pi_info/static *
+recursive-exclude pi_info/static/node_modules *
