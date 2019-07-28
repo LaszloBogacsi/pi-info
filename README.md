@@ -30,7 +30,13 @@
  To publish a message in a topic: `mosquitto_pub -d -u <usename> -P <password> -t test -m "hello, world"`  
  install supervisor `sudo apt install supervisor`
  supervisor is a preferable solution to run the gunicorn server in the background and also start it automatically on reboot  
- install nginx `sudo apt install nginx`  
+ install nginx `sudo apt install nginx` 
+ postgres install:  
+`sudo apt-get install postgresql`  
+`sudo apt-get install python-psycopg2`  
+`sudo apt-get install libpq-dev`  
+then run `./database-setup.sh` script to set up db 
+ 
  
  ___ 
  ### Arduino IDE setup:  
@@ -60,4 +66,5 @@
  the development server is listening on: `http://localhost:9080/`
  
  ### Deployment:  
+ run the `deploy.sh` script after initial setup 
  use `gunicorn` for production web server, a `wsgi` server - *not supported on windows*
