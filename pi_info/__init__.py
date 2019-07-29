@@ -1,5 +1,5 @@
 from pi_info.application_config import Config
-Config('../config.ini')
+Config('config.ini')
 import psycopg2
 from pi_info.Credentials import Credentials
 from pi_info.mqtt.MqttClient import MqttClient
