@@ -9,7 +9,7 @@ const requestInit = {
 };
 
 // const url = "http://localhost:9080/sensor/data";
-const url = "http://localhost:5000/sensor/data";
+const url = "http://192.168.1.205:5000/sensor/data";
 fetch(url + queryParams)
     .then(response => response.json())
     .catch(error => console.log(error))
