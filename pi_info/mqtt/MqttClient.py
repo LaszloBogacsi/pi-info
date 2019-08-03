@@ -32,7 +32,7 @@ class MqttClient:
         json_message["timestamp"] = str(datetime.now())
         json_message["topic_origin"] = message.topic
         if message.topic in self.topic_handler:
-            handler = self.topic_handler[message.topic]
+            handler = self.topic_handler[message.topic].handler
             handler(self.get_message(json_message))
         else:
             raise RuntimeError('no handler found for topic: ' + message.topic)
