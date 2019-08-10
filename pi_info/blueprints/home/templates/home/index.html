@@ -4,7 +4,7 @@
     <img src="{{ url_for('static', filename='2dFloorplan.png') }}" usemap="#image-map">
 
     <map name="image-map">
-        <area onclick="console.log('master bedroom')" target="" alt="Master Bedroom" title="Master Bedroom" href="#!"
+        <area onclick="console.log('master bedroom')" target="" alt="Master Bedroom" title="Master Bedroom" href="{{url_for('rooms.show_room', filter='MASTER_BEDROOM')}}"
               coords="567,868,323,568" shape="rect">
         <area onclick="console.log('bedroom')" target="" alt="Bedroom" title="Bedroom" href="#!"
               coords="322,375,567,564" shape="rect">

@@ -5,7 +5,7 @@
 #define humidity_topic "sensor/humidity"
 #define temperature_topic "sensor/temperature"
 
-EspMQTTClient client(WIFI_SSID, WIFI_PASSWORD, MQTT_BROKER_IP, MQTT_USERNAME, MQTT_PASSWORD, "ESP8266_TEMP_Sensor1");
+EspMQTTClient client(WIFI_SSID, WIFI_PASSWORD, MQTT_BROKER_IP, MQTT_USERNAME, MQTT_PASSWORD, "ESP8266_TEMP_Sensor2");
 
 DHTesp dht;
 
@@ -18,7 +18,7 @@ void setup() {
 
 
 long lastMsg = 0;
-int sensor_id = 100;
+int sensor_id = 101;
 long sleeptimeInSeconds = 1200; // 20 mins
 void onConnectionEstablished() {
    float newTemp = dht.getTemperature();
