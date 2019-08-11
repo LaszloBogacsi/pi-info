@@ -7,8 +7,9 @@
         /* Style the lines by removing the fill and applying a stroke */
         .line {
             fill: none;
-            stroke: #ffab00;
-            stroke-width: 3;
+            stroke: darkgrey;
+            stroke-dasharray: 5px;
+            stroke-width: 2;
         }
 
         .line2 {
@@ -31,6 +32,15 @@
         .focus circle {
             fill: none;
             stroke: steelblue;
+        }
+        svg text.label {
+            fill:white;
+            font-size: 15px;
+            font-weight: 400;
+            text-anchor: middle;
+        }
+        .temp-bars {
+            fill: teal;
         }
 
     </style>

@@ -8,6 +8,10 @@ const requestInit = {
     })
 };
 
+const urlParams = new URLSearchParams(queryParams);
+const timeRange = urlParams.get("timerange");
+const TODAY = "today";
+
 // const url = "http://localhost:9080/sensor/data";
 const url = "http://192.168.1.205:5000/sensor/data";
 fetch(url + queryParams)
@@ -21,7 +25,9 @@ function loadDataset(data) {
     const timeScale = data.sensor_data
         .map(d => d.published_at)
         .map(dateStr => d3.timeParse("%Y-%m-%dT%H:%M:%S")(dateStr));
-    const dataXRange = d3.extent(timeScale);
+    // const dataXRange = d3.extent(timeScale);
+    const dataXRange = timeScale;
+    const average_temperature = d3.mean(dataset_temp);
 // 2. Use the margin convention practice
     const margin = {top: 50, right: 50, bottom: 50, left: 50}
         , width = (window.innerWidth - margin.left - margin.right) * 0.9 // Use the window's width
@@ -29,15 +35,18 @@ function loadDataset(data) {
 
     const n = dataset_temp.length;
 
-    const xScale = d3.scaleTime().domain(dataXRange).range([0, width]);
-    const yScale = d3.scaleLinear().domain([-10, 40]).range([height, 0]);
+    const xScale = d3.scaleBand().domain(dataXRange).rangeRound([0, width]).padding(0.1);
+
+    const domainMin = -10;
+    const domainMax = 40;
+    const yScale = d3.scaleLinear().domain([domainMin, domainMax]).range([height, 0]);
     const yScale2 = d3.scaleLinear().domain([0, 100]).range([height, 0]);
-    const line_temp = d3.line()
-        .x((d, i) =>  xScale(timeScale[i])) // set the x values for the line generator
-        .y(d => yScale(d)) // set the y values for the line generator
-        .curve(d3.curveMonotoneX); // apply smoothing to the line
+    const chartWideHorizontalLine = (y) => [{x: 0, y}, {x: width, y}];
+    const line_average_temperature = d3.line()
+        .x(d => d.x)
+        .y(d => yScale(d.y));
     const line_humid = d3.line()
-        .x((d, i)  => xScale(timeScale[i])) // set the x values for the line generator
+        .x((d, i)  => xScale(timeScale[i])+xScale.bandwidth() /2) // set the x values for the line generator
         .y(d => yScale2(d)) // set the y values for the line generator
         .curve(d3.curveMonotoneX); // apply smoothing to the line
 
@@ -52,7 +61,9 @@ function loadDataset(data) {
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
+        .call(d3.axisBottom(xScale)
+            .tickFormat(d3.timeFormat(timeRange === TODAY ? "%H:%M" : "%Y-%m-%d"))
+            .tickValues(xScale.domain())); // Create an axis component with d3.axisBottom
 
 // 4. Call the y axis in a group tag
     svg.append("g")
@@ -64,11 +75,38 @@ function loadDataset(data) {
         .attr("transform", "translate(" + width + " ,0)")
         .call(d3.axisRight(yScale2)); // Create an axis component with d3.axisLeft
 
+    const barPadding = 20;
+    const barWidth = width / n;
+    const temperatureBars = svg.selectAll("rect")
+        .data(dataset_temp)
+        .enter()
+        .append("rect")
+        .attr("class","temp-bars")
+        .attr("y", d => yScale(d))
+        .attr("height", d => height - yScale(d + domainMin))
+        .attr("width", barWidth - barPadding)
+        .attr("transform", (d, i) => {
+            const cx = barWidth * i;
+            return `translate(${cx})`
+        });
+
+    const valueLabels = svg.selectAll(".text")
+        .data(dataset_temp)
+        .enter()
+        .append("text")
+        .attr("class","label")
+        .attr("x", (d, i) => xScale(timeScale[i]) + (xScale.bandwidth() - barPadding)/2)
+        .attr("y", function(d) { return yScale(d) + 1; })
+        .attr("dy", ".75em")
+        .text(d =>  d3.format(".1f")(d));
+
+
+
 // 9. Append the path, bind the data, and call the line generator
     svg.append("path")
-        .datum(dataset_temp) // 10. Binds data to the line
+        .datum(chartWideHorizontalLine(average_temperature)) // 10. Binds data to the line
         .attr("class", "line") // Assign a class for styling
-        .attr("d", line_temp); // 11. Calls the line generator
+        .attr("d", line_average_temperature); // 11. Calls the line generator
     // add another line for humidity
     svg.append("path")
         .datum(dataset_humidity) // 10. Binds data to the line
@@ -76,26 +114,26 @@ function loadDataset(data) {
         .attr("d", line_humid); // 11. Calls the line generator
 
 // 12. Appends a circle for each datapoint
-    svg.selectAll(".dot")
-        .data(dataset_temp)
-        .enter().append("circle") // Uses the enter().append() method
-        .attr("class", "dot") // Assign a class for styling
-        .attr("cx", function (d, i) {
-            return xScale(timeScale[i])
-        })
-        .attr("cy", function (d) {
-            return yScale(d)
-        })
-        .attr("r", 5)
-        .on("mouseover", function (a, b, c) {
-            console.log(a);
-            this.setAttribute('class', 'focus')
-        })
-        .on("mouseout", function () {
-            this.removeAttribute('class', 'focus');
-            this.setAttribute('class', 'dot')
-
-        });
+//     svg.selectAll(".dot")
+//         .data(dataset_temp)
+//         .enter().append("circle") // Uses the enter().append() method
+//         .attr("class", "dot") // Assign a class for styling
+//         .attr("cx", function (d, i) {
+//             return xScale(timeScale[i])
+//         })
+//         .attr("cy", function (d) {
+//             return yScale(d)
+//         })
+//         .attr("r", 5)
+//         .on("mouseover", function (a, b, c) {
+//             console.log(a);
+//             this.setAttribute('class', 'focus')
+//         })
+//         .on("mouseout", function () {
+//             this.removeAttribute('class', 'focus');
+//             this.setAttribute('class', 'dot')
+//
+//         });
 //       .on("mousemove", mousemove);
 
 //   var focus = svg.append("g")
