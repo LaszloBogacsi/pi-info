@@ -7,30 +7,9 @@
     </div>
 
     <div class="ui five column padded grid">
-        {% for sensor in sensors %}
+        {% for d in sensors %}
             <div class="column">
-                <a href="{{ url_for('sensors.show_sensor', sensor_id=sensor.sensor_id, timerange='today') }}">
-                    <div class="ui green card">
-                        <div class="center aligned image">
-                            <img src="{{ url_for('static', filename='temperature.svg') }}">
-                        </div>
-                        <div class="content">
-                            <a class="header">{{ sensor.name }}</a>
-                            <div class="meta">
-                                <span class="date">Joined in 2013</span>
-                            </div>
-                            <div class="description">
-                                {{ sensor.location.value }}
-                            </div>
-                        </div>
-                        <div class="extra content">
-                            <a>
-                                <i class="user icon"></i>
-                                22 Friends
-                            </a>
-                        </div>
-                    </div>
-                </a>
+                {% include "sensor_card.html" %}
             </div>
         {% endfor %}
     </div>

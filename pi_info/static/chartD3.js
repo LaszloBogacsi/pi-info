@@ -75,8 +75,10 @@ function loadDataset(data) {
         .attr("transform", "translate(" + width + " ,0)")
         .call(d3.axisRight(yScale2)); // Create an axis component with d3.axisLeft
 
-    const barPadding = 20;
+    const barPadding = 8;
     const barWidth = width / n;
+    const tooltip = d3.select("body").append("div").attr("class", "toolTip");
+
     const temperatureBars = svg.selectAll("rect")
         .data(dataset_temp)
         .enter()
@@ -86,9 +88,17 @@ function loadDataset(data) {
         .attr("height", d => height - yScale(d + domainMin))
         .attr("width", barWidth - barPadding)
         .attr("transform", (d, i) => {
-            const cx = barWidth * i;
+            const cx = xScale(timeScale[i]);
             return `translate(${cx})`
-        });
+        })
+        .on("mousemove", function(d){
+            tooltip
+                .style("left", d3.event.pageX - 50 + "px")
+                .style("top", d3.event.pageY - 70 + "px")
+                .style("display", "inline-block")
+                .html(d);
+        })
+        .on("mouseout", function(d){ tooltip.style("display", "none");});;
 
     const valueLabels = svg.selectAll(".text")
         .data(dataset_temp)
@@ -97,8 +107,8 @@ function loadDataset(data) {
         .attr("class","label")
         .attr("x", (d, i) => xScale(timeScale[i]) + (xScale.bandwidth() - barPadding)/2)
         .attr("y", function(d) { return yScale(d) + 1; })
-        .attr("dy", ".75em")
-        .text(d =>  d3.format(".1f")(d));
+        .attr("dy", "1em")
+        .text(d => d3.format(".0f")(d));
 
 
 

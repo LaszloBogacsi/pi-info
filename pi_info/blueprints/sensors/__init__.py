@@ -6,8 +6,8 @@ from flask import Blueprint, render_template, abort, request, make_response, url
 from jinja2 import TemplateNotFound
 
 from pi_info.data.data_normaliser import get_data_for_resolution, make_minute_resolution_data
-from pi_info.repository.sensor_data_repository import load_sensor_data_for
 from pi_info.data.sensors import SENSORS, get_sensor_by_id
+from pi_info.repository.sensor_data_repository import load_sensor_data_for, load_current_sensor_data
 from pi_info.statusbar import refresh_statusbar
 
 sensors = Blueprint('sensors', __name__,
@@ -20,10 +20,10 @@ def show_sensors(page):
     try:
         statusbar = refresh_statusbar()
         buttons = get_buttons(selected=page)
-        return render_template('sensors/%s.html' % page, active='sensors', sensors=SENSORS, statusbar=statusbar, buttons=buttons)
+        enriched_with_current_values = [dict(sensor, data=load_current_sensor_data(sensor)) for sensor in SENSORS]
+        return render_template('sensors/%s.html' % page, active='sensors', sensors=enriched_with_current_values, statusbar=statusbar, buttons=buttons)
     except TemplateNotFound:
         abort(404)
-
 
 @sensors.route('/sensors/sensor', methods=['GET'])
 def show_sensor():

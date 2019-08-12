@@ -4,6 +4,7 @@ from jinja2 import TemplateNotFound
 from pi_info.data.lights import get_lights_by_room
 from pi_info.data.room import Room
 from pi_info.data.sensors import get_sensors_by_room
+from pi_info.repository.sensor_data_repository import load_current_sensor_data
 from pi_info.statusbar import refresh_statusbar
 
 rooms = Blueprint('rooms', __name__,
@@ -20,11 +21,12 @@ def get_all_lights_for(room):
 
 def all_things_for_room(room):
     all_sensors_in_room = get_all_sensors_for(room)
+    enriched_with_current_values = [dict(sensor, data=load_current_sensor_data(sensor)) for sensor in all_sensors_in_room]
     all_lights_in_room = get_all_lights_for(room)
     return [
         {
             "title": "Sensors",
-            "data": all_sensors_in_room
+            "data": enriched_with_current_values
         },
         {
             "title": "Lights",

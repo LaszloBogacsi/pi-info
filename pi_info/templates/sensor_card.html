@@ -1,23 +1,32 @@
-<div class="ui green card">
+<div class="ui {% if d.data.sensor_status == 'OK' %}green{% else %}red{% endif %} card">
     <a href="{{ url_for('sensors.show_sensor', sensor_id=d.sensor_id, timerange='today') }}">
-
-        <div class="center aligned image">
-            <img src="{{ url_for('static', filename='temperature.svg') }}">
+        <div class="content">
+            <i class="thermometer icon"></i>
+        </div>
+        <div class="content">
+            {% for v in d.data.values %}
+                <div>
+                    <a class="header">{{ v.value }}</a>
+                    <div class="meta">{{ v.type }}</div>
+                </div>
+            {% endfor %}
         </div>
         <div class="content">
             <a class="header">{{ d.name }}</a>
             <div class="meta">
-                <span class="date">Joined in 2013</span>
+                <span class="date">Updated at {{ d.data.published_time | formatdatetime }}</span>
             </div>
             <div class="description">
+                <i class="location arrow icon"></i>
                 {{ d.location.value }}
             </div>
         </div>
+
         <div class="extra content">
-            <a>
-                <i class="user icon"></i>
-                22 Friends
-            </a>
+            <span>
+                <i class="tag icon"></i>
+                {{ d.data.sensor_id }}
+            </span>
         </div>
     </a>
 </div>

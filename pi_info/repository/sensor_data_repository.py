@@ -13,8 +13,9 @@ def load_all_sensor_data() -> [SensorData]:
     return load_all(sql, cast_sensor_data)
 
 
-def load_current_sensor_data() -> SensorData:
-    sql = "SELECT * FROM sensor_data ORDER BY published_time DESC LIMIT 1"
+def load_current_sensor_data(sensor=None) -> SensorData:
+    sensor_filter = 'WHERE sensor_id={}'.format(sensor["sensor_id"]) if sensor else ''
+    sql = 'SELECT * FROM sensor_data {} ORDER BY published_time DESC LIMIT 1'.format(sensor_filter)
     return load_one(sql, cast_sensor_data)
 
 

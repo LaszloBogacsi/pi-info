@@ -27,11 +27,12 @@ def get_conn():
 
 def get_timerange_query(timerange):
     today = datetime.date.today()
+    day = datetime.datetime.now() - datetime.timedelta(hours=24)
     week = today - datetime.timedelta(weeks=1)
     month = today - relativedelta(months=1)
     year = today - relativedelta(months=1)
     ranges = {
-        "today": " AND published_time::date = '%s'" % str(today),
+        "today": " AND published_time > '%s'" % str(day),
         "week": " AND published_time::date > '%s'" % str(week),
         "month": " AND published_time::date > '%s'" % str(month),
         "year": " AND published_time::date > '%s'" % str(year)
