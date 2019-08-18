@@ -20,7 +20,7 @@ def show_sensors(page):
     try:
         statusbar = refresh_statusbar()
         buttons = get_buttons(selected=page)
-        enriched_with_current_values = [dict(sensor, data=load_current_sensor_data(sensor)) for sensor in SENSORS]
+        enriched_with_current_values = [{**get_displayed_sensor_data(load_current_sensor_data(sensor)), **sensor} for sensor in SENSORS]
         return render_template('sensors/%s.html' % page, active='sensors', sensors=enriched_with_current_values, statusbar=statusbar, buttons=buttons)
     except TemplateNotFound:
         abort(404)
@@ -41,6 +41,18 @@ def show_sensor():
     except TemplateNotFound:
         abort(404)
 
+
+def get_unit_by_type(type):
+    type_unit = {
+        'temperature': '°C',
+        'humidity': '%'
+    }
+    return type_unit.get(type, '')
+
+
+def get_displayed_sensor_data(sensor_data):
+    display_data = [dict(formatted_value="{} {}".format(value['value'], get_unit_by_type(value['type'])), type=value['type'].capitalize()) for value in sensor_data.values]
+    return dict(data=sensor_data, display_data=display_data )
 
 def get_buttons(selected):
     status_button = {"url": url_for('sensors.show_sensors', page='status'), "active_status": 'active' if selected == 'status' else '', "icon_type": '',

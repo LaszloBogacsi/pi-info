@@ -6,11 +6,14 @@
         </div>
     </div>
 
-    <div class="ui five column padded grid">
+    <div class="ui five column stackable padded grid">
         {% for d in sensors %}
-            <div class="column">
-                {% include "sensor_card.html" %}
-            </div>
+            {% with %}
+                {% set loop_index=loop.index %}
+                <div class="column">
+                    {% include "sensor_shape_card.html" %}
+                </div>
+            {% endwith %}
         {% endfor %}
     </div>
 {% endblock %}

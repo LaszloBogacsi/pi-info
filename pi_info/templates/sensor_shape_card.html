@@ -1,0 +1,88 @@
+<div class="ui people shape with shape-{{ loop_index }}">
+    <div class="sides">
+        <div class="active side">
+            <div class="ui {% if d.data.sensor_status == 'OK' %}green{% else %}red{% endif %} card">
+                <div class="content center aligned">
+                    <a href="{{ url_for('sensors.show_sensor', sensor_id=d.sensor_id, timerange='today') }}">
+
+                        {% for v in d.display_data %}
+                            <div class="ui huge header">{{ v.formatted_value }}</div>
+                            <div class="meta">{{ v.type }}</div>
+                        {% endfor %}
+                    </a>
+                    <div class="right floated">
+                        <i class="chart bar icon"></i>
+                        <i class="chevron right icon"></i>
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="header">{{ d.name }}</div>
+                </div>
+                <div class="extra content" onclick="flip(event, {{ loop_index }})">
+                    <a class="left floated">
+                        <i class="info circle icon"></i>
+                        More Info
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {# ---- more info side ------ #}
+
+        <div class="side">
+            <div class="ui {% if d.data.sensor_status == 'OK' %}green{% else %}red{% endif %} card">
+                <div class="content">
+                    <div class="header">{{ d.name }}</div>
+                </div>
+                <div class="content">
+                    <div class="meta">location</div>
+                    {{ d.location.value }}
+                </div>
+                <div class="content">
+                    <div class="meta">sensor id</div>
+                    {{ d.sensor_id }}
+                </div>
+                <div class="content">
+                    <div class="meta">updated at</div>
+                    {{ d.data.published_time | formatdatetime }}
+                </div>
+                <div class="content">
+                    <div class="meta">status</div>
+                    {{ d.data.sensor_status }}
+                    <span class="ui {% if d.data.sensor_status == 'OK' %}green{% else %}red{% endif %} empty circular label"></span>
+                </div>
+                <div class="content">
+                    <div class="meta">type</div>
+                    {{ d.type.value }}
+                </div>
+                <div class="content">
+                    <div class="meta">code</div>
+                    {{ d.code.value }}
+                </div>
+
+                <div class="extra content" onclick="flip(event, {{ loop_index }})">
+                    <a class="left floated">
+                        <i class="arrow alternate circle left outline icon"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .ui.shape.with.animating .side * {
+        transition: none !important;
+    }
+</style>
+<script>
+    $('.shape').shape();
+
+    function flip(e, index) {
+        {#console.log(e);#}
+        {#e.preventDefault();#}
+        $(`.shape-${index}`).shape('flip over');
+        console.log("flippig" + index)
+    }
+</script>
+

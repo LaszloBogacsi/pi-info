@@ -21,7 +21,7 @@ def get_all_lights_for(room):
 
 def all_things_for_room(room):
     all_sensors_in_room = get_all_sensors_for(room)
-    enriched_with_current_values = [dict(sensor, data=load_current_sensor_data(sensor)) for sensor in all_sensors_in_room]
+    enriched_with_current_values = [{**get_displayed_sensor_data(load_current_sensor_data(sensor)), **sensor} for sensor in all_sensors_in_room ]
     all_lights_in_room = get_all_lights_for(room)
     return [
         {
@@ -34,6 +34,16 @@ def all_things_for_room(room):
         }
     ]
 
+def get_displayed_sensor_data(sensor_data):
+    display_data = [dict(formatted_value="{} {}".format(value['value'], get_unit_by_type(value['type'])), type=value['type'].capitalize()) for value in sensor_data.values]
+    return dict(data=sensor_data, display_data=display_data )
+
+def get_unit_by_type(type):
+    type_unit = {
+        'temperature': '°C',
+        'humidity': '%'
+    }
+    return type_unit.get(type, '')
 
 def get_buttons(selected, room_filter):
     status_button = {"url": url_for('rooms.show_room', page='status', filter=room_filter), "active_status": 'active' if selected == 'status' else '', "icon_type": '',
