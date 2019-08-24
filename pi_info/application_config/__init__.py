@@ -19,10 +19,6 @@ class Config:
             Config.instance = Config.__Config(configfile)
         return Config.instance
 
-    @classmethod
-    def get_mqtt_config(cls) -> MqttConfig:
-        mqtt_conf = cls.instance.config['MQTT-BROKER']
-        return MqttConfig(mqtt_conf['username'], mqtt_conf['password'], mqtt_conf['host'])
 
     @classmethod
     def get_database_config(cls) -> DatabaseConfig:

@@ -1,28 +1,12 @@
 import datetime
-
 from dateutil.relativedelta import relativedelta
-from psycopg2.pool import SimpleConnectionPool
-
-from pi_info.application_config import Config
-
-
-def create_connection_pool(config) -> SimpleConnectionPool:
-    return SimpleConnectionPool(1, 5,
-                                host=config.host,
-                                database=config.database,
-                                user=config.username,
-                                password=config.password)
-
-
-pool = create_connection_pool(Config.get_database_config())
-
-
-def get_connection(pool) :
-    return pool.getconn()
+from pi_info.repository import get_db
 
 
 def get_conn():
-    return get_connection(pool)
+    pool = get_db()
+    connection = pool.getconn()
+    return pool, connection
 
 
 def get_timerange_query(timerange):
@@ -41,7 +25,7 @@ def get_timerange_query(timerange):
 
 
 def save(query):
-    conn = get_conn()
+    pool, conn = get_conn()
     if conn:
         cursor = conn.cursor()
         cursor.execute(query)
@@ -51,7 +35,7 @@ def save(query):
 
 
 def load_all(query, mapper):
-    conn = get_conn()
+    pool, conn = get_conn()
     if conn:
         cursor = conn.cursor()
         cursor.execute(query)
@@ -65,7 +49,7 @@ def load_all(query, mapper):
 
 
 def load_one(query, mapper):
-    conn = get_conn()
+    pool, conn = get_conn()
     if conn:
         cursor = conn.cursor()
         cursor.execute(query)

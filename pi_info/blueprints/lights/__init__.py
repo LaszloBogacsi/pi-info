@@ -1,9 +1,8 @@
-from flask import Blueprint, render_template, abort, request, redirect, url_for
+from flask import Blueprint, render_template, abort, request, redirect, url_for, g
 from jinja2 import TemplateNotFound
 
 from pi_info.data.lights import LIGHTS, LightStatus, get_light_by_id
 from pi_info.statusbar import refresh_statusbar
-from pi_info import mqtt_client as client
 
 lights = Blueprint('lights', __name__,
                   template_folder='templates')
@@ -27,7 +26,7 @@ def show_lights(page):
         abort(404)
 
 
-def publish(topic, payload):
+def publish(client, topic, payload):
     if client is not None:
         client.publish(topic=topic, payload=payload)
     else:
@@ -42,8 +41,7 @@ def light_status(page):
     status = request.args.get('status', 'OFF')
     status = "ON" if status == "OFF" else "OFF"
     payload = "{\"status\":\"" + status + "\",\"relay_id\":\"" + light_id + "\"}"
-    topic = "switch/relay"
-    publish(topic, payload)
+    publish(g.mqtt_client, "switch/relay", payload)
     if light_id is not None:
         next(light for light in LIGHTS if light["light_id"] == light_id)["current_status"] = LightStatus(status)
     if page == 'list':

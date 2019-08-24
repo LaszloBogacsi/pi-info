@@ -19,6 +19,10 @@ class SensorData(object):
         return "time: {}, sensor id: {}, sensor status: {}, values: {}".format(
             self.published_time, self.sensor_id, self.sensor_status, self.values)
 
+    @classmethod
+    def get_empty(cls):
+        return SensorData([], None, None, None)
+
 
 
 

@@ -7,6 +7,7 @@ from jinja2 import TemplateNotFound
 
 from pi_info.data.data_normaliser import get_data_for_resolution, make_minute_resolution_data
 from pi_info.data.sensors import SENSORS, get_sensor_by_id
+from pi_info.repository.SensorData import SensorData
 from pi_info.repository.sensor_data_repository import load_sensor_data_for, load_current_sensor_data
 from pi_info.statusbar import refresh_statusbar
 
@@ -51,7 +52,11 @@ def get_unit_by_type(type):
 
 
 def get_displayed_sensor_data(sensor_data):
-    display_data = [dict(formatted_value="{} {}".format(value['value'], get_unit_by_type(value['type'])), type=value['type'].capitalize()) for value in sensor_data.values]
+    if sensor_data is not None:
+        display_data = [dict(formatted_value="{} {}".format(value['value'], get_unit_by_type(value['type'])), type=value['type'].capitalize()) for value in sensor_data.values]
+    else:
+        display_data = [{}]
+        sensor_data = SensorData.get_empty()
     return dict(data=sensor_data, display_data=display_data )
 
 def get_buttons(selected):
