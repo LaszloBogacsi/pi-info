@@ -1,8 +1,5 @@
-<div class="ui sidebar thin left vertical visible">
+<div id="sidebar" class="ui sidebar thin left vertical visible">
     <div class="ui fluid vertical labeled icon menu">
-        <div class="item logo">
-            HOME HUB
-        </div>
         <a class="item {% if active == 'home' %}active {% endif %}" href="{{ url_for('home.show_home') }}">
             <i class="{% if active == 'home' %}teal{% endif %} home icon"></i>
             HOME</a>
@@ -28,3 +25,4 @@
         </a>
     </div>
 </div>
+

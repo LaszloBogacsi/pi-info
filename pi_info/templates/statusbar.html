@@ -1,8 +1,8 @@
-<div class="ui menu">
-    <a class="item openbtn">
+    <a onclick="toggle_sidebar()" class="item openbtn" style="width: 150px">
         <i class="icon content"></i>
+        HOME HUB
     </a>
-    <a class="item"  href="{{ url_for('sensors.show_sensors') }}">
+    <a class="item" href="{{ url_for('sensors.show_sensors') }}">
         {% include "statusbar_temp.html" %}
     </a>
     <a class="item">
@@ -19,4 +19,3 @@
     <a class="item" href="{{ url_for('lights.show_lights') }}">
         <i class="large {% if statusbar.lights_status.is_on %}yellow{% endif %} lightbulb icon"></i>
     </a>
-</div>

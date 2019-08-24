@@ -15,10 +15,36 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
-{% include "sidenav.html" %}
-<div class="pusher">
+
+<div class="ui top attached menu">
     {% include "statusbar.html" %}
-    {% block content %} {% endblock %}
 </div>
+<div class="ui bottom attached segment pushable">
+    {% include "sidenav.html" %}
+    <div class="pusher">
+        {% block content %} {% endblock %}
+    </div>
+</div>
+
 </body>
+
+<script>
+    const sidebar_elem = $('#sidebar');
+
+    sidebar_elem.sidebar({
+        context: $('.ui.bottom.attached.segment'),
+        dimPage: false,
+        closable: false,
+    });
+    function toggle_sidebar() {
+        if (sidebar_elem.sidebar('is visible')) {
+            sidebar_elem.sidebar('hide');
+        } else {
+
+            sidebar_elem.sidebar('show');
+
+        }
+    }
+
+</script>
 </html>
