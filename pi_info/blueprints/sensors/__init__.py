@@ -2,7 +2,7 @@ import decimal
 import json
 from datetime import datetime
 
-from flask import Blueprint, render_template, abort, request, make_response, url_for
+from flask import Blueprint, render_template, abort, request, make_response, url_for, current_app
 from jinja2 import TemplateNotFound
 
 from pi_info.data.data_normaliser import get_data_for_resolution, make_minute_resolution_data
@@ -38,7 +38,7 @@ def show_sensor():
             int_id = int(sensor_id)
             sensor = get_sensor_by_id(int_id)
         statusbar = refresh_statusbar()
-        return render_template('sensor/index.html', active='sensors', sensor=sensor, statusbar=statusbar, selected=timerange)
+        return render_template('sensor/index.html', active='sensors', sensor=sensor, statusbar=statusbar, selected=timerange, api_base_url=current_app.config['API_BASE_URL'])
     except TemplateNotFound:
         abort(404)
 

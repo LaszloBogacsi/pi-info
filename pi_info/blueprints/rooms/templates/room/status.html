@@ -1,30 +1,33 @@
 {% extends 'layout.html' %}
 {% block content %}
-    <div class="ui one column grid">
-        <div class="column center aligned">
-            {% include "view_button_bar.html" %}
-        </div>
+<div class="ui one column padded grid">
+    <div class="column center aligned">
+        {% include "view_button_bar.html" %}
     </div>
-    <h1>{{ room }}</h1>
-    {% for thing in things %}
-        <h1>{{ thing.title }}</h1>
-        <div class="ui five column stackable padded grid">
+</div>
+<h1>{{ room }}</h1>
+{% for thing in things %}
+<h1 class="ui block header">{{ thing.title }}</h1>
+<div class="five column doubling stackable padded ui grid">
 
-            {% for d in thing.data %}
-                {% with %}
-                    {% set loop_index=loop.index %}
-                    <div class="column">
-                        {% if thing.title == 'Sensors' %}
-                            {% include "sensor_shape_card.html" %}
-                        {% endif %}
-                        {% if thing.title == 'Lights' %}
-                            {% include "light_card.html" %}
-                        {% endif %}
-                    </div>
-                {% endwith %}
-
-            {% endfor %}
-        </div>
+    {% for d in thing.data %}
+    {% with %}
+    {% set loop_index=loop.index %}
+    <div class="column">
+        {% if thing.title == 'Sensors' %}
+        {% include "sensor_shape_card.html" %}
+        {% endif %}
+        {% if thing.title == 'Lights' %}
+        {% include "light_card.html" %}
+        {% endif %}
+    </div>
+    {% endwith %}
 
     {% endfor %}
+</div>
+
+
+{% endfor %}
+<script>var BASE_URL = '{{api_base_url}}';</script>
+<script src="{{ url_for('static', filename='js/light-control-handler.js') }}"></script>
 {% endblock %}

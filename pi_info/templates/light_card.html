@@ -1,10 +1,13 @@
-<div class="ui green card">
-    <a class="ui button" href="{{ url_for('lights.light_status', light_id=d.light_id, status=d.current_status.value, referer='rooms.show_room',filter=d.location.name) }}">
-
-        <div class="center aligned image">
-            <i class="massive {% if d.current_status.value == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
+<div class="ui green card container">
+    <div id="dimmer-{{loop_index}}" class="ui dimmer">
+        <div class="ui loader">
         </div>
-    </a>
+    </div>
+    <div onclick="switchHandler('{{d.light_id}}', '{{d.current_status.value}}', '{{loop_index}}')" class="ui button">
+        <div class="center aligned image">
+            <i id="light-status-{{loop_index}}" class="huge {% if d.current_status.value == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
+        </div>
+    </div>
     <div class="content">
         <a class="header">{{ d.name }}</a>
         <div class="meta">

@@ -3,6 +3,12 @@ import os
 from flask import Flask, g
 
 from pi_info.Credentials import Credentials
+
+
+def get_mqtt_client():
+    return mqtt_client
+
+
 from pi_info.blueprints.home import home
 from pi_info.blueprints.lights import lights
 from pi_info.blueprints.rooms import rooms
@@ -18,13 +24,15 @@ project_folder = os.path.join(root_folder, 'pi_info')
 template_dir = os.path.join(project_folder, 'templates')
 static_dir = os.path.join(project_folder, 'static')
 
+mqtt_client = None
 
 def create_app(config_file):
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir, root_path=root_folder)
     app.config.from_pyfile(config_file)
     with app.app_context():
         if app.config['ONLINE']:
-            init_mqtt(app)
+            global mqtt_client
+            mqtt_client = init_mqtt(app)
         init_app_db(app)
     app.register_blueprint(home)
     app.register_blueprint(lights)
@@ -42,7 +50,7 @@ def create_app(config_file):
     return app
 
 
-def init_mqtt(app):
+def init_mqtt(app) -> MqttClient:
     handlers = [MessageHandler('sensor/temperature', save_sensor_data)]
     if 'mqtt_client' not in g:
-        g.mqtt_client = MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)
+        return MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)

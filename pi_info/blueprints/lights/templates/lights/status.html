@@ -1,39 +1,23 @@
 {% extends 'layout.html' %}
 {% block content %}
-    <div class="ui one column grid">
-        <div class="column center aligned">
-            {% include "view_button_bar.html" %}
-        </div>
+<div class="ui one column padded grid">
+    <div class="column center aligned">
+        {% include "view_button_bar.html" %}
     </div>
+</div>
 
-    <div class="ui five column padded grid">
-        {% for light in lights %}
-            <div class="column">
-
-                <div class="ui green card">
-                    <a class="ui button" href="{{ url_for('lights.light_status', light_id=light.light_id, status=light.current_status.value, referer='lights.show_lights') }}">
-
-                    <div class="center aligned image">
-                        <i class="massive {% if light.current_status.value == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
-                    </div>
-                    </a>
-                    <div class="content">
-                        <a class="header">{{ light.name }}</a>
-                        <div class="meta">
-                            <span class="date">Joined in 2013</span>
-                        </div>
-                        <div class="description">
-                            {{ light.location.value }}
-                        </div>
-                    </div>
-                    <div class="extra content">
-                        <a>
-                            <i class="user icon"></i>
-                            22 Friends
-                        </a>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
+<div class="five column doubling stackable padded ui grid">
+    {% for d in lights %}
+    {% with %}
+    {% set loop_index=loop.index %}
+    <div class="column">
+        {% include "light_card.html" %}
     </div>
+    {% endwith %}
+
+    {% endfor %}
+</div>
+<script>var BASE_URL = '{{api_base_url}}';</script>
+<script src="{{ url_for('static', filename='js/light-control-handler.js') }}"></script>
+
 {% endblock %}
