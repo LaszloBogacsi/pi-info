@@ -12,6 +12,7 @@ psycopg2 = "*"
 python-dateutil = "*"
 mqttclient = "*"
 gunicorn = "*"
+prometheus-flask-exporter = "*"
 
 [requires]
 python_version = "3.7"
