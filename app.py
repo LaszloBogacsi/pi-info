@@ -26,7 +26,8 @@ static_dir = os.path.join(project_folder, 'static')
 
 mqtt_client = None
 
-def create_app(config_file):
+
+def create_app(config_file='config.cfg'):
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir, root_path=root_folder)
     app.config.from_pyfile(config_file)
     with app.app_context():
