@@ -1,4 +1,4 @@
-<div class="ui people shape with shape-{{ loop_index }}">
+<div class="ui people shape container with shape-{{ loop_index }}">
     <div class="sides">
         <div class="active side">
             <div class="ui {% if d.data.sensor_status == 'OK' %}green{% else %}red{% endif %} card">
@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        {# ---- more info side ------ #}
+<!--        more info side -->
 
         <div class="side">
             <div class="ui {% if d.data.sensor_status == 'OK' %}green{% else %}red{% endif %} card">
@@ -79,8 +79,8 @@
     $('.shape').shape();
 
     function flip(e, index) {
-        {#console.log(e);#}
-        {#e.preventDefault();#}
+        // console.log(e);
+        // e.preventDefault();
         $(`.shape-${index}`).shape('flip over');
         console.log("flippig" + index)
     }
