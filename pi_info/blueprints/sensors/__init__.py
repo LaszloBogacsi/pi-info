@@ -2,13 +2,15 @@ import decimal
 import json
 from datetime import datetime
 
-from flask import Blueprint, render_template, abort, request, make_response, url_for, current_app
+from flask import Blueprint, render_template, abort, request, make_response, url_for, current_app, redirect
 from jinja2 import TemplateNotFound
 
 from pi_info.data.data_normaliser import get_data_for_resolution, make_minute_resolution_data
-from pi_info.data.sensors import SENSORS, get_sensor_by_id
+from pi_info.data.room import Room
+from pi_info.data.sensors import SENSORS, get_sensor_by_id, SensorType
 from pi_info.repository.SensorData import SensorData
 from pi_info.repository.sensor_data_repository import load_sensor_data_for, load_current_sensor_data
+from pi_info.repository.sensor_repository import save_sensor, load_all_sensors
 from pi_info.statusbar import refresh_statusbar
 
 sensors = Blueprint('sensors', __name__,
@@ -39,6 +41,39 @@ def show_sensor():
             sensor = get_sensor_by_id(int_id)
         statusbar = refresh_statusbar()
         return render_template('sensor/index.html', active='sensors', sensor=sensor, statusbar=statusbar, selected=timerange, api_base_url=current_app.config['API_BASE_URL'])
+    except TemplateNotFound:
+        abort(404)
+
+@sensors.route('/sensors/new', methods=['GET'])
+def new_sensor():
+    try:
+        sensor_types = [type.value.title() for type in SensorType]
+        locations = [room.value.title() for room in Room]
+        statusbar = refresh_statusbar()
+        return render_template('sensors/new.html', active='sensors', statusbar=statusbar, sensor_types=sensor_types, locations=locations)
+    except TemplateNotFound:
+        abort(404)
+
+@sensors.route('/sensors/save', methods=['POST'])
+def save_new():
+    try:
+        type = request.form['type'].lower()
+        location = request.form['location'].lower()
+        name = request.form['name']
+        code = request.form['code']
+        sampling_rate = request.form['sampling-rate']
+        last_id = load_all_sensors()[0].get('id') if len(load_all_sensors()) > 0 else 100
+        new_id = last_id + 1
+        sensor_to_save = {
+            "id": new_id,
+            "type": type,
+            "name": name,
+            "code": code,
+            "sampling_rate": sampling_rate,
+            "location": location
+        }
+        save_sensor(sensor_to_save)
+        return redirect(url_for('sensors.show_sensors', _method='GET'))
     except TemplateNotFound:
         abort(404)
 

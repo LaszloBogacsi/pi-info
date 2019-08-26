@@ -17,4 +17,11 @@
     {% endfor %}
 
 </div>
+<button class="ui button">
+    <a class="ui button {{ active }}" href="{{ url_for('sensors.new_sensor') }}">
+        <i class="{{ iconType }}"></i>
+         ADD
+    </a>
+</button>
+
 {% endblock %}
