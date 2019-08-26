@@ -1,8 +1,6 @@
 from flask import current_app as capp
 
 from app import create_app
-from pi_info.application_config import Config
-Config('../config_dev.ini')
 import random
 import unittest
 from datetime import datetime, timedelta
