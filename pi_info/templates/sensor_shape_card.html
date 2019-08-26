@@ -70,19 +70,6 @@
         </div>
     </div>
 </div>
-<style>
-    .ui.shape.with.animating .side * {
-        transition: none !important;
-    }
-</style>
-<script>
-    $('.shape').shape();
-
-    function flip(e, index) {
-        // console.log(e);
-        // e.preventDefault();
-        $(`.shape-${index}`).shape('flip over');
-        console.log("flippig" + index)
-    }
-</script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/sensor-shape-card.css') }}">
+<script src="{{ url_for('static', filename='js/sensorShapeCard.js') }}"></script>
 

@@ -1,4 +1,4 @@
-    <a onclick="toggle_sidebar()" class="item openbtn" style="width: 150px">
+    <a onclick="toggle_sidebar()" class="item openbtn">
         <i class="icon content"></i>
         HOME HUB
     </a>
@@ -19,3 +19,5 @@
     <a class="item" href="{{ url_for('lights.show_lights') }}">
         <i class="large {% if statusbar.lights_status.is_on %}yellow{% endif %} lightbulb icon"></i>
     </a>
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/statusbar.css') }}">

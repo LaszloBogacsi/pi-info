@@ -1,10 +1,7 @@
 {% extends 'layout.html' %}
 {% block content %}
-<style>
-    .img-fit img {
-        height: 80vh;
-    }
-</style>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/home-index.css') }}">
+
 <div class="ui grid padded one column centered">
     <div class="row img-fit">
         <img src="{{ url_for('static', filename='2dFloorplan.png') }}" usemap="#image-map">
@@ -29,10 +26,7 @@
     </div>
 
 </div>
-<script>
-    $('map').imageMapResize();
-
-</script>
+<script src="{{ url_for('static', filename='js/homeIndex.js') }}"></script>
 {% endblock %}
 
 

@@ -6,11 +6,6 @@
     </div>
 </div>
 
-<script>
-    function rowClickHandler(url) {
-        window.location = url;
-    }
-</script>
 <h1>{{room}}</h1>
 {% for thing in things %}
 <h1>{{thing.title}}</h1>
@@ -40,5 +35,6 @@
     </tbody>
 </table>
 {% endfor %}
+<script src="{{ url_for('static', filename='js/roomList.js') }}"></script>
 {% endblock %}
 

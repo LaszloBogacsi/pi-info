@@ -1,15 +1,7 @@
 {% extends 'layout.html' %}
 {% block content %}
-    <style>
-        .white.header {
-            color: white;
-        }
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tube-status.css') }}">
 
-        #tube_status_list .title {
-            padding-top: 1.4em;
-            padding-bottom: 1.4em;
-        }
-    </style>
     <div class="ui two column grid">
         <div class="row">
             <div class="one wide column"></div>
@@ -103,11 +95,5 @@
             </div>
         </div>
     </div>
-    <script language='javascript'>
-        $(document).ready(function () {
-            $('#tube_status_list').accordion();
-            $('#tube_planned_work_list').accordion();
-            $('.ui.dropdown').dropdown();
-        });
-    </script>
+<script src="{{ url_for('static', filename='js/tubeStatus.js') }}"></script>
 {% endblock %}
