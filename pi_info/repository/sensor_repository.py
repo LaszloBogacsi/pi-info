@@ -2,7 +2,7 @@ from pi_info.repository.Sensor import Sensor
 from pi_info.repository.repository import save, load_all, load_one
 
 
-def save_sensor_data(sensor):
+def save_sensor(sensor):
     query = "INSERT INTO sensor(sensor_id, name, location, code, type, sampling_rate) VALUES ('{}', {}, '{}', {}, '{}', {})".format(
         sensor['id'], sensor['name'], sensor['location'], sensor['code'], sensor['type'], sensor['sampling_rate'])
     save(query)
