@@ -1,27 +1,23 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="ui one column padded grid">
-    <div class="column center aligned">
-        {% include "view_button_bar.html" %}
+    <div class="ui one column padded grid">
+        <div class="column center aligned">
+            {% include "view_button_bar.html" %}
+            <a class="ui basic teal button {{ active }}" href="{{ url_for('sensors.new_sensor') }}">
+                ADD
+            </a>
+        </div>
     </div>
-</div>
 
-<div class="five column doubling stackable padded ui grid">
-    {% for d in sensors %}
-    {% with %}
-    {% set loop_index=loop.index %}
-    <div class="column">
-        {% include "sensor_shape_card.html" %}
+    <div class="five column doubling stackable padded ui grid">
+        {% for d in sensors %}
+            {% with %}
+                {% set loop_index=loop.index %}
+                <div class="column">
+                    {% include "sensor_shape_card.html" %}
+                </div>
+            {% endwith %}
+        {% endfor %}
+
     </div>
-    {% endwith %}
-    {% endfor %}
-
-</div>
-<button class="ui button">
-    <a class="ui button {{ active }}" href="{{ url_for('sensors.new_sensor') }}">
-        <i class="{{ iconType }}"></i>
-         ADD
-    </a>
-</button>
-
 {% endblock %}

@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from flask import Blueprint, render_template, abort, request, url_for
 from jinja2 import TemplateNotFound
 
@@ -22,7 +24,7 @@ def get_all_lights_for(room):
 
 def all_things_for_room(room):
     all_sensors_in_room = get_all_sensors_for(room)
-    enriched_with_current_values = [{**get_displayed_sensor_data(load_current_sensor_data(sensor)), **sensor} for sensor in all_sensors_in_room ]
+    enriched_with_current_values = [{**get_displayed_sensor_data(load_current_sensor_data(sensor), sensor), **sensor} for sensor in all_sensors_in_room ]
     all_lights_in_room = get_all_lights_for(room)
     return [
         {
@@ -36,13 +38,15 @@ def all_things_for_room(room):
     ]
 
 
-def get_displayed_sensor_data(sensor_data):
+def get_displayed_sensor_data(sensor_data, sensor):
     if sensor_data is not None:
         display_data = [dict(formatted_value="{} {}".format(value['value'], get_unit_by_type(value['type'])), type=value['type'].capitalize()) for value in sensor_data.values]
     else:
         display_data = [{}]
         sensor_data = SensorData.get_empty()
-    return dict(data=sensor_data, display_data=display_data )
+    is_active = dict(is_active=sensor_data.published_time > datetime.now() - timedelta(minutes=(10 * sensor['sampling_rate_mins'])))
+
+    return dict(data=sensor_data, display_data=display_data, **is_active)
 
 
 def get_unit_by_type(type):
