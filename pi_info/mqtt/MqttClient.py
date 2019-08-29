@@ -1,12 +1,13 @@
 import json
-import paho.mqtt.client as mqtt
 from datetime import datetime
+
+import paho.mqtt.client as mqtt
 
 
 class MqttClient:
 
     def __init__(self, credentials, host, message_handlers):
-        self .topic_handler = {handler.topic: handler for handler in message_handlers}
+        self.topic_handler = {handler.topic: handler for handler in message_handlers}
         client = mqtt.Client()
         self.client = client
         client.on_connect = self.on_connect

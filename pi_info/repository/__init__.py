@@ -7,11 +7,12 @@ def init_app_db(app):
     app.teardown_appcontext(close_db)
     init_db()
 
-
+db = None
 def get_db() -> SimpleConnectionPool:
-    if 'pgdb' not in g:
+    global db
+    if db is None:
         try:
-            g.pgdb = SimpleConnectionPool(1, 3,
+            db = SimpleConnectionPool(1, 3,
                                           host=current_app.config["PGDB_HOST"],
                                           database=current_app.config["PGDB_DATABASE"],
                                           user=current_app.config["PGDB_USER"],
@@ -19,7 +20,7 @@ def get_db() -> SimpleConnectionPool:
         except (Exception, psycopg2.DatabaseError) as error:
             print("Error while connecting to PostgreSQL", error)
 
-    return g.pgdb
+    return db
 
 
 def close_db(e=None):

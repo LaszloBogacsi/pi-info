@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, g
+from flask import Flask
 
 from pi_info.Credentials import Credentials
 
@@ -53,5 +53,4 @@ def create_app(config_file='config.cfg'):
 
 def init_mqtt(app) -> MqttClient:
     handlers = [MessageHandler('sensor/temperature', save_sensor_data)]
-    if 'mqtt_client' not in g:
-        return MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)
+    return MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)
