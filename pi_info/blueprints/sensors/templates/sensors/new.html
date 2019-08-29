@@ -1,49 +1,70 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<h1>Add new sensor</h1>
+    <form class="ui form" method="post" action="{{ url_for('sensors.save_new') }}">
+        <h2 class="ui centered header">Add new sensor</h2>
 
+        <div class="ui card container">
+            <div id="dimmer-{{ loop_index }}" class="ui dimmer">
+                <div class="ui loader">
+                </div>
+            </div>
+            <div class="ui two column padded grid">
+                <div class="column">
+                    <div class="grouped fields">
+                        <label for="location">Select a location:</label>
+                        {% for location in locations %}
+                            <div class="field">
+                                <div class="ui checkbox">
+                                    <input type="radio" name="location" value="{{ location }}" class="hidden" required>
+                                    <label>{{ location }}</label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="grouped fields">
+                        <label for="type">Select a type:</label>
+                        {% for type in sensor_types %}
+                            <div class="field">
+                                <div class="ui checkbox">
+                                    <input type="radio" name="type" tabindex="0" value="{{ type }}" class="hidden" required>
+                                    <label>{{ type }}</label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="content">
+                <div class="field">
+                    <label>Name</label>
+                    <input name="name" type="text" placeholder="Sensor name..." required>
+                </div>
+                <div class="field">
+                    <label>Code</label>
+                    <input name="code" type="text" placeholder="Sensor code... eg: DHT22" required>
+                </div>
+                <div class="field">
+                    <label>Sampling Rate</label>
+                    <input name="sampling-rate" type="number" placeholder="Sampling rate mins..." required>
+                </div>
+            </div>
+            <div class="extra content">
+                <button class="ui primary button right floated" type="submit">
+                    Save
+                </button>
+                <a href="{{ url_for('sensors.show_sensors') }}">
+                    <button class="ui button" type="button">
+                        Discard
+                    </button>
+                </a>
 
-<form class="ui form" method="post" action="{{ url_for('sensors.save_new') }}">
-    <div class="inline fields">
-        <label for="location">Select a location:</label>
-        {% for location in locations %}
-        <div class="field">
-            <div class="ui radio checkbox">
-                <input type="radio" name="location" value="{{location}}" class="hidden">
-                <label>{{location}}</label>
             </div>
         </div>
-        {% endfor %}
-    </div>
-   <div class="inline fields">
-        <label for="type">Select a type:</label>
-        {% for type in sensor_types %}
-        <div class="field">
-            <div class="ui radio checkbox">
-                <input type="radio" name="type" tabindex="0" value="{{type}}" class="hidden">
-                <label>{{type}}</label>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-   <div class="ui input">
-      <input name="name" type="text" placeholder="Sensor name...">
-   </div>
-   <div class="ui input">
-      <input name="code" type="text" placeholder="Sensor code... eg: DHT22">
-   </div>
-   <div class="ui input">
-      <input name="sampling-rate" type="text" placeholder="Sampling rate mins...">
-   </div>
+    </form>
 
-   <button class="ui primary button" type="submit">
-      Save
-   </button>
-   <button class="ui button">
-      Discard
-   </button>
-</form>
-<script src="{{ url_for('static', filename='js/sensorsNew.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sensorsNew.js') }}"></script>
 
 {% endblock %}

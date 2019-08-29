@@ -23,7 +23,9 @@
 <div class="ui bottom attached segment pushable">
     {% include "sidenav.html" %}
     <div class="pusher">
-        {% block content %} {% endblock %}
+        <div class="ui container">
+            {% block content %} {% endblock %}
+        </div>
     </div>
 </div>
 
