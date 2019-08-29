@@ -1,6 +1,6 @@
 import decimal
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import Blueprint, render_template, abort, request, make_response, url_for, current_app, redirect
 from jinja2 import TemplateNotFound
@@ -23,10 +23,13 @@ def show_sensors(page):
     try:
         statusbar = refresh_statusbar()
         buttons = get_buttons(selected=page)
-        enriched_with_current_values = [{**get_displayed_sensor_data(load_current_sensor_data(sensor)), **sensor} for sensor in SENSORS]
-        return render_template('sensors/%s.html' % page, active='sensors', sensors=enriched_with_current_values, statusbar=statusbar, buttons=buttons)
+        enriched_with_current_values = [{**get_displayed_sensor_data(load_current_sensor_data(sensor), sensor), **sensor} for
+                                        sensor in SENSORS]
+        return render_template('sensors/%s.html' % page, active='sensors', sensors=enriched_with_current_values,
+                               statusbar=statusbar, buttons=buttons)
     except TemplateNotFound:
         abort(404)
+
 
 @sensors.route('/sensors/sensor', methods=['GET'])
 def show_sensor():
@@ -40,9 +43,11 @@ def show_sensor():
             int_id = int(sensor_id)
             sensor = get_sensor_by_id(int_id)
         statusbar = refresh_statusbar()
-        return render_template('sensor/index.html', active='sensors', sensor=sensor, statusbar=statusbar, selected=timerange, api_base_url=current_app.config['API_BASE_URL'])
+        return render_template('sensor/index.html', active='sensors', sensor=sensor, statusbar=statusbar,
+                               selected=timerange, api_base_url=current_app.config['API_BASE_URL'])
     except TemplateNotFound:
         abort(404)
+
 
 @sensors.route('/sensors/new', methods=['GET'])
 def new_sensor():
@@ -50,9 +55,11 @@ def new_sensor():
         sensor_types = [type.value.title() for type in SensorType]
         locations = [room.value.title() for room in Room]
         statusbar = refresh_statusbar()
-        return render_template('sensors/new.html', active='sensors', statusbar=statusbar, sensor_types=sensor_types, locations=locations)
+        return render_template('sensors/new.html', active='sensors', statusbar=statusbar, sensor_types=sensor_types,
+                               locations=locations)
     except TemplateNotFound:
         abort(404)
+
 
 @sensors.route('/sensors/save', methods=['POST'])
 def save_new():
@@ -86,20 +93,31 @@ def get_unit_by_type(type):
     return type_unit.get(type, '')
 
 
-def get_displayed_sensor_data(sensor_data):
+def get_displayed_sensor_data(sensor_data, sensor):
     if sensor_data is not None:
-        display_data = [dict(formatted_value="{} {}".format(value['value'], get_unit_by_type(value['type'])), type=value['type'].capitalize()) for value in sensor_data.values]
+        display_data = [
+            dict(
+                formatted_value="{} {}".format(value['value'], get_unit_by_type(value['type'])),
+                type=value['type'].capitalize()
+            ) for value in sensor_data.values
+        ]
     else:
         display_data = [{}]
         sensor_data = SensorData.get_empty()
-    return dict(data=sensor_data, display_data=display_data )
+    is_active = dict(is_active=sensor_data.published_time > datetime.now() - timedelta(minutes=(10 * sensor['sampling_rate_mins'])))
+
+    return dict(data=sensor_data, display_data=display_data, **is_active)
+
 
 def get_buttons(selected):
-    status_button = {"url": url_for('sensors.show_sensors', page='status'), "active_status": 'active' if selected == 'status' else '', "icon_type": '',
+    status_button = {"url": url_for('sensors.show_sensors', page='status'),
+                     "active_status": 'active' if selected == 'status' else '', "icon_type": '',
                      "button_text": "STATUS"}
-    list_button = {"url": url_for('sensors.show_sensors', page='list'), "active_status": 'active' if selected == 'list' else '', "icon_type": 'list icon',
+    list_button = {"url": url_for('sensors.show_sensors', page='list'),
+                   "active_status": 'active' if selected == 'list' else '', "icon_type": 'list icon',
                    "button_text": "LIST"}
-    graph_button = {"url": url_for('sensors.show_sensors', page='graph'), "active_status": 'active' if selected == 'graph' else '', "icon_type": 'chart bar icon',
+    graph_button = {"url": url_for('sensors.show_sensors', page='graph'),
+                    "active_status": 'active' if selected == 'graph' else '', "icon_type": 'chart bar icon',
                     "button_text": "GRAPH"}
     return [status_button, list_button, graph_button]
 
@@ -139,7 +157,8 @@ def get_data():
     all_sensor_data = load_sensor_data_for(sensor, timerange)
 
     resolution_mins = timerange_resolution_mins.get(timerange)
-    all_sensor_data_by_resolution = get_data_for_resolution(make_minute_resolution_data(all_sensor_data), resolution_mins)
+    all_sensor_data_by_resolution = get_data_for_resolution(make_minute_resolution_data(all_sensor_data),
+                                                            resolution_mins)
     outbound_all_sensor_data_by_resolution = list(map(lambda d: datetime_key_fix(d), all_sensor_data_by_resolution))
     all_data = {"sensor_data": outbound_all_sensor_data_by_resolution}
 

@@ -1,7 +1,7 @@
 <div class="ui people shape container with shape-{{ loop_index }}">
     <div class="sides">
         <div class="active side">
-            <div class="ui {% if d.data.sensor_status == 'OK' %}green{% else %}red{% endif %} card">
+            <div class="ui {% if d.is_active%}green{% else %}red{% endif %} card">
                 <div class="content center aligned">
                     <a href="{{ url_for('sensors.show_sensor', sensor_id=d.sensor_id, timerange='today') }}">
 
