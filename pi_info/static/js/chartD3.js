@@ -13,12 +13,40 @@ const timeRange = urlParams.get("timerange");
 const TODAY = "today";
 
 const url = BASE_URL + "/sensor/data";
+
+function handleError(error) {
+    const errorElement = document.querySelector('.error-msg');
+    errorElement.innerHTML = "<div class=\"ui negative message\">\n" +
+        "  <i class=\"close icon\"></i>\n" +
+        "  <div class=\"header\">\n" +
+        "    Error loading chart data\n" +
+        "  </div>\n" +
+        "  <p>\n" + error +
+        "</p></div>";
+
+    $('.message .close')
+        .on('click', function() {
+            $(this)
+                .closest('.message')
+                .transition('fade')
+            ;
+        })
+    ;
+}
+
 fetch(url + queryParams)
     .then(response => response.json())
-    .catch(error => console.log(error))
+    .catch(error => {
+        console.log(error);
+        handleError(error);
+    })
     .then(data => loadDataset(data));
 
 function loadDataset(data) {
+    if (data.sensor_data.length === 0) {
+        handleError("No data found");
+        return ;
+    }
     const dataset_temp = data.sensor_data.map(d => d.data.values.filter(v => v.type === "temperature")[0].value);
     const dataset_humidity = data.sensor_data.map(d => d.data.values.filter(v => v.type === "humidity")[0].value);
     const timeScale = data.sensor_data
@@ -45,7 +73,7 @@ function loadDataset(data) {
         .x(d => d.x)
         .y(d => yScale(d.y));
     const line_humid = d3.line()
-        .x((d, i)  => xScale(timeScale[i])+xScale.bandwidth() /2) // set the x values for the line generator
+        .x((d, i) => xScale(timeScale[i]) + xScale.bandwidth() / 2) // set the x values for the line generator
         .y(d => yScale2(d)) // set the y values for the line generator
         .curve(d3.curveMonotoneX); // apply smoothing to the line
 
@@ -82,7 +110,7 @@ function loadDataset(data) {
         .data(dataset_temp)
         .enter()
         .append("rect")
-        .attr("class","temp-bars")
+        .attr("class", "temp-bars")
         .attr("y", d => yScale(d))
         .attr("height", d => height - yScale(d + domainMin))
         .attr("width", barWidth - barPadding)
@@ -90,25 +118,29 @@ function loadDataset(data) {
             const cx = xScale(timeScale[i]);
             return `translate(${cx})`
         })
-        .on("mousemove", function(d){
+        .on("mousemove", function (d) {
             tooltip
                 .style("left", d3.event.pageX - 50 + "px")
                 .style("top", d3.event.pageY - 70 + "px")
                 .style("display", "inline-block")
                 .html(d);
         })
-        .on("mouseout", function(d){ tooltip.style("display", "none");});;
+        .on("mouseout", function (d) {
+            tooltip.style("display", "none");
+        });
+    ;
 
     const valueLabels = svg.selectAll(".text")
         .data(dataset_temp)
         .enter()
         .append("text")
-        .attr("class","label")
-        .attr("x", (d, i) => xScale(timeScale[i]) + (xScale.bandwidth() - barPadding)/2)
-        .attr("y", function(d) { return yScale(d) + 1; })
+        .attr("class", "label")
+        .attr("x", (d, i) => xScale(timeScale[i]) + (xScale.bandwidth() - barPadding) / 2)
+        .attr("y", function (d) {
+            return yScale(d) + 1;
+        })
         .attr("dy", "1em")
         .text(d => d3.format(".0f")(d));
-
 
 
 // 9. Append the path, bind the data, and call the line generator
