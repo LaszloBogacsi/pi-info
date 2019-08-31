@@ -45,7 +45,7 @@ def create_app(config_file='config.cfg'):
     def format_datetime(value, format="%d %b %Y %I:%M %p"):
         """Format a date time to (Default): d Mon YYYY HH:MM P"""
         if value is None:
-            return ""
+            return "-"
         return value.strftime(format)
 
     return app

@@ -168,7 +168,7 @@ def get_displayed_sensor_data(sensor_data: SensorData, sensor: Sensor):
         ]
         is_active = dict(is_active=sensor_data.published_time > datetime.now() - timedelta(minutes=(10 * sensor.sampling_rate)))
     else:
-        display_data = [{}]
+        display_data = [{},{}]
         sensor_data = SensorData.get_empty()
         is_active = {"is_active": False}
     return dict(data=sensor_data, display_data=display_data, **is_active)

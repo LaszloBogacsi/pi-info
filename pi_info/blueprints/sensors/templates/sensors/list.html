@@ -17,15 +17,47 @@
         <th>Type</th>
         <th>Name</th>
         <th>Location</th>
+        <th>Temperature</th>
+        <th>Humidity</th>
+        <th>ID</th>
+        <th>Updated At</th>
+        <th>Status</th>
+        <th>Code</th>
+        <th colspan="2">Actions</th>
+
     </tr>
     </thead>
     <tbody>
+
     {% for sensor in sensors %}
     <tr onclick=rowClickHandler("{{url_for('sensors.show_sensor',sensor_id=sensor.sensor_id,timerange='today')}}")>
-        <td data-label="Type"><i class="thermometer icon"></i></td>
+        <td data-label="Type"><i class="thermometer icon"></i>{{ sensor.type.value }}</td>
         <td data-label="Name">{{ sensor.name }}</td>
         <td data-label="Location">{{ sensor.location.value }}</td>
+        {% for v in sensor.display_data %}
+        <td data-label="{{v.type}}">{{ v.formatted_value }}</td>
+        {% endfor %}
+        <td data-label="ID">{{ sensor.id }}</td>
+        <td data-label="Updated At">{{ sensor.data.published_time | formatdatetime }}</td>
+        <td data-label="Status">
+            <span class="ui {% if sensor.data.sensor_status == 'OK' %}green{% else %}red{% endif %} empty circular label"></span>
+            {{ sensor.data.sensor_status }}
+        </td>
+        <td data-label="Code">{{ sensor.code }}</td>
+        <td data-label="Actions">
+            <a class="ui basic mini teal icon button" title="edit" href="{{ url_for('sensors.edit_sensor', sensor_id=sensor.id) }}">
+                <i class="edit outline icon"></i>
+            </a>
+        </td>
+        <td data-label="Actions">
+            <a class="ui basic mini red icon button" title="delete" href="{{ url_for('sensors.delete_sensor', sensor_id=sensor.id) }}">
+                <i class="trash icon"></i>
+            </a>
+        </td>
+
     </tr>
+    {% else %}
+    <p><em>No</em> sensors could be found, click on the "ADD" button add one</p>
     {% endfor %}
     </tbody>
 </table>
