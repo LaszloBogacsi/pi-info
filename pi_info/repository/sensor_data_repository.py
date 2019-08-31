@@ -1,3 +1,4 @@
+from pi_info.repository import Sensor
 from pi_info.repository.SensorData import SensorData
 from pi_info.repository.repository import save, load_all, load_one, get_timerange_query
 
@@ -13,15 +14,15 @@ def load_all_sensor_data() -> [SensorData]:
     return load_all(sql, cast_sensor_data)
 
 
-def load_current_sensor_data(sensor=None) -> SensorData:
-    sensor_filter = 'WHERE sensor_id={}'.format(sensor["sensor_id"]) if sensor else ''
+def load_current_sensor_data(sensor: Sensor = None) -> SensorData:
+    sensor_filter = 'WHERE sensor_id={}'.format(sensor.id) if sensor else ''
     sql = 'SELECT * FROM sensor_data {} ORDER BY published_time DESC LIMIT 1'.format(sensor_filter)
     return load_one(sql, cast_sensor_data)
 
 
-def load_sensor_data_for(sensor, timerange) -> [SensorData]:
+def load_sensor_data_for(sensor: Sensor, timerange) -> [SensorData]:
     timerange_query = get_timerange_query(timerange)
-    sql = 'SELECT * FROM sensor_data WHERE sensor_id={}{} ORDER BY published_time'.format(sensor["sensor_id"], timerange_query)
+    sql = 'SELECT * FROM sensor_data WHERE sensor_id={}{} ORDER BY published_time'.format(sensor.id, timerange_query)
     return load_all(sql, cast_sensor_data)
 
 

@@ -2,14 +2,13 @@ import decimal
 from datetime import timedelta, datetime
 
 from pi_info.repository.SensorData import SensorData
-from pi_info.data.sensors import get_sensor_by_id
+from pi_info.repository.sensor_repository import load_sensor_by
 
 
 def make_minute_resolution_data(data_arr) -> [SensorData]:
     if len(data_arr) <= 1:
         return data_arr
 
-    DEFAULT_SAMPLING_RATE = 20
     data_by_minute = []
 
     def make_values(value):
@@ -21,13 +20,14 @@ def make_minute_resolution_data(data_arr) -> [SensorData]:
         new_temp_rounded = decimal.Decimal(new_temp.quantize(decimal.Decimal('.01'), rounding=decimal.ROUND_HALF_UP))
         return {"type": value["type"], "value": new_temp_rounded}
 
+    sampling_frequency_mins = load_sensor_by(data_arr[0].sensor_id).sampling_rate
+    tolerance = 1.5 * sampling_frequency_mins
+
     for i in range(len(data_arr)):
         first = data_arr[i]
         if i == len(data_arr) - 1:
             break
         second = data_arr[i + 1]
-        sampling_frequency_mins = get_sensor_by_id(first.sensor_id).get("sampling_rate_mins", DEFAULT_SAMPLING_RATE)
-        tolerance = 1.5 * sampling_frequency_mins
 
         d_time_mins = decimal.Decimal((second.published_time - first.published_time).seconds / 60)
         if d_time_mins == 0: continue
@@ -87,7 +87,9 @@ def get_data_for_resolution(minute_data, resolution_mins):
 
             def get_average_by_type(value):
                 data_type = value["type"]
-                return {"type": data_type, "value": decimal.Decimal((sum(list(map(lambda b: next(item for item in b.values if item["type"] == data_type)["value"], sensor_datas))) / len(sensor_datas)).quantize(decimal.Decimal('.01'), rounding=decimal.ROUND_HALF_UP))}
+                return {"type": data_type, "value": decimal.Decimal(
+                    (sum(list(map(lambda b: next(item for item in b.values if item["type"] == data_type)["value"], sensor_datas))) / len(sensor_datas)).quantize(
+                        decimal.Decimal('.01'), rounding=decimal.ROUND_HALF_UP))}
 
             values = list(map(get_average_by_type, a_data.values))
             averaged_data.append({"published_at": time, "data": SensorData(values, a_data.sensor_status, time, a_data.sensor_id)})

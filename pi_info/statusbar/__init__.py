@@ -2,10 +2,9 @@ import math
 from datetime import datetime
 
 from pi_info.data.lights import LIGHTS, LightStatus
-from pi_info.third_party.openweather import get_current_weather_info
 from pi_info.repository.sensor_data_repository import load_current_sensor_data
+from pi_info.third_party.openweather import get_current_weather_info
 from pi_info.third_party.tfl_tube_status import get_current_tube_status, central
-
 
 last_refreshed = datetime.now()
 

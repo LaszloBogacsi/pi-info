@@ -3,7 +3,7 @@
         <div class="active side">
             <div class="ui {% if d.is_active%}green{% else %}red{% endif %} card">
                 <div class="content center aligned">
-                    <a href="{{ url_for('sensors.show_sensor', sensor_id=d.sensor_id, timerange='today') }}">
+                    <a href="{{ url_for('sensors.show_sensor', sensor_id=d.id, timerange='today') }}">
 
                         {% for v in d.display_data %}
                             <div class="ui huge header">{{ v.formatted_value }}</div>
@@ -40,7 +40,7 @@
                 </div>
                 <div class="content">
                     <div class="meta">sensor id</div>
-                    {{ d.sensor_id }}
+                    {{ d.id }}
                 </div>
                 <div class="content">
                     <div class="meta">updated at</div>
@@ -57,7 +57,13 @@
                 </div>
                 <div class="content">
                     <div class="meta">code</div>
-                    {{ d.code.value }}
+                    {{ d.code }}
+                </div>
+                <div class="content">
+                    <a class="ui button red" href="{{ url_for('sensors.delete_sensor', sensor_id=d.id) }}">
+                        <i class="{{ iconType }}"></i>
+                        DELETE
+                    </a>
                 </div>
 
                 <div class="extra content" onclick="flip(event, {{ loop_index }})">
