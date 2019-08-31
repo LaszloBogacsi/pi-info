@@ -1,8 +1,8 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-    <form class="ui form" method="post" action="{{ url_for('sensors.save_new') }}">
-        <h2 class="ui centered header">Add new sensor</h2>
+    <form class="ui form" method="post" action="{{ url_for('sensors.save_edit') }}">
+        <h2 class="ui centered header">Edit sensor</h2>
 
         <div class="ui card container">
             <div id="dimmer-{{ loop_index }}" class="ui dimmer">
@@ -13,9 +13,10 @@
                 <div class="column">
                     <div class="grouped fields">
                         <label for="location">Select a location:</label>
+                        <p>{{sensor.location.value.title()}}</p>
                         {% for location in locations %}
                             <div class="field">
-                                <div class="ui checkbox">
+                                <div class="ui checkbox {% if location.lower() == sensor.location.value.lower() %}checkthis{% endif %}">
                                     <input type="radio" name="location" value="{{ location }}" class="hidden" required>
                                     <label>{{ location }}</label>
                                 </div>
@@ -28,7 +29,7 @@
                         <label for="type">Select a type:</label>
                         {% for type in sensor_types %}
                             <div class="field">
-                                <div class="ui checkbox">
+                                <div class="ui checkbox {% if type.lower() == sensor.type.value.lower() %}checkthis{% endif %}">
                                     <input type="radio" name="type" tabindex="0" value="{{ type }}" class="hidden" required>
                                     <label>{{ type }}</label>
                                 </div>
@@ -40,19 +41,20 @@
             <div class="content">
                 <div class="disabled field">
                     <label>Id</label>
-                    <input name="id" type="text" readonly=""  placeholder="Sensor id" required value="{{ id }}">
+                    <input name="id" type="text" readonly=""  placeholder="Sensor id" value="{{ sensor.id }}" required>
                 </div>
+
                 <div class="field">
                     <label>Name</label>
-                    <input name="name" type="text" placeholder="Sensor name..." required>
+                    <input name="name" type="text" placeholder="Sensor name..." value="{{sensor.name}}" required>
                 </div>
                 <div class="field">
                     <label>Code</label>
-                    <input name="code" type="text" placeholder="Sensor code... eg: DHT22" required>
+                    <input name="code" type="text" placeholder="Sensor code... eg: DHT22" value="{{sensor.code}}" required>
                 </div>
                 <div class="field">
                     <label>Sampling Rate</label>
-                    <input name="sampling-rate" type="number" placeholder="Sampling rate mins..." required>
+                    <input name="sampling-rate" type="number" placeholder="Sampling rate mins..." value="{{sensor.sampling_rate}}" required>
                 </div>
             </div>
             <div class="extra content">
@@ -68,6 +70,9 @@
             </div>
         </div>
     </form>
+<script>
+    $('.checkbox.checkthis').checkbox( 'check' );
+</script>
 
     <script src="{{ url_for('static', filename='js/sensorsNew.js') }}"></script>
 

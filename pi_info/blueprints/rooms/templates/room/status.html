@@ -5,7 +5,7 @@
         {% include "view_button_bar.html" %}
     </div>
 </div>
-<h1>{{ room }}</h1>
+<h1>{{ room.title() }}</h1>
 {% for thing in things %}
 <h1 class="ui block header">{{ thing.title }}</h1>
 <div class="five column doubling stackable padded ui grid">
@@ -17,7 +17,7 @@
         {% if thing.title == 'Sensors' %}
         {% include "sensor_shape_card.html" %}
         {% endif %}
-        {% if thing.title == 'Lights' %}
+        {% if thing.title == 'Devices' %}
         {% include "light_card.html" %}
         {% endif %}
     </div>
@@ -25,7 +25,8 @@
 
     {% endfor %}
 </div>
-
+{% else %}
+<p><em>Things</em> could be found in this room</p>
 
 {% endfor %}
 <script>var BASE_URL = '{{api_base_url}}';</script>

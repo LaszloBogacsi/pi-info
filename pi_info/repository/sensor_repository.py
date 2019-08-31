@@ -10,6 +10,12 @@ def save_sensor(sensor):
     save(query)
 
 
+def update_sensor(sensor):
+    query = "UPDATE sensor SET name='{}', location='{}', code='{}', type='{}', sampling_rate={} WHERE sensor_id={}".format(
+        sensor['name'], sensor['location'], sensor['code'], sensor['type'], sensor['sampling_rate'], sensor["id"])
+    save(query)
+
+
 def load_all_sensors() -> [Sensor]:
     sql = "SELECT * FROM sensor ORDER BY sensor_id"
     return load_all(sql, cast_sensor)
@@ -21,7 +27,7 @@ def load_sensor_by(sensor_id) -> Sensor:
 
 
 def load_sensors_by_room(room) -> [Sensor]:
-    sql = 'SELECT * FROM sensor WHERE location={}'.format(room.value)
+    sql = "SELECT * FROM sensor WHERE location='{}'".format(room.value)
     return load_all(sql, cast_sensor)
 
 

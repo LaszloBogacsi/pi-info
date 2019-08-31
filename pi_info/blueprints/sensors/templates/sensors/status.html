@@ -14,6 +14,8 @@
                     {% include "sensor_shape_card.html" %}
                 </div>
             {% endwith %}
+        {% else %}
+        <p><em>No</em> sensors could be found, click on the "ADD" button add one</p>
         {% endfor %}
 
     </div>

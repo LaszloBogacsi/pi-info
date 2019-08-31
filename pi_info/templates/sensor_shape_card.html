@@ -30,7 +30,7 @@
 <!--        more info side -->
 
         <div class="side">
-            <div class="ui {% if d.data.sensor_status == 'OK' %}green{% else %}red{% endif %} card">
+            <div class="ui {% if d.is_active%}green{% else %}red{% endif %} card">
                 <div class="content">
                     <div class="header">{{ d.name }}</div>
                 </div>
@@ -60,8 +60,10 @@
                     {{ d.code }}
                 </div>
                 <div class="content">
-                    <a class="ui button red" href="{{ url_for('sensors.delete_sensor', sensor_id=d.id) }}">
-                        <i class="{{ iconType }}"></i>
+                    <a class="ui basic mini teal left floated button" href="{{ url_for('sensors.edit_sensor', sensor_id=d.id) }}">
+                        EDIT
+                    </a>
+                    <a class="ui basic mini red right floated button" href="{{ url_for('sensors.delete_sensor', sensor_id=d.id) }}">
                         DELETE
                     </a>
                 </div>

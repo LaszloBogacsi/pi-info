@@ -14,7 +14,8 @@
         {% include "light_card.html" %}
     </div>
     {% endwith %}
-
+    {% else %}
+    <p><em>No lights or other devices </em> could be found, click on the "ADD" button add one</p>
     {% endfor %}
 </div>
 <script>var BASE_URL = '{{api_base_url}}';</script>

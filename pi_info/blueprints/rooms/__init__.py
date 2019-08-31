@@ -27,16 +27,19 @@ def all_things_for_room(room):
     all_sensors_in_room = get_all_sensors_for(room)
     enriched_with_current_values = [{**get_displayed_sensor_data(load_current_sensor_data(sensor), sensor), **sensor.__dict__} for sensor in all_sensors_in_room]
     all_lights_in_room = get_all_lights_for(room)
-    return [
+
+    things = [
         {
             "title": "Sensors",
             "data": enriched_with_current_values
         },
         {
-            "title": "Lights",
+            "title": "Devices",
             "data": all_lights_in_room
         }
     ]
+
+    return [thing for thing in things if len(thing['data']) > 0]
 
 
 def get_displayed_sensor_data(sensor_data: SensorData, sensor: Sensor):
