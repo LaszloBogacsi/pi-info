@@ -1,26 +1,122 @@
-<div class="ui green card container">
-    <div id="dimmer-{{loop_index}}" class="ui dimmer">
-        <div class="ui loader">
+<div class="ui people shape container with shape-{{ loop_index }}">
+    <div class="sides">
+        <!--        <div class="active side">-->
+        <div class="first side">
+
+            <div id="dimmer-{{loop_index}}" class="ui dimmer">
+                <div class="ui loader">
+                </div>
+            </div>
+            <div class="ui {% if d.is_active%}green{% else %}red{% endif %} card">
+                <div onclick="switchHandler('{{d.light_id}}', '{{d.current_status.value}}', '{{loop_index}}')" class="ui button">
+                    <div class="center aligned image">
+                        <i id="light-status-{{loop_index}}" class="huge {% if d.current_status.value == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="header">{{ d.name }}</div>
+                    <div class="meta">
+                        <span class="date">  {{ d.location.value }}</span>
+                    </div>
+                </div>
+                <div class="extra content" onclick="flip(event, '{{ loop_index }}')">
+                    <a class="left floated">
+                        <i class="clock outline icon"></i>
+                        Schedule
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
-    <div onclick="switchHandler('{{d.light_id}}', '{{d.current_status.value}}', '{{loop_index}}')" class="ui button">
-        <div class="center aligned image">
-            <i id="light-status-{{loop_index}}" class="huge {% if d.current_status.value == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
+
+        <!--        Schedule list side -->
+        <div class="side">
+
+            <div class="ui {% if d.is_active%}green{% else %}red{% endif %} card">
+                <div class="content" onclick="flip(event, '{{ loop_index }}')">
+                    list
+                </div>
+                <div class="extra content" onclick="flip(event, '{{ loop_index }}', 'set next side', '.first.side')">
+                    <a class="left floated">
+                        <i class="arrow alternate circle left outline icon"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="content">
-        <a class="header">{{ d.name }}</a>
-        <div class="meta">
-            <span class="date">Joined in 2013</span>
+
+
+        <!--        Schedule detail side -->
+        <div class="active side">
+            <form class="ui form" method="post" action="{{ url_for('lights.show_lights') }}">
+
+                <div class="ui {% if d.is_active%}green{% else %}red{% endif %} card">
+                    <div class="content">
+                        <div class="field">
+                            <label>Time</label>
+                            <input name="name" type="time" placeholder="Select time" required>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div class="fields">
+                            <label for="state">Select a type:</label>
+                            <div class="field">
+                                <div class="ui checkbox">
+                                    <input type="radio" name="state" tabindex="0" value="ON" class="hidden" required>
+                                    <label>ON</label>
+                                </div>
+                                <div class="ui checkbox">
+                                    <input type="radio" name="state" tabindex="0" value="OFF" class="hidden" required>
+                                    <label>OFF</label>
+                                </div>
+                            </div>
+                            <label for="weekdays">Select days:</label>
+                            <div class="field">
+                                <div class="ui checkbox">
+                                    <input type="hidden" name="weekday" tabindex="0" value="1" class="hidden">
+                                    <label>MON</label>
+                                </div>
+                                <div class="ui checkbox">
+                                    <input type="checkbox" name="weekday" tabindex="0" value="2" class="hidden">
+                                    <label>TUE</label>
+                                </div>
+                                <div class="ui checkbox">
+                                    <input type="checkbox" name="weekday" tabindex="0" value="3" class="hidden">
+                                    <label>WED</label>
+                                </div>
+                                <div class="ui checkbox">
+                                    <input type="checkbox" name="weekday" tabindex="0" value="4" class="hidden">
+                                    <label>THU</label>
+                                </div>
+                                <div class="ui checkbox">
+                                    <input type="checkbox" name="weekday" tabindex="0" value="5" class="hidden">
+                                    <label>FRI</label>
+                                </div>
+                                <div class="ui checkbox">
+                                    <input type="checkbox" name="weekday" tabindex="0" value="6" class="hidden">
+                                    <label>SAT</label>
+                                </div>
+                                <div class="ui checkbox">
+                                    <input type="checkbox" name="weekday" tabindex="0" value="7" class="hidden">
+                                    <label>SUN</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="extra content">
+                        <button class="ui teal button right floated" type="submit">
+                            Save
+                        </button>
+
+                        <a class="left floated" onclick="flip(event, '{{ loop_index }}')">
+                            <i class="arrow alternate circle left outline icon"></i>
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+
         </div>
-        <div class="description">
-            {{ d.location.value }}
-        </div>
-    </div>
-    <div class="extra content">
-        <a>
-            <i class="user icon"></i>
-            22 Friends
-        </a>
     </div>
 </div>
+<script src="{{ url_for('static', filename='js/shapeCard.js') }}"></script>
