@@ -1,4 +1,5 @@
 from enum import Enum
+
 from pi_info.data.room import Room
 
 
@@ -11,8 +12,8 @@ class LightStatus(Enum):
     OFF = 'OFF'
 
 
-light1 = {"light_id": "1", "name": "Light 1", "location": Room.LIVING_ROOM, "type": LightType.TABLE_LAMP, "current_status": LightStatus.OFF}
-light2 = {"light_id": "2", "name": "Light 2", "location": Room.LIVING_ROOM, "type": LightType.TABLE_LAMP, "current_status": LightStatus.OFF}
+light1 = {"light_id": 1, "name": "Light 1", "location": Room.LIVING_ROOM, "type": LightType.TABLE_LAMP, "current_status": LightStatus.OFF}
+light2 = {"light_id": 2, "name": "Light 2", "location": Room.LIVING_ROOM, "type": LightType.TABLE_LAMP, "current_status": LightStatus.OFF}
 LIGHTS = [light1, light2]
 
 

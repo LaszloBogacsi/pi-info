@@ -33,4 +33,13 @@ CREATE TABLE IF NOT EXISTS relay_status
     status_id SERIAL PRIMARY KEY,
     relay_id  INTEGER,
     status    VARCHAR(5)
-)
+);
+
+CREATE TABLE IF NOT EXISTS schedule
+(
+    schedule_id   SERIAL PRIMARY KEY,
+    device_id      INTEGER,
+    status        VARCHAR(10),
+    days          VARCHAR(50),
+    time          TIME
+);

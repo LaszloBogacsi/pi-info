@@ -1,7 +1,9 @@
     <a onclick="toggle_sidebar()" class="item openbtn">
         <i class="icon content"></i>
-        HOME HUB
-    </a>
+        Home Hub
+        <img src="{{ url_for('static', filename='home_hub_logo.svg')}}" alt="icon">
+
+</a>
     <a class="item" href="{{ url_for('sensors.show_sensors') }}">
         {% include "statusbar_temp.html" %}
     </a>
