@@ -36,21 +36,21 @@
                 <div class="content">
                     <div class="ui middle aligned divided list">
                         {% for schedule in devices_schedules[d.light_id] %}
-                            <div class="item">
-                                <div class="right floated content">
-                                    <a class="ui basic mini red icon button" title="delete"
-                                       href="{{ url_for('lights.delete_light_schedule', schedule_id=schedule.schedule_id ) }}">
-                                        <i class="trash icon"></i>
-                                    </a>
-                                </div>
-                                <div class="content"
-                                     onclick="flipAndPrefillDetailsSide(event, '{{ loop_index }}', {{ schedule }})">
-                                    <a class="header">{{ schedule.status }} | {{ schedule.time }}</a>
-                                    <div class="description">{{ schedule.days }}</div>
-                                </div>
+                        <div class="item">
+                            <div class="right floated content">
+                                <a class="ui basic mini red icon button" title="delete"
+                                   href="{{ url_for('lights.delete_light_schedule', schedule_id=schedule.schedule_id ) }}">
+                                    <i class="trash icon"></i>
+                                </a>
                             </div>
+                            <div class="content"
+                                 onclick="flipAndPrefillDetailsSide(event, '{{ loop_index }}', {{ schedule }})">
+                                <a class="header">{{ schedule.status }} | {{ schedule.time }}</a>
+                                <div class="description">{{ schedule.days | toWeekday }}</div>
+                            </div>
+                        </div>
                         {% else %}
-                            <p>No schedules set yet, click on <strong>ADD</strong> to setup one</p>
+                        <p>No schedules set yet, click on <strong>ADD</strong> to setup one</p>
                         {% endfor %}
                     </div>
                 </div>
@@ -59,7 +59,7 @@
                         <i class="arrow alternate circle left outline icon"></i>
                         Back
                     </a>
-                    <a class="ui right floated" onclick="flip(event, '{{ loop_index }}')">
+                    <a class="ui right floated" onclick="flipAndReset(event, '{{ loop_index }}')">
                         <i class="teal plus icon"></i>
                         ADD
                     </a>
@@ -81,47 +81,35 @@
                         </div>
                     </div>
                     <div class="content">
-                        <div class="fields">
-                            <label for="state">Select a type:</label>
-                            <div class="field">
-                                <div class="ui checkbox">
-                                    <input type="radio" name="state" tabindex="0" value="ON" class="hidden" required>
-                                    <label>ON</label>
-                                </div>
-                                <div class="ui checkbox">
-                                    <input type="radio" name="state" tabindex="0" value="OFF" class="hidden" required>
-                                    <label>OFF</label>
+                        <div class="ui grid container">
+                            <div class="row">
+                                <div class="fields">
+                                    <label for="state">Select a type:</label>
+                                    <div class="field">
+                                        <div class="ui radio checkbox">
+                                            <input type="radio" name="state" tabindex="0" value="ON" class="hidden" required>
+                                            <label>ON</label>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="state" tabindex="0" value="OFF" class="hidden" required>
+                                                <label>OFF</label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <label for="weekdays">Select days:</label>
-                            <div class="field">
-                                <div class="ui checkbox">
-                                    <input type="checkbox" name="weekday" tabindex="0" value="1" class="hidden">
-                                    <label>MON</label>
-                                </div>
-                                <div class="ui checkbox">
-                                    <input type="checkbox" name="weekday" tabindex="0" value="2" class="hidden">
-                                    <label>TUE</label>
-                                </div>
-                                <div class="ui checkbox">
-                                    <input type="checkbox" name="weekday" tabindex="0" value="3" class="hidden">
-                                    <label>WED</label>
-                                </div>
-                                <div class="ui checkbox">
-                                    <input type="checkbox" name="weekday" tabindex="0" value="4" class="hidden">
-                                    <label>THU</label>
-                                </div>
-                                <div class="ui checkbox">
-                                    <input type="checkbox" name="weekday" tabindex="0" value="5" class="hidden">
-                                    <label>FRI</label>
-                                </div>
-                                <div class="ui checkbox">
-                                    <input type="checkbox" name="weekday" tabindex="0" value="6" class="hidden">
-                                    <label>SAT</label>
-                                </div>
-                                <div class="ui checkbox">
-                                    <input type="checkbox" name="weekday" tabindex="0" value="7" class="hidden">
-                                    <label>SUN</label>
+                            <div class="row">
+                                <div class="grouped fields">
+                                    <div class="description">Select days:</div>
+                                    {% for weekday in weekdays %}
+                                    <div class="field">
+                                        <div class="ui checkbox">
+                                            <input type="checkbox" name="weekday" tabindex="0" value="{{weekday.key}}" class="hidden">
+                                            <label>{{weekday.value}}</label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
@@ -132,7 +120,7 @@
                             Save
                         </button>
 
-                        <a class="left floated" onclick="flip(event, '{{ loop_index }}')">
+                        <a class="left floated" onclick="flipAndReset(event, '{{ loop_index }}')">
                             <i class="arrow alternate circle left outline icon"></i>
                             Cancel
                         </a>

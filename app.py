@@ -10,7 +10,7 @@ def get_mqtt_client():
 
 
 from pi_info.blueprints.home import home
-from pi_info.blueprints.lights import lights
+from pi_info.blueprints.lights import lights, Weekday
 from pi_info.blueprints.rooms import rooms
 from pi_info.blueprints.sensors import sensors
 from pi_info.blueprints.tube_status import tube_status
@@ -46,7 +46,16 @@ def create_app(config_file='config.cfg'):
         """Format a date time to (Default): d Mon YYYY HH:MM P"""
         if value is None:
             return "-"
-        return value.strftime(format)
+        return value.strftime(format)    \
+
+    @app.template_filter('toWeekday')
+    def to_weekday(value):
+        if value is None:
+            return "-"
+        try:
+           return  ", ".join([Weekday(int(day)).name for day in value.split(',')])
+        except:
+            return value
 
     return app
 
