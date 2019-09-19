@@ -1,6 +1,3 @@
-import json
-from urllib import request
-
 api_key = "92334de0a0f6939c969570a910190823"
 north_acton = {
     "lat": "51.523134",
@@ -30,10 +27,11 @@ def create_current_weather(data):
 
 def get_current_weather_info() -> [CurrentWeather]:
     try:
-        with request.urlopen(url=url) as response:
-            data = response.read()
-            json_weather_data = json.loads(data)
-            return create_current_weather(json_weather_data)
+        # with request.urlopen(url=url) as response:
+        #     data = response.read()
+        #     json_weather_data = json.loads(data)
+        #     return create_current_weather(json_weather_data)
+        return None
     except:
         print("could not connect to openweather api")
         return None
