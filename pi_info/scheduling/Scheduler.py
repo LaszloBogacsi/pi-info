@@ -5,16 +5,26 @@ import time
 
 class Scheduler(object):
     def __init__(self) -> None:
-        self.schedules = []
         self.scheduler = sched.scheduler(time.time, time.sleep)
+        self.schedules = []
 
-    def enter_sched(self):
-        self.scheduler.enter(5, 1, lambda x: print("schedule ", x), argument=("running",))
-        self.scheduler.run(blocking=True)
+    def worker(self, task):
 
+        deadline = 0
+        event = self.scheduler.enter(task.delay, 0, task.run)
+        self.schedules.append((task.id, event))
 
-if __name__ == "__main__":
-    s = Scheduler()
-    t = threading.Thread(target=s.enter_sched)
-    t.start()
-    print("after scheduling")
+        while deadline is not None:
+            deadline = self.scheduler.run(blocking=False)
+
+    def schedule_task(self, task):
+        t = threading.Thread(target=self.worker, args=(task,))
+        t.start()
+        return t
+
+    def cancel_task(self, task):
+        self.scheduler.cancel(task)
+
+    @property
+    def is_empty(self):
+        return self.scheduler.empty()
