@@ -60,13 +60,51 @@ def show_lights(page):
         abort(404)
 
 
-def delay_until_first_run(schedule):
-    weekdays = schedule['days'] # "1,2,3,4,7"
-    current_weekday = datetime.datetime.today().weekday() + 1
-    time_to_run = schedule['time']
-    # TODO: finish this func
-    return 0
+def find_closest_time(schedule) -> datetime:
+    current_time = datetime.datetime.now()
+    time_to_run = schedule['time'].split(':')
+    schedule_time = Time(int(time_to_run[0]), int(time_to_run[1]), int(time_to_run[2]))
+    weekdays = list(int(day) for day in schedule['days'].split(',')) # "[1,2,3,4,7]"
+    # current_weekday = datetime.datetime.today().weekday() + 1
+    current_weekday = 2
+    today = current_weekday in weekdays
+    scheduled_time = current_time.replace(hour=schedule_time.hour, minute=schedule_time.minute, second=schedule_time.second, microsecond=0)
+    in_time = current_time < scheduled_time
+    if today and in_time:
+        return scheduled_time
+    if not (today and in_time):
+        deltas = []
+        for day in weekdays:
+            deltas.append(abs(day - current_weekday) if day - current_weekday != 0 else 7)
+        closest_day = weekdays[max([i for i, v in enumerate(deltas) if v == min(deltas)])]
+        print(closest_day)
+        #TODO: Finish this function to return datetime once the day is given
 
+
+def delay_until_first_run(schedule) -> int:
+    current_time = datetime.datetime.now()
+    closest_time = find_closest_time(schedule)
+    return (closest_time - current_time).seconds
+
+class Time():
+
+    def __init__(self, hour, minute, second) -> None:
+        self.second = second
+        self.minute = minute
+        self.hour = hour
+
+
+
+if __name__ == "__main__":
+    dummy_schedule = {
+        "schedule_id": "1",
+        "device_id": 2,
+        "status": "ON",
+        "days": "1,2,3,4,5,6,7",
+        "time": "21:00:00"
+    }
+    s = delay_until_first_run(dummy_schedule)
+    print(s)
 
 
 @lights.route('/lights/light/schedule', methods=['POST'])

@@ -1,3 +1,4 @@
+import time
 import unittest
 
 from pi_info.scheduling.Scheduler import Scheduler
@@ -19,11 +20,12 @@ class SchedulerTest(unittest.TestCase):
         self.assertEqual(self.scheduler.is_empty, False)
 
     def test_can_cancel_a_task(self):
-            task1 = self.Task("1-1800-on", "1", 30)
-            self.scheduler.schedule_task(task1)
-            task = next(task for task in self.scheduler.schedules if task[0] == task1.id)[1]
-            self.scheduler.cancel_task(task)
-            self.assertEqual(self.scheduler.is_empty, True)
+        task1 = self.Task("1-1800-on", "1", 30)
+        self.scheduler.schedule_task(task1)
+        time.sleep(0.1)
+        task = next(task for task in self.scheduler.schedules if task[0] == task1.id)
+        self.scheduler.cancel_task(task)
+        self.assertEqual(self.scheduler.is_empty, True)
 
 
 if __name__ == '__main__':
