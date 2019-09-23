@@ -1,11 +1,13 @@
+import datetime
 from enum import Enum
 
 from flask import Blueprint, render_template, abort, request, redirect, url_for, make_response, current_app
 from jinja2 import TemplateNotFound
 
-from app import get_mqtt_client
+from app import get_mqtt_client, get_scheduler
 from pi_info.data.lights import LIGHTS, LightStatus, get_light_by_id
 from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule
+from pi_info.scheduling.Task import Task
 from pi_info.statusbar import refresh_statusbar
 
 lights = Blueprint('lights', __name__,
@@ -58,11 +60,24 @@ def show_lights(page):
         abort(404)
 
 
+def delay_until_first_run(schedule):
+    weekdays = schedule['days'] # "1,2,3,4,7"
+    current_weekday = datetime.datetime.today().weekday() + 1
+    time_to_run = schedule['time']
+    # TODO: finish this func
+    return 0
+
+
+
 @lights.route('/lights/light/schedule', methods=['POST'])
 def save_new_light_schedule():
     try:
-        form = get_schedule_from_form(request)
-        save_schedule(form) if form['schedule_id'] == '' else update_schedule(form)
+        schedule = get_schedule_from_form(request)
+        save_schedule(schedule) if schedule['schedule_id'] == '' else update_schedule(schedule)
+        id = "%s-%s-%s", schedule['schedule_id'], schedule['time'], schedule['status']
+        delay_in_sec = delay_until_first_run(schedule)
+        action = None
+        get_scheduler().schedule_task(Task(id, delay_in_sec, action))
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)

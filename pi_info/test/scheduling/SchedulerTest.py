@@ -12,8 +12,8 @@ class SchedulerTest(unittest.TestCase):
             self.a = a
         def run(self):
             print("From task class ", self.a)
-    def test_can_schedule_a_task(self):
 
+    def test_can_schedule_a_task(self):
         task1 = self.Task("1-2000-off", "1", 0.1)
         t = self.scheduler.schedule_task(task1)
         self.assertEqual(self.scheduler.is_empty, False)

@@ -1,12 +1,15 @@
 import os
-
 from flask import Flask
-
 from pi_info.Credentials import Credentials
+from pi_info.scheduling.Scheduler import Scheduler
 
 
 def get_mqtt_client():
     return mqtt_client
+
+
+def get_scheduler():
+    return scheduler
 
 
 from pi_info.blueprints.home import home
@@ -25,7 +28,7 @@ template_dir = os.path.join(project_folder, 'templates')
 static_dir = os.path.join(project_folder, 'static')
 
 mqtt_client = None
-
+scheduler = Scheduler()
 
 def create_app(config_file='config.cfg'):
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir, root_path=root_folder)
