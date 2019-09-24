@@ -39,7 +39,7 @@
                         <div class="item">
                             <div class="right floated content">
                                 <a class="ui basic mini red icon button" title="delete"
-                                   href="{{ url_for('lights.delete_light_schedule', schedule_id=schedule.schedule_id ) }}">
+                                   href="{{ url_for('lights.delete_light_schedule', schedule_id=schedule.schedule_id, device_id=schedule.device_id ) }}">
                                     <i class="trash icon"></i>
                                 </a>
                             </div>

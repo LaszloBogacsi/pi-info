@@ -29,6 +29,15 @@ def save(query):
     if conn:
         cursor = conn.cursor()
         cursor.execute(query)
+        cursor.close()
+        conn.commit()
+        pool.putconn(conn)
+
+def save_and_get_id(query):
+    pool, conn = get_conn()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute(query)
         id = cursor.fetchone()[0]
         cursor.close()
         conn.commit()

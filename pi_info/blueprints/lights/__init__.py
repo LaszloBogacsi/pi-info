@@ -1,5 +1,4 @@
 import datetime
-import random
 from enum import Enum
 
 from flask import Blueprint, render_template, abort, request, redirect, url_for, make_response, current_app
@@ -26,7 +25,7 @@ class Weekday(Enum):
 
     @staticmethod
     def get_all_weekdays():
-        return [dict(key=v.value, value=v.name )for k, v in enumerate(Weekday)]
+        return [dict(key=v.value, value=v.name) for k, v in enumerate(Weekday)]
 
 
 def get_buttons(selected):
@@ -64,11 +63,11 @@ def show_lights(page):
 def find_closest_time(schedule) -> datetime:
     current_time = datetime.datetime.now()
     time_to_run = schedule['time'].split(':')
-    schedule_time = Time(int(time_to_run[0]), int(time_to_run[1]), int(time_to_run[2]))
-    weekdays = list(int(day) for day in schedule['days'].split(',')) # "[1,2,3,4,7]"
+    schedule_time = Time(int(time_to_run[0]), int(time_to_run[1]))
+    weekdays = list(int(day) for day in schedule['days'].split(','))  # "[1,2,3,4,7]"
     current_weekday = datetime.datetime.today().weekday() + 1
     today = current_weekday in weekdays
-    scheduled_time = current_time.replace(hour=schedule_time.hour, minute=schedule_time.minute, second=schedule_time.second, microsecond=0)
+    scheduled_time = current_time.replace(hour=schedule_time.hour, minute=schedule_time.minute, second=0, microsecond=0)
     in_time = current_time < scheduled_time
     if today and in_time:
         return scheduled_time
@@ -90,8 +89,7 @@ def delay_until_first_run(schedule) -> int:
 
 class Time:
 
-    def __init__(self, hour, minute, second) -> None:
-        self.second = second
+    def __init__(self, hour, minute) -> None:
         self.minute = minute
         self.hour = hour
 
@@ -112,6 +110,7 @@ def make_action_func(status: str, device_id: str):
     def create_payload_and_publish():
         payload = "{\"status\":\"" + status + "\",\"relay_id\":\"" + device_id + "\"}"
         publish(get_mqtt_client(), "switch/relay", payload)
+
     return create_payload_and_publish
 
 
@@ -120,10 +119,11 @@ def save_new_light_schedule():
     try:
         schedule = get_schedule_from_form(request)
         sched_id = save_schedule(schedule) if schedule['schedule_id'] == '' else update_schedule(schedule)
-        id = "{}-{}-{}-{}".format(schedule['device_id'], schedule['time'], schedule['status'], sched_id)
+        id = "{}-{}".format(schedule['device_id'], sched_id)
         delay_in_sec = delay_until_first_run(schedule)
         action = make_action_func(schedule["status"], schedule["device_id"])
         get_scheduler().schedule_task(Task(id, delay_in_sec, action))
+        print(len(get_scheduler().schedules))
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -133,7 +133,10 @@ def save_new_light_schedule():
 def delete_light_schedule():
     try:
         schedule_id = int(request.args['schedule_id'])
+        device_id = int(request.args['device_id'])
         delete_schedule(schedule_id)
+        get_scheduler().cancel_task("{}-{}".format(device_id, schedule_id))
+        print(len(get_scheduler().schedules))
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)

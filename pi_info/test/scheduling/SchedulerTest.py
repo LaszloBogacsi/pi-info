@@ -18,14 +18,16 @@ class SchedulerTest(unittest.TestCase):
         task1 = self.Task("1-2000-off", "1", 0.1)
         t = self.scheduler.schedule_task(task1)
         self.assertEqual(self.scheduler.is_empty, False)
+        self.assertEqual(len(self.scheduler.schedules), 1)
 
-    def test_can_cancel_a_task(self):
+
+def test_can_cancel_a_task(self):
         task1 = self.Task("1-1800-on", "1", 30)
         self.scheduler.schedule_task(task1)
         time.sleep(0.1)
-        task = next(task for task in self.scheduler.schedules if task[0] == task1.id)
-        self.scheduler.cancel_task(task)
+        self.scheduler.cancel_task(task1.id)
         self.assertEqual(self.scheduler.is_empty, True)
+        self.assertEqual(len(self.scheduler.schedules), 0)
 
 
 if __name__ == '__main__':
