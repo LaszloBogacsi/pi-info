@@ -1,4 +1,5 @@
 import datetime
+import random
 from enum import Enum
 
 from flask import Blueprint, render_template, abort, request, redirect, url_for, make_response, current_app
@@ -65,8 +66,7 @@ def find_closest_time(schedule) -> datetime:
     time_to_run = schedule['time'].split(':')
     schedule_time = Time(int(time_to_run[0]), int(time_to_run[1]), int(time_to_run[2]))
     weekdays = list(int(day) for day in schedule['days'].split(',')) # "[1,2,3,4,7]"
-    # current_weekday = datetime.datetime.today().weekday() + 1
-    current_weekday = 2
+    current_weekday = datetime.datetime.today().weekday() + 1
     today = current_weekday in weekdays
     scheduled_time = current_time.replace(hour=schedule_time.hour, minute=schedule_time.minute, second=schedule_time.second, microsecond=0)
     in_time = current_time < scheduled_time
@@ -77,8 +77,9 @@ def find_closest_time(schedule) -> datetime:
         for day in weekdays:
             deltas.append(abs(day - current_weekday) if day - current_weekday != 0 else 7)
         closest_day = weekdays[max([i for i, v in enumerate(deltas) if v == min(deltas)])]
-        print(closest_day)
-        #TODO: Finish this function to return datetime once the day is given
+        closest_day_diff = closest_day - current_weekday if closest_day - current_weekday > 0 else closest_day + 7 - current_weekday
+        the_time = scheduled_time.replace(day=current_time.day + closest_day_diff)
+        return the_time
 
 
 def delay_until_first_run(schedule) -> int:
@@ -86,13 +87,13 @@ def delay_until_first_run(schedule) -> int:
     closest_time = find_closest_time(schedule)
     return (closest_time - current_time).seconds
 
-class Time():
+
+class Time:
 
     def __init__(self, hour, minute, second) -> None:
         self.second = second
         self.minute = minute
         self.hour = hour
-
 
 
 if __name__ == "__main__":
@@ -101,20 +102,27 @@ if __name__ == "__main__":
         "device_id": 2,
         "status": "ON",
         "days": "1,2,3,4,5,6,7",
-        "time": "21:00:00"
+        "time": "12:00:00"
     }
     s = delay_until_first_run(dummy_schedule)
     print(s)
+
+
+def make_action_func(status: str, device_id: str):
+    def create_payload_and_publish():
+        payload = "{\"status\":\"" + status + "\",\"relay_id\":\"" + device_id + "\"}"
+        publish(get_mqtt_client(), "switch/relay", payload)
+    return create_payload_and_publish
 
 
 @lights.route('/lights/light/schedule', methods=['POST'])
 def save_new_light_schedule():
     try:
         schedule = get_schedule_from_form(request)
-        save_schedule(schedule) if schedule['schedule_id'] == '' else update_schedule(schedule)
-        id = "%s-%s-%s", schedule['schedule_id'], schedule['time'], schedule['status']
+        sched_id = save_schedule(schedule) if schedule['schedule_id'] == '' else update_schedule(schedule)
+        id = "{}-{}-{}-{}".format(schedule['device_id'], schedule['time'], schedule['status'], sched_id)
         delay_in_sec = delay_until_first_run(schedule)
-        action = None
+        action = make_action_func(schedule["status"], schedule["device_id"])
         get_scheduler().schedule_task(Task(id, delay_in_sec, action))
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:

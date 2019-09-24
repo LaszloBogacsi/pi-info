@@ -29,9 +29,11 @@ def save(query):
     if conn:
         cursor = conn.cursor()
         cursor.execute(query)
+        id = cursor.fetchone()[0]
         cursor.close()
         conn.commit()
         pool.putconn(conn)
+        return id
 
 
 def load_all(query, mapper):

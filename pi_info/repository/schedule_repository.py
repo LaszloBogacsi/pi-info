@@ -3,14 +3,14 @@ from pi_info.repository.repository import save, load_all
 
 
 def save_schedule(schedule):
-    query = "INSERT INTO schedule(device_id, status, days, time) VALUES ({}, '{}', '{}', '{}')".format(
+    query = "INSERT INTO schedule(device_id, status, days, time) VALUES ({}, '{}', '{}', '{}') RETURNING schedule_id".format(
         schedule['device_id'], schedule['status'], schedule['days'], schedule['time'])
-    save(query)
+    return save(query)
 
 def update_schedule(schedule):
-    query = "UPDATE schedule SET device_id={}, status='{}', days='{}', time='{}' WHERE schedule_id={}".format(
+    query = "UPDATE schedule SET device_id={}, status='{}', days='{}', time='{}' WHERE schedule_id={} RETURNING schedule_id".format(
         schedule['device_id'], schedule['status'], schedule['days'], schedule['time'], schedule['schedule_id'])
-    save(query)
+    return save(query)
 
 
 def delete_schedule(schedule_id):
