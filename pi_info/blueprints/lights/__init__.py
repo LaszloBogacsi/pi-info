@@ -1,4 +1,3 @@
-import datetime
 from enum import Enum
 
 from flask import Blueprint, render_template, abort, request, redirect, url_for, make_response, current_app
@@ -7,7 +6,6 @@ from jinja2 import TemplateNotFound
 from app import get_mqtt_client, get_scheduler
 from pi_info.data.lights import LIGHTS, LightStatus, get_light_by_id
 from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule
-from pi_info.scheduling.Task import Task
 from pi_info.statusbar import refresh_statusbar
 
 lights = Blueprint('lights', __name__,
@@ -60,56 +58,10 @@ def show_lights(page):
         abort(404)
 
 
-def find_closest_time(schedule) -> datetime:
-    current_time = datetime.datetime.now()
-    time_to_run = schedule['time'].split(':')
-    schedule_time = Time(int(time_to_run[0]), int(time_to_run[1]))
-    weekdays = list(int(day) for day in schedule['days'].split(','))  # "[1,2,3,4,7]"
-    current_weekday = datetime.datetime.today().weekday() + 1
-    today = current_weekday in weekdays
-    scheduled_time = current_time.replace(hour=schedule_time.hour, minute=schedule_time.minute, second=0, microsecond=0)
-    in_time = current_time < scheduled_time
-    if today and in_time:
-        return scheduled_time
-    if not (today and in_time):
-        deltas = []
-        for day in weekdays:
-            deltas.append(abs(day - current_weekday) if day - current_weekday != 0 else 7)
-        closest_day = weekdays[max([i for i, v in enumerate(deltas) if v == min(deltas)])]
-        closest_day_diff = closest_day - current_weekday if closest_day - current_weekday > 0 else closest_day + 7 - current_weekday
-        the_time = scheduled_time.replace(day=current_time.day + closest_day_diff)
-        return the_time
-
-
-def delay_until_first_run(schedule) -> int:
-    current_time = datetime.datetime.now()
-    closest_time = find_closest_time(schedule)
-    return (closest_time - current_time).seconds
-
-
-class Time:
-
-    def __init__(self, hour, minute) -> None:
-        self.minute = minute
-        self.hour = hour
-
-
-if __name__ == "__main__":
-    dummy_schedule = {
-        "schedule_id": "1",
-        "device_id": 2,
-        "status": "ON",
-        "days": "1,2,3,4,5,6,7",
-        "time": "12:00:00"
-    }
-    s = delay_until_first_run(dummy_schedule)
-    print(s)
-
-
-def make_action_func(status: str, device_id: str):
+def make_action_func(status: str, device_id: str, client, publisher):
     def create_payload_and_publish():
         payload = "{\"status\":\"" + status + "\",\"relay_id\":\"" + device_id + "\"}"
-        publish(get_mqtt_client(), "switch/relay", payload)
+        publisher(client, "switch/relay", payload)
 
     return create_payload_and_publish
 
@@ -119,11 +71,8 @@ def save_new_light_schedule():
     try:
         schedule = get_schedule_from_form(request)
         sched_id = save_schedule(schedule) if schedule['schedule_id'] == '' else update_schedule(schedule)
-        id = "{}-{}".format(schedule['device_id'], sched_id)
-        delay_in_sec = delay_until_first_run(schedule)
-        action = make_action_func(schedule["status"], schedule["device_id"])
-        get_scheduler().schedule_task(Task(id, delay_in_sec, action))
-        print(len(get_scheduler().schedules))
+        action = make_action_func(schedule["status"], str(schedule["device_id"]), get_mqtt_client(), publish)
+        get_scheduler().schedule_task_from_form(schedule['device_id'], sched_id, schedule['time'], schedule['days'], action)
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -146,7 +95,7 @@ def publish(client, topic, payload):
     if client is not None:
         client.publish(topic=topic, payload=payload)
     else:
-        print("can not publish message")
+        print("can not publish message, client is not defined")
 
 
 @lights.route('/lights/light', defaults={'page': ''})
@@ -161,7 +110,8 @@ def light_status(page):
     if light_id is not None:
         next(light for light in LIGHTS if light["light_id"] == light_id)["current_status"] = LightStatus(status)
     if page == 'list':
-        return redirect(url_for(referer, page='list', status=status, light_id=light_id, filter=get_light_by_id(light_id)["location"].name))
+        return redirect(url_for(referer, page='list', status=status, light_id=light_id,
+                                filter=get_light_by_id(light_id)["location"].name))
     return redirect(url_for(referer, filter=get_light_by_id(light_id)["location"].name))
 
 
@@ -178,7 +128,8 @@ def light_control():
     if light_id is not None:
         print("updating light status id:", light_id, "to ", updated_status)
 
-        next(light for light in LIGHTS if str(light["light_id"]) == light_id)["current_status"] = LightStatus(updated_status)
+        next(light for light in LIGHTS if str(light["light_id"]) == light_id)["current_status"] = LightStatus(
+            updated_status)
         current_light_status = LightStatus(updated_status)
         print(current_light_status)
     print(payload)

@@ -44,6 +44,7 @@ class MqttClient:
         print(mid)
 
     def publish(self, topic, payload):
+        print(payload)
         self.client.publish(topic=topic, payload=payload)
 
     def get_message(self, message):

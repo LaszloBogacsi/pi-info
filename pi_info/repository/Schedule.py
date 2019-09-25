@@ -1,5 +1,5 @@
 class Schedule(object):
-    def __init__(self, schedule_id, device_id, status, days, time):
+    def __init__(self, schedule_id: int, device_id: int, status: str, days: str, time: str):
         self.schedule_id = schedule_id
         self.device_id = device_id
         self.status = status
@@ -9,4 +9,4 @@ class Schedule(object):
 
     def __repr__(self) -> str:
         return "time: {}, status: {}, days: {}, device_id: {}".format(
-            self.time.isoformat(), self.status, self.days, self.device_id)
+            self.time, self.status, self.days, self.device_id)
