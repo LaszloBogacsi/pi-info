@@ -1,29 +1,14 @@
-from enum import Enum
-
 from flask import Blueprint, render_template, abort, request, redirect, url_for, make_response, current_app
 from jinja2 import TemplateNotFound
 
 from app import get_mqtt_client, get_scheduler
+from pi_info.blueprints.Weekday import Weekday
 from pi_info.data.lights import LIGHTS, LightStatus, get_light_by_id
 from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule
 from pi_info.statusbar import refresh_statusbar
 
 lights = Blueprint('lights', __name__,
                    template_folder='templates')
-
-
-class Weekday(Enum):
-    Mon = 1
-    Tue = 2
-    Wed = 3
-    Thu = 4
-    Fri = 5
-    Sat = 6
-    Sun = 7
-
-    @staticmethod
-    def get_all_weekdays():
-        return [dict(key=v.value, value=v.name) for k, v in enumerate(Weekday)]
 
 
 def get_buttons(selected):

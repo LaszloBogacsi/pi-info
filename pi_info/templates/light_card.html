@@ -1,4 +1,4 @@
-<div class="ui people shape container with shape-{{ loop_index }}">
+<div class="ui people shape container with shape-light-{{ loop_index }}">
     <div class="sides">
         <div class="active first side">
 
@@ -20,7 +20,7 @@
                         <span class="date">  {{ d.location.value }}</span>
                     </div>
                 </div>
-                <div class="extra content" onclick="flip(event, '{{ loop_index }}')">
+                <div class="extra content" onclick="flip(event, 'light', '{{ loop_index }}')">
                     <a class="left floated">
                         <i class="clock outline icon"></i>
                         Schedule
@@ -44,7 +44,7 @@
                                 </a>
                             </div>
                             <div class="content"
-                                 onclick="flipAndPrefillDetailsSide(event, '{{ loop_index }}', {{ schedule }})">
+                                 onclick="flipAndPrefillDetailsSide(event, 'light', '{{ loop_index }}', {{ schedule }})">
                                 <a class="header">{{ schedule.status }} | {{ schedule.time }}</a>
                                 <div class="description">{{ schedule.days | toWeekday }}</div>
                             </div>
@@ -55,11 +55,11 @@
                     </div>
                 </div>
                 <div class="extra content">
-                    <a class="left floated" onclick="flip(event, '{{ loop_index }}', 'set next side', '.first.side')">
+                    <a class="left floated" onclick="flip(event, 'light', '{{ loop_index }}', 'set next side', '.first.side')">
                         <i class="arrow alternate circle left outline icon"></i>
                         Back
                     </a>
-                    <a class="ui right floated" onclick="flipAndReset(event, '{{ loop_index }}')">
+                    <a class="ui right floated" onclick="flipAndReset(event, 'light', '{{ loop_index }}')">
                         <i class="teal plus icon"></i>
                         ADD
                     </a>
@@ -69,7 +69,7 @@
 
 
         <!--        Schedule detail side -->
-        <div id="schedule-edit-{{ loop_index }}" class="side">
+        <div id="schedule-edit-light-{{ loop_index }}" class="side">
             <form class="ui form" method="post"
                   action="{{ url_for('lights.save_new_light_schedule', device_id=d.light_id) }}">
                 <div class="ui {% if d.is_active %}green{% else %}red{% endif %} card">
@@ -120,7 +120,7 @@
                             Save
                         </button>
 
-                        <a class="left floated" onclick="flipAndReset(event, '{{ loop_index }}')">
+                        <a class="left floated" onclick="flipAndReset(event, 'light', '{{ loop_index }}')">
                             <i class="arrow alternate circle left outline icon"></i>
                             Cancel
                         </a>

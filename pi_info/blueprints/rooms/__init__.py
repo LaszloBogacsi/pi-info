@@ -3,10 +3,12 @@ from datetime import datetime, timedelta
 from flask import Blueprint, render_template, abort, request, url_for
 from jinja2 import TemplateNotFound
 
+from pi_info.blueprints.Weekday import Weekday
 from pi_info.data.lights import get_lights_by_room
 from pi_info.data.room import Room
 from pi_info.repository import Sensor
 from pi_info.repository.SensorData import SensorData
+from pi_info.repository.schedule_repository import load_all_schedules
 from pi_info.repository.sensor_data_repository import load_current_sensor_data
 from pi_info.repository.sensor_repository import load_sensors_by_room
 from pi_info.statusbar import refresh_statusbar
@@ -82,7 +84,16 @@ def show_room(page):
         statusbar = refresh_statusbar()
         all_thing_per_room = all_things_for_room(room)
         buttons = get_buttons(selected=page, room_filter=room.name)
+        all_schedules = load_all_schedules()
+        device_ids = set(map(lambda i: i.device_id, all_schedules))
+        schedules_by_ids = {}
+        for id in device_ids:
+            schedules_by_ids[id] = []
+            for schedule in all_schedules:
+                if schedule.device_id == id:
+                    schedules_by_ids[id].append(schedule.__dict__)
 
-        return render_template('room/%s.html' % page, active='home', room=room.value, things=all_thing_per_room, statusbar=statusbar, buttons=buttons)
+        return render_template('room/%s.html' % page, active='home', room=room.value, things=all_thing_per_room, devices_schedules=schedules_by_ids, weekdays=Weekday.get_all_weekdays(), statusbar=statusbar,
+                               buttons=buttons)
     except TemplateNotFound:
         abort(404)

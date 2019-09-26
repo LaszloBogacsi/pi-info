@@ -1,3 +1,4 @@
+import logging
 import os
 
 from flask import Flask
@@ -24,6 +25,8 @@ from pi_info.mqtt.message_handler import MessageHandler
 from pi_info.repository import init_app_db, Schedule
 from pi_info.repository.sensor_data_repository import save_sensor_data
 from pi_info.repository.schedule_repository import load_all_schedules
+
+logger = logging.getLogger('app')
 
 root_folder = os.path.abspath(os.path.dirname(__file__))
 project_folder = os.path.join(root_folder, 'pi_info')
@@ -54,14 +57,14 @@ def create_app(config_file='config.cfg'):
         """Format a date time to (Default): d Mon YYYY HH:MM P"""
         if value is None:
             return "-"
-        return value.strftime(format)    \
+        return value.strftime(format)
 
     @app.template_filter('toWeekday')
     def to_weekday(value):
         if value is None:
             return "-"
         try:
-           return  ", ".join([Weekday(int(day)).name for day in value.split(',')])
+            return ", ".join([Weekday(int(day)).name for day in value.split(',')])
         except:
             return value
 
@@ -82,11 +85,13 @@ def create_action(status: str, device_id: str, client, publisher):
 
 
 def init_task_scheduler(schedules: [Schedule]):
+    logger.debug('Initializing {} tasks'.format(len(schedules)))
+
     for schedule in schedules:
         def publisher(client, topic, payload):
             if client is not None:
                 client.publish(topic=topic, payload=payload)
             else:
-                print("can not publish message, client is not defined")
+                logger.error('can not publish message, client is not defined')
+
         scheduler.schedule_task_from_db(schedule, create_action(schedule.status, str(schedule.device_id), get_mqtt_client(), publisher))
-    pass
