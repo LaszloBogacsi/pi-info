@@ -1,8 +1,10 @@
 import json
+import logging
 from datetime import datetime
 
 import paho.mqtt.client as mqtt
 
+logger = logging.getLogger('MqttClient')
 
 class MqttClient:
 
@@ -15,16 +17,18 @@ class MqttClient:
         client.on_publish = self.on_publish
         client.username_pw_set(credentials.username, credentials.password)
         try:
+            logger.debug('Connecting to mqtt broker on {} ...'.format(host))
             client.connect(host)
             client.loop_start()
         except:
-            print("connection to mqtt client on " + host + " has failed")
+            logger.warning('"connection to mqtt client on {} has failed"'.format(host))
 
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
-            print("connected OK Returned code=", rc)
+            logger.debug('Connected OK Returned code = {}'.format(rc))
+
         else:
-            print("Bad connection Returned code=", rc)
+            logger.warning('Bad connection Returned code = {}'.format(rc))
         for topic in self.topic_handler.keys():
             client.subscribe(topic)
 
