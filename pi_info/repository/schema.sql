@@ -20,18 +20,18 @@ CREATE TABLE IF NOT EXISTS sensor
     sampling_rate INTEGER
 );
 
-CREATE TABLE IF NOT EXISTS relay
+CREATE TABLE IF NOT EXISTS device
 (
-    relay_id INTEGER PRIMARY KEY,
+    device_id INTEGER PRIMARY KEY,
     name     VARCHAR(50),
     location VARCHAR(50),
     type     VARCHAR(50)
 );
 
-CREATE TABLE IF NOT EXISTS relay_status
+CREATE TABLE IF NOT EXISTS device_status
 (
     status_id SERIAL PRIMARY KEY,
-    relay_id  INTEGER,
+    device_id  INTEGER,
     status    VARCHAR(5)
 );
 

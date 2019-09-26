@@ -1,4 +1,4 @@
-class Relay(object):
+class Device(object):
 
     def __init__(self, id, name, location, type) -> None:
         self.id = id
