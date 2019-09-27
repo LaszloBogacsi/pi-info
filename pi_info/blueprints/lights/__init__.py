@@ -10,6 +10,10 @@ from pi_info.statusbar import refresh_statusbar
 lights = Blueprint('lights', __name__,
                    template_folder='templates')
 
+# TODO: add device form
+# TODO: edit device form (name and location)
+# TODO: delete device form, delete scheduled times for device
+# TODO: create group, edit group, delete group, group schedules
 
 def get_buttons(selected):
     status_button = {"url": url_for('lights.show_lights', page='status'),
@@ -18,7 +22,12 @@ def get_buttons(selected):
     list_button = {"url": url_for('lights.show_lights', page='list'),
                    "active_status": 'active' if selected == 'list' else '', "icon_type": 'list icon',
                    "button_text": "LIST"}
-    return [status_button, list_button]
+    add_new_button = {"url": url_for('lights.new_device'),
+                      "active_status": 'teal',
+                      "icon_type": '',
+                      "button_text": "ADD"
+                      }
+    return [status_button, list_button, add_new_button]
 
 
 @lights.route('/lights', defaults={'page': 'status'})
@@ -75,6 +84,14 @@ def delete_light_schedule():
     except TemplateNotFound:
         abort(404)
 
+@lights.route('/lights/new', methods=['GET'])
+def new_device():
+    try:
+        statusbar = refresh_statusbar()
+
+        return render_template('lights/new.html', active='sensors', statusbar=statusbar)
+    except TemplateNotFound:
+        abort(404)
 
 def publish(client, topic, payload):
     if client is not None:
