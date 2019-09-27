@@ -3,17 +3,22 @@ from jinja2 import TemplateNotFound
 
 from app import get_mqtt_client, get_scheduler
 from pi_info.blueprints.Weekday import Weekday
+from pi_info.data.DeviceType import DeviceType
 from pi_info.data.lights import LIGHTS, LightStatus, get_light_by_id
+from pi_info.data.room import Room
+from pi_info.repository.device_repository import load_all_devices
 from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule
 from pi_info.statusbar import refresh_statusbar
 
 lights = Blueprint('lights', __name__,
                    template_folder='templates')
 
+
 # TODO: add device form
 # TODO: edit device form (name and location)
 # TODO: delete device form, delete scheduled times for device
 # TODO: create group, edit group, delete group, group schedules
+
 
 def get_buttons(selected):
     status_button = {"url": url_for('lights.show_lights', page='status'),
@@ -84,14 +89,30 @@ def delete_light_schedule():
     except TemplateNotFound:
         abort(404)
 
+
 @lights.route('/lights/new', methods=['GET'])
 def new_device():
     try:
         statusbar = refresh_statusbar()
+        locations = [room.value.title() for room in Room]
+        device_types = [type.value.title() for type in DeviceType]
+        sorted_devices = sorted(load_all_devices(), key=lambda s: s.id, reverse=True)
+        next_id = sorted_devices[0].id + 1 if len(load_all_devices()) > 0 else 200
 
-        return render_template('lights/new.html', active='sensors', statusbar=statusbar)
+        return render_template('lights/new.html', active='lights', device_types=device_types, id=next_id, locations=locations, statusbar=statusbar)
     except TemplateNotFound:
         abort(404)
+
+
+@lights.route('/lights/save', methods=['POST'])
+def save_new():
+    try:
+        print(request.form)
+        # TODO: Save details to db
+        return redirect(url_for('lights.show_lights', _method='GET'))
+    except TemplateNotFound:
+        abort(404)
+
 
 def publish(client, topic, payload):
     if client is not None:
