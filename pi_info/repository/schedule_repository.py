@@ -2,17 +2,17 @@ from pi_info.repository.Schedule import Schedule
 from pi_info.repository.repository import save, load_all, save_and_get_id
 
 
-def save_schedule(schedule):
+def save_schedule(schedule: Schedule):
     query = "INSERT INTO schedule(device_id, status, days, time) VALUES ({}, '{}', '{}', '{}') RETURNING schedule_id".format(
-        schedule['device_id'], schedule['status'], schedule['days'], schedule['time'])
+        schedule.device_id, schedule.status, schedule.days, schedule.time)
     return save_and_get_id(query)
 
 
-def update_schedule(schedule):
+def update_schedule(schedule: Schedule):
     query = "UPDATE schedule SET device_id={}, status='{}', days='{}', time='{}' WHERE schedule_id={}".format(
-        schedule['device_id'], schedule['status'], schedule['days'], schedule['time'], schedule['schedule_id'])
+        schedule.device_id, schedule.status, schedule.days, schedule.time, schedule.schedule_id)
     save(query)
-    return schedule['schedule_id']
+    return schedule.schedule_id
 
 
 def delete_schedule(schedule_id):

@@ -7,17 +7,18 @@
                 </div>
             </div>
             <div class="ui {% if d.is_active %}green{% else %}red{% endif %} card">
-                <div onclick="switchHandler('{{ d.light_id }}', '{{ d.current_status.value }}', '{{ loop_index }}')"
+                <div onclick="switchHandler('{{ d.id }}', '{{ d.value }}', '{{ loop_index }}')"
                      class="ui button">
                     <div class="center aligned image">
                         <i id="light-status-{{ loop_index }}"
-                           class="huge {% if d.current_status.value == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
+                           class="huge {% if d.status.value == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
                     </div>
                 </div>
                 <div class="content">
                     <div class="header">{{ d.name }}</div>
                     <div class="meta">
-                        <span class="date">  {{ d.location.value }}</span>
+                        <span>  {{ d.location.value }}</span>
+                        <span>  {{ d.type.value }}</span>
                     </div>
                 </div>
                 <div class="extra content" onclick="flip(event, 'light', '{{ loop_index }}')">
@@ -35,7 +36,7 @@
             <div class="ui {% if d.is_active %}green{% else %}red{% endif %} card">
                 <div class="content">
                     <div class="ui middle aligned divided list">
-                        {% for schedule in devices_schedules[d.light_id] %}
+                        {% for schedule in devices_schedules[d.id] %}
                         <div class="item">
                             <div class="right floated content">
                                 <a class="ui basic mini red icon button" title="delete"
@@ -71,7 +72,7 @@
         <!--        Schedule detail side -->
         <div id="schedule-edit-light-{{ loop_index }}" class="side">
             <form class="ui form" method="post"
-                  action="{{ url_for('lights.save_new_light_schedule', device_id=d.light_id) }}">
+                  action="{{ url_for('lights.save_new_light_schedule', device_id=d.id) }}">
                 <div class="ui {% if d.is_active %}green{% else %}red{% endif %} card">
                     <input type="hidden" name="schedule-id" value=""/>
                     <div class="content">

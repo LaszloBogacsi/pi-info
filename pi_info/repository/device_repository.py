@@ -1,10 +1,14 @@
+from pi_info.data.DeviceType import DeviceType
+from pi_info.data.room import Room
 from pi_info.repository.Device import Device
+from pi_info.repository.DeviceStatus import Status
+from pi_info.repository.DeviceWithStatus import DeviceWithStatus
 from pi_info.repository.repository import save, load_all, load_one
 
 
-def save_device(device):
-    query = "INSERT INTO device(device_id, name, location, type) VALUES ('{}', {}, '{}', {})".format(
-        device['id'], device['name'], device['location'], device['type'])
+def save_device(device: Device):
+    query = "INSERT INTO device(device_id, name, location, type) VALUES ({}, '{}', '{}', '{}')".format(
+        device.id, device.name, device.location, device.type)
     save(query)
 
 
@@ -13,7 +17,12 @@ def load_all_devices() -> [Device]:
     return load_all(sql, cast_device)
 
 
-def load_device_by(device_id) -> Device:
+def load_all_devices_with_status() -> [DeviceWithStatus]:
+    sql = "SELECT device.*, ds.status FROM device JOIN device_status ds on device.device_id = ds.device_id ORDER BY device.device_id"
+    return load_all(sql, cast_device_with_status)
+
+
+def load_device_by(device_id: int) -> Device:
     sql = 'SELECT * FROM device WHERE device_id={}'.format(device_id)
     return load_one(sql, cast_device)
 
@@ -21,4 +30,10 @@ def load_device_by(device_id) -> Device:
 def cast_device(value) -> Device or None:
     if value is None:
         return None
-    return Device(id=value[0], name=value[1], location=value[2], type=value[4])
+    return Device(device_id=value[0], name=value[1], location=Room(value[2]), type=DeviceType(value[3]))
+
+
+def cast_device_with_status(value) -> DeviceWithStatus or None:
+    if value is None:
+        return None
+    return DeviceWithStatus(device_id=value[0], name=value[1], location=Room(value[2]), device_type=DeviceType(value[3]), status=Status(value[4]))

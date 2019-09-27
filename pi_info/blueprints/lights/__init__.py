@@ -1,3 +1,5 @@
+import logging
+
 from flask import Blueprint, render_template, abort, request, redirect, url_for, make_response, current_app
 from jinja2 import TemplateNotFound
 
@@ -6,15 +8,21 @@ from pi_info.blueprints.Weekday import Weekday
 from pi_info.data.DeviceType import DeviceType
 from pi_info.data.lights import LIGHTS, LightStatus, get_light_by_id
 from pi_info.data.room import Room
-from pi_info.repository.device_repository import load_all_devices
+from pi_info.repository.Device import Device
+from pi_info.repository.DeviceStatus import DeviceStatus, Status
+from pi_info.repository.DeviceWithStatus import DeviceWithStatus
+from pi_info.repository.Schedule import Schedule
+from pi_info.repository.device_repository import load_all_devices, save_device, load_all_devices_with_status
+from pi_info.repository.device_status_repository import save_device_status
 from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule
 from pi_info.statusbar import refresh_statusbar
+logger = logging.getLogger('lights blueprint')
 
 lights = Blueprint('lights', __name__,
                    template_folder='templates')
 
 
-# TODO: add device form
+# TODO: show all devices, turn them on/off
 # TODO: edit device form (name and location)
 # TODO: delete device form, delete scheduled times for device
 # TODO: create group, edit group, delete group, group schedules
@@ -49,8 +57,9 @@ def show_lights(page):
             for schedule in all_schedules:
                 if schedule.device_id == id:
                     schedules_by_ids[id].append(schedule.__dict__)
+        all_devices: [DeviceWithStatus] = load_all_devices_with_status()
 
-        return render_template('lights/%s.html' % page, active='lights', lights=LIGHTS, statusbar=statusbar,
+        return render_template('lights/%s.html' % page, active='lights', lights=all_devices, statusbar=statusbar,
                                buttons=buttons, devices_schedules=schedules_by_ids, weekdays=Weekday.get_all_weekdays(),
                                api_base_url=current_app.config["API_BASE_URL"])
     except TemplateNotFound:
@@ -68,10 +77,10 @@ def make_action_func(status: str, device_id: str, client, publisher):
 @lights.route('/lights/light/schedule', methods=['POST'])
 def save_new_light_schedule():
     try:
-        schedule = get_schedule_from_form(request)
-        sched_id = save_schedule(schedule) if schedule['schedule_id'] == '' else update_schedule(schedule)
-        action = make_action_func(schedule["status"], str(schedule["device_id"]), get_mqtt_client(), publish)
-        get_scheduler().schedule_task_from_form(schedule['device_id'], sched_id, schedule['time'], schedule['days'], action)
+        schedule: Schedule = get_schedule_from_form(request)
+        sched_id = save_schedule(schedule) if schedule.schedule_id is None else update_schedule(schedule)
+        action = make_action_func(schedule.status, str(schedule.device_id), get_mqtt_client(), publish)
+        get_scheduler().schedule_task_from_form(schedule.device_id, sched_id, schedule.time, schedule.days, action)
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -97,18 +106,23 @@ def new_device():
         locations = [room.value.title() for room in Room]
         device_types = [type.value.title() for type in DeviceType]
         sorted_devices = sorted(load_all_devices(), key=lambda s: s.id, reverse=True)
-        next_id = sorted_devices[0].id + 1 if len(load_all_devices()) > 0 else 200
+        next_id = sorted_devices[0].id + 1 if len(load_all_devices()) > 0 else 500
 
         return render_template('lights/new.html', active='lights', device_types=device_types, id=next_id, locations=locations, statusbar=statusbar)
     except TemplateNotFound:
         abort(404)
 
 
+def save_device_and_initial_status(device):
+    save_device(device)
+    save_device_status(DeviceStatus(device.id, Status.OFF))
+
+
 @lights.route('/lights/save', methods=['POST'])
 def save_new():
     try:
-        print(request.form)
-        # TODO: Save details to db
+        device = make_device_from_form(request.form)
+        save_device_and_initial_status(device)
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -118,7 +132,7 @@ def publish(client, topic, payload):
     if client is not None:
         client.publish(topic=topic, payload=payload)
     else:
-        print("can not publish message, client is not defined")
+        logger.warning("can not publish message, client is not defined")
 
 
 @lights.route('/lights/light', defaults={'page': ''})
@@ -150,8 +164,8 @@ def light_control():
     publish(get_mqtt_client(), "switch/relay", payload)
     if light_id is not None:
         print("updating light status id:", light_id, "to ", updated_status)
-
-        next(light for light in LIGHTS if str(light["light_id"]) == light_id)["current_status"] = LightStatus(
+        # TODO: Make this work with the new devices source
+        next((light for light in LIGHTS if str(light["light_id"]) == light_id), LIGHTS[0])["current_status"] = LightStatus(
             updated_status)
         current_light_status = LightStatus(updated_status)
         print(current_light_status)
@@ -162,11 +176,10 @@ def light_control():
     return response
 
 
-def get_schedule_from_form(request):
-    return {
-        "schedule_id": request.form['schedule-id'],
-        "device_id": int(request.args['device_id']),
-        "status": request.form['state'],
-        "days": ",".join(request.form.getlist('weekday')),
-        "time": request.form['time']
-    }
+def make_device_from_form(form):
+    return Device(int(form['id']), form['name'], form['location'].lower(), form['type'].lower())
+
+
+def get_schedule_from_form(req):
+    sched_id = int(req.form['schedule-id']) if req.form['schedule-id'] != '' else None
+    return Schedule(sched_id, int(req.args['device_id']), req.form['state'], ",".join(req.form.getlist('weekday')), req.form['time'])

@@ -47,7 +47,7 @@ function flipAndPrefillDetailsSide(e, type, index, schedule) {
         });
         console.log('hi')
     }, 500);
-    flipAndReset(e, index);
+    flipAndReset(e, type, index);
 }
 
 function setTime(containingElement, value) {

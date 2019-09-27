@@ -30,8 +30,7 @@ CREATE TABLE IF NOT EXISTS device
 
 CREATE TABLE IF NOT EXISTS device_status
 (
-    status_id SERIAL PRIMARY KEY,
-    device_id  INTEGER,
+    device_id  INTEGER PRIMARY KEY,
     status    VARCHAR(5)
 );
 
