@@ -28,6 +28,10 @@ def load_all_devices_with_status() -> [DeviceWithStatus]:
     return load_all(sql, cast_device_with_status)
 
 
+def load_all_devices_with_status_by(room: Room) -> [DeviceWithStatus]:
+    sql = "SELECT device.*, ds.status FROM device JOIN device_status ds on device.device_id = ds.device_id WHERE location='{}' ORDER BY device.device_id".format(room.value)
+    return load_all(sql, cast_device_with_status)
+
 def load_device_by(device_id: int) -> Device:
     sql = 'SELECT * FROM device WHERE device_id={}'.format(device_id)
     return load_one(sql, cast_device)

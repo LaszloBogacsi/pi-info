@@ -4,10 +4,12 @@ from flask import Blueprint, render_template, abort, request, url_for
 from jinja2 import TemplateNotFound
 
 from pi_info.blueprints.Weekday import Weekday
-from pi_info.data.lights import get_lights_by_room
+from pi_info.data.DeviceType import DeviceType
 from pi_info.data.room import Room
 from pi_info.repository import Sensor
+from pi_info.repository.DeviceWithStatus import DeviceWithStatus
 from pi_info.repository.SensorData import SensorData
+from pi_info.repository.device_repository import load_all_devices_with_status_by
 from pi_info.repository.schedule_repository import load_all_schedules
 from pi_info.repository.sensor_data_repository import load_current_sensor_data
 from pi_info.repository.sensor_repository import load_sensors_by_room
@@ -17,15 +19,16 @@ rooms = Blueprint('rooms', __name__,
                   template_folder='templates')
 
 
-def get_all_sensors_for(room):
+def get_all_sensors_for(room: Room):
     return load_sensors_by_room(room)
 
 
-def get_all_lights_for(room):
-    return get_lights_by_room(room)
+def get_all_lights_for(room: Room):
+    all_devices: [DeviceWithStatus] = [device.as_dict() for device in load_all_devices_with_status_by(room)]
+    return all_devices
 
 
-def all_things_for_room(room):
+def all_things_for_room(room: Room):
     all_sensors_in_room = get_all_sensors_for(room)
     enriched_with_current_values = [{**get_displayed_sensor_data(load_current_sensor_data(sensor), sensor), **sensor.__dict__} for sensor in all_sensors_in_room]
     all_lights_in_room = get_all_lights_for(room)
@@ -83,6 +86,8 @@ def show_room(page):
         room = Room[request.args.get('filter')]
         statusbar = refresh_statusbar()
         all_thing_per_room = all_things_for_room(room)
+        locations = [{"display": room.value.title(), "value": room.value} for room in Room]
+        device_types = [{"display": type.value.title(), "value": type.value} for type in DeviceType]
         buttons = get_buttons(selected=page, room_filter=room.name)
         all_schedules = load_all_schedules()
         device_ids = set(map(lambda i: i.device_id, all_schedules))
@@ -93,7 +98,8 @@ def show_room(page):
                 if schedule.device_id == id:
                     schedules_by_ids[id].append(schedule.__dict__)
 
-        return render_template('room/%s.html' % page, active='home', room=room.value, things=all_thing_per_room, devices_schedules=schedules_by_ids, weekdays=Weekday.get_all_weekdays(), statusbar=statusbar,
-                               buttons=buttons)
+        return render_template('room/%s.html' % page, active='home', room=room.value, things=all_thing_per_room,
+                               devices_schedules=schedules_by_ids, weekdays=Weekday.get_all_weekdays(), statusbar=statusbar,
+                               locations=locations, device_types=device_types, buttons=buttons)
     except TemplateNotFound:
         abort(404)

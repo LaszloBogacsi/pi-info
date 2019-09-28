@@ -5,7 +5,7 @@
                 <div class="ui loader">
                 </div>
             </div>
-            <div class="ui {% if d.is_active %}green{% else %}red{% endif %} card">
+            <div class="ui card">
                 <div onclick="switchHandler('{{ d.device_id }}', '{{ d.status }}', '{{ loop_index }}')"
                      class="ui button">
                     <div class="center aligned image">
@@ -74,6 +74,7 @@
         <div id="schedule-edit-light-{{ loop_index }}" class="schedule detail side">
             <form class="ui form" method="post"
                   action="{{ url_for('lights.save_new_light_schedule', device_id=d.device_id) }}">
+            {{ d }}
                 <div class="ui {% if d.is_active %}green{% else %}red{% endif %} card">
                     <input type="hidden" name="schedule-id" value=""/>
                     <div class="content">

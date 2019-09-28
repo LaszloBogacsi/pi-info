@@ -123,17 +123,17 @@ def new_device():
         statusbar = refresh_statusbar()
         locations = [room.value.title() for room in Room]
         device_types = [type.value.title() for type in DeviceType]
-        sorted_devices = sorted(load_all_devices(), key=lambda s: s.id, reverse=True)
-        next_id = sorted_devices[0].id + 1 if len(load_all_devices()) > 0 else 500
+        sorted_devices = sorted(load_all_devices(), key=lambda s: s.device_id, reverse=True)
+        next_id = sorted_devices[0].device_id + 1 if len(load_all_devices()) > 0 else 500
 
         return render_template('lights/new.html', active='lights', device_types=device_types, id=next_id, locations=locations, statusbar=statusbar)
     except TemplateNotFound:
         abort(404)
 
 
-def save_device_and_initial_status(device):
+def save_device_and_initial_status(device: Device):
     save_device(device)
-    save_device_status(DeviceStatus(device.id, Status.OFF))
+    save_device_status(DeviceStatus(device.device_id, Status.OFF))
 
 
 @lights.route('/lights/save', methods=['POST'])
