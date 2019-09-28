@@ -33,7 +33,7 @@ void onMessageCallback(const String &payload) {
     return;
   }
   const char* stat = doc["status"]; 
-  const char* rel_id = doc["relay_id"]; 
+  const char* rel_id = doc["device_id"];
   Serial.println(stat);
   Serial.println(rel_id);
  Serial.println(payload); 
@@ -64,7 +64,7 @@ void turnOn(String relay_id){
       digitalWrite(RELAY2, LOW);  
     }
     
-    String jsonMsg =  "{\"status\": \"ON\", \"relay_id\":\"" + relay_id + "\"}";
+    String jsonMsg =  "{\"status\": \"ON\", \"device_id\":\"" + relay_id + "\"}";
     Serial.println(jsonMsg);
     client.publish(relay_status_topic, jsonMsg); // You can activate the retain flag by setting the third parameter to true 
 }
@@ -77,7 +77,7 @@ void turnOff(String relay_id){
     if (relay_id == "2") {
       digitalWrite(RELAY2, HIGH);  
     }
-     String jsonMsg = "{\"status\": \"OFF\", \"relay_id\":\"" + relay_id + "\"}";
+     String jsonMsg = "{\"status\": \"OFF\", \"device_id\":\"" + relay_id + "\"}";
     Serial.println(jsonMsg);
     client.publish(relay_status_topic, jsonMsg); // You can activate the retain flag by setting the third parameter to true 
  

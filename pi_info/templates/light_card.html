@@ -7,7 +7,7 @@
                 </div>
             </div>
             <div class="ui {% if d.is_active %}green{% else %}red{% endif %} card">
-                <div onclick="switchHandler('{{ d.id }}', '{{ d.value }}', '{{ loop_index }}')"
+                <div onclick="switchHandler('{{ d.id }}', '{{ d.status.value }}', '{{ loop_index }}')"
                      class="ui button">
                     <div class="center aligned image">
                         <i id="light-status-{{ loop_index }}"

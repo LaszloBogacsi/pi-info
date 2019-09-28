@@ -22,7 +22,7 @@ function switchHandler(lightId, currentStatus, index) {
 
 function handleResponse(res, index) {
     console.log(res);
-    ({lightId, status} = {lightId: res.relay_id, ...res});
+    ({lightId, status} = {lightId: res.device_id, ...res});
     light_state[lightId] = {lightId, currentStatus: status, index};
     const lightStatusElement = document.querySelector(`#light-status-${index}`);
     console.log(lightStatusElement);

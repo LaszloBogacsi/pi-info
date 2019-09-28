@@ -13,9 +13,10 @@ from pi_info.repository.DeviceStatus import DeviceStatus, Status
 from pi_info.repository.DeviceWithStatus import DeviceWithStatus
 from pi_info.repository.Schedule import Schedule
 from pi_info.repository.device_repository import load_all_devices, save_device, load_all_devices_with_status
-from pi_info.repository.device_status_repository import save_device_status
+from pi_info.repository.device_status_repository import save_device_status, update_device_status
 from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule
 from pi_info.statusbar import refresh_statusbar
+
 logger = logging.getLogger('lights blueprint')
 
 lights = Blueprint('lights', __name__,
@@ -160,15 +161,12 @@ def light_control():
     light_id = request.args.get('light_id', "1")
     status = request.args.get('status', 'OFF')
     updated_status = "ON" if status == "OFF" else "OFF"
-    payload = "{\"status\":\"" + updated_status + "\",\"relay_id\":\"" + light_id + "\"}"
+    payload = "{\"status\":\"" + updated_status + "\",\"device_id\":\"" + light_id + "\"}"
     publish(get_mqtt_client(), "switch/relay", payload)
     if light_id is not None:
         print("updating light status id:", light_id, "to ", updated_status)
-        # TODO: Make this work with the new devices source
-        next((light for light in LIGHTS if str(light["light_id"]) == light_id), LIGHTS[0])["current_status"] = LightStatus(
-            updated_status)
-        current_light_status = LightStatus(updated_status)
-        print(current_light_status)
+        update_device_status(DeviceStatus(int(light_id), Status(updated_status)))
+
     print(payload)
     response = make_response(payload, 200)
     response.headers['Access-Control-Allow-Origin'] = '*'

@@ -13,6 +13,11 @@ def load_device_status_by(device_id) -> DeviceStatus:
     return load_one(sql, cast_device_status)
 
 
+def update_device_status(device_status: DeviceStatus):
+    query = "UPDATE device_status SET status='{}' WHERE device_id={}".format(device_status.status.value, device_status.device_id)
+    save(query)
+
+
 def cast_device_status(value) -> DeviceStatus or None:
     if value is None:
         return None
