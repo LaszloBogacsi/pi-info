@@ -9,3 +9,8 @@ class DeviceWithStatus(Device):
     def __init__(self, device_id: int, name: str, location: Room, device_type: DeviceType, status: Status) -> None:
         super().__init__(device_id, name, location, device_type)
         self.status = status
+
+    def as_dict(self):
+        return super().as_dict()
+
+

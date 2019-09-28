@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 
 from flask import Blueprint, render_template, abort, request, redirect, url_for, make_response, current_app
 from jinja2 import TemplateNotFound
@@ -12,7 +13,8 @@ from pi_info.repository.Device import Device
 from pi_info.repository.DeviceStatus import DeviceStatus, Status
 from pi_info.repository.DeviceWithStatus import DeviceWithStatus
 from pi_info.repository.Schedule import Schedule
-from pi_info.repository.device_repository import load_all_devices, save_device, load_all_devices_with_status
+from pi_info.repository.device_repository import load_all_devices, save_device, load_all_devices_with_status, \
+    update_device
 from pi_info.repository.device_status_repository import save_device_status, update_device_status
 from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule
 from pi_info.statusbar import refresh_statusbar
@@ -23,8 +25,6 @@ lights = Blueprint('lights', __name__,
                    template_folder='templates')
 
 
-# TODO: show all devices, turn them on/off
-# TODO: edit device form (name and location)
 # TODO: delete device form, delete scheduled times for device
 # TODO: create group, edit group, delete group, group schedules
 
@@ -50,6 +50,8 @@ def show_lights(page):
     try:
         statusbar = refresh_statusbar()
         buttons = get_buttons(selected=page)
+        locations = [{"display": room.value.title(), "value": room.value} for room in Room]
+        device_types = [{"display": type.value.title(), "value": type.value} for type in DeviceType]
         all_schedules = load_all_schedules()
         device_ids = set(map(lambda i: i.device_id, all_schedules))
         schedules_by_ids = {}
@@ -58,13 +60,18 @@ def show_lights(page):
             for schedule in all_schedules:
                 if schedule.device_id == id:
                     schedules_by_ids[id].append(schedule.__dict__)
-        all_devices: [DeviceWithStatus] = load_all_devices_with_status()
-
+        all_devices: [DeviceWithStatus] = [device.as_dict() for device in load_all_devices_with_status()]
         return render_template('lights/%s.html' % page, active='lights', lights=all_devices, statusbar=statusbar,
                                buttons=buttons, devices_schedules=schedules_by_ids, weekdays=Weekday.get_all_weekdays(),
-                               api_base_url=current_app.config["API_BASE_URL"])
+                               locations=locations, device_types=device_types, api_base_url=current_app.config["API_BASE_URL"])
     except TemplateNotFound:
         abort(404)
+
+
+def default_conv(o):
+    if isinstance(o, Enum):
+        return o.value
+    return o.__dict__
 
 
 def make_action_func(status: str, device_id: str, client, publisher):
@@ -82,6 +89,16 @@ def save_new_light_schedule():
         sched_id = save_schedule(schedule) if schedule.schedule_id is None else update_schedule(schedule)
         action = make_action_func(schedule.status, str(schedule.device_id), get_mqtt_client(), publish)
         get_scheduler().schedule_task_from_form(schedule.device_id, sched_id, schedule.time, schedule.days, action)
+        return redirect(url_for('lights.show_lights', _method='GET'))
+    except TemplateNotFound:
+        abort(404)
+
+
+@lights.route('/lights/light/edit', methods=['POST'])
+def edit_device():
+    try:
+        device: Device = make_device_from_form(request.form)
+        update_device(device)
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -175,7 +192,7 @@ def light_control():
 
 
 def make_device_from_form(form):
-    return Device(int(form['id']), form['name'], form['location'].lower(), form['type'].lower())
+    return Device(int(form['device_id']), form['name'], form['location'].lower(), form['type'].lower())
 
 
 def get_schedule_from_form(req):

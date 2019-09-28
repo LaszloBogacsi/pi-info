@@ -6,7 +6,6 @@ class Schedule(object):
         self.days = days
         self.time = time
 
-
     def __repr__(self) -> str:
         return "time: {}, status: {}, days: {}, device_id: {}".format(
             self.time, self.status, self.days, self.device_id)
