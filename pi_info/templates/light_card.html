@@ -21,11 +21,13 @@
                     </div>
                 </div>
                 <div class="extra content">
-                    <a class="left floated" onclick="flip(event, 'light', '{{ loop_index }}', 'set next side', '.schedule.list.side') ">
+                    <a class="left floated"
+                       onclick="flip(event, 'light', '{{ loop_index }}', 'set next side', '.schedule.list.side') ">
                         <i class="clock icon"></i>
                         Schedule
                     </a>
-                    <a class="right floated" onclick="flipAndPrefillDeviceDetailsSide(event,'light','{{ loop_index }}', {{ d }}, 'set next side', '.device.edit.side' )">
+                    <a class="right floated"
+                       onclick="flipAndPrefillDeviceDetailsSide(event,'light','{{ loop_index }}', {{ d }}, 'set next side', '.device.edit.side' )">
                         <i class="edit icon"></i>
                         Edit...
                     </a>
@@ -35,34 +37,36 @@
 
         <!--        Schedule list side -->
         <div class="schedule list side">
-            <div class="ui {% if d.is_active %}green{% else %}red{% endif %} card">
+            <div class="ui card">
                 <div class="content">
                     <div class="ui middle aligned divided list">
                         {% for schedule in devices_schedules[d.device_id] %}
-                        <div class="item">
-                            <div class="right floated content">
-                                <a class="ui basic mini red icon button" title="delete"
-                                   href="{{ url_for('lights.delete_light_schedule', schedule_id=schedule.schedule_id, device_id=schedule.device_id ) }}">
-                                    <i class="trash icon"></i>
-                                </a>
+                            <div class="item">
+                                <div class="right floated content">
+                                    <a class="ui basic mini red icon button" title="delete"
+                                       href="{{ url_for('lights.delete_light_schedule', schedule_id=schedule.schedule_id, device_id=schedule.device_id ) }}">
+                                        <i class="trash icon"></i>
+                                    </a>
+                                </div>
+                                <div class="content"
+                                     onclick="flipAndPrefillScheduleDetailsSide(event, 'light', '{{ loop_index }}', {{ schedule }}, 'set next side', '.schedule.detail.side')">
+                                    <a class="header">{{ schedule.status }} | {{ schedule.time }}</a>
+                                    <div class="description">{{ schedule.days | toWeekday }}</div>
+                                </div>
                             </div>
-                            <div class="content"
-                                 onclick="flipAndPrefillScheduleDetailsSide(event, 'light', '{{ loop_index }}', {{ schedule }}, 'set next side', '.schedule.detail.side')">
-                                <a class="header">{{ schedule.status }} | {{ schedule.time }}</a>
-                                <div class="description">{{ schedule.days | toWeekday }}</div>
-                            </div>
-                        </div>
                         {% else %}
-                        <p>No schedules set yet, click on <strong>ADD</strong> to setup one</p>
+                            <p>No schedules set yet, click on <strong>ADD</strong> to setup one</p>
                         {% endfor %}
                     </div>
                 </div>
                 <div class="extra content">
-                    <a class="left floated" onclick="flip(event, 'light', '{{ loop_index }}', 'set next side', '.first.side')">
+                    <a class="left floated"
+                       onclick="flip(event, 'light', '{{ loop_index }}', 'set next side', '.first.side')">
                         <i class="arrow alternate circle left outline icon"></i>
                         Back
                     </a>
-                    <a class="ui right floated" onclick="flipAndResetSchedule(event, 'light', '{{ loop_index }}', 'set next side', '.schedule.detail.side')">
+                    <a class="ui right floated"
+                       onclick="flipAndResetSchedule(event, 'light', '{{ loop_index }}', 'set next side', '.schedule.detail.side')">
                         <i class="teal plus icon"></i>
                         ADD
                     </a>
@@ -74,7 +78,6 @@
         <div id="schedule-edit-light-{{ loop_index }}" class="schedule detail side">
             <form class="ui form" method="post"
                   action="{{ url_for('lights.save_new_light_schedule', device_id=d.device_id) }}">
-            {{ d }}
                 <div class="ui {% if d.is_active %}green{% else %}red{% endif %} card">
                     <input type="hidden" name="schedule-id" value=""/>
                     <div class="content">
@@ -90,12 +93,14 @@
                                     <label for="state">Select a type:</label>
                                     <div class="field">
                                         <div class="ui radio checkbox">
-                                            <input type="radio" name="state" tabindex="0" value="ON" class="hidden" required>
+                                            <input type="radio" name="state" tabindex="0" value="ON" class="hidden"
+                                                   required>
                                             <label>ON</label>
                                         </div>
                                         <div class="field">
                                             <div class="ui radio checkbox">
-                                                <input type="radio" name="state" tabindex="0" value="OFF" class="hidden" required>
+                                                <input type="radio" name="state" tabindex="0" value="OFF" class="hidden"
+                                                       required>
                                                 <label>OFF</label>
                                             </div>
                                         </div>
@@ -106,12 +111,13 @@
                                 <div class="grouped fields">
                                     <div class="description">Select days:</div>
                                     {% for weekday in weekdays %}
-                                    <div class="field">
-                                        <div class="ui checkbox">
-                                            <input type="checkbox" name="weekday" tabindex="0" value="{{weekday.key}}" class="hidden">
-                                            <label>{{weekday.value}}</label>
+                                        <div class="field">
+                                            <div class="ui checkbox">
+                                                <input type="checkbox" name="weekday" tabindex="0"
+                                                       value="{{ weekday.key }}" class="hidden">
+                                                <label>{{ weekday.value }}</label>
+                                            </div>
                                         </div>
-                                    </div>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -121,7 +127,8 @@
                         <button class="ui teal button right floated" type="submit">
                             Save
                         </button>
-                        <a class="left floated" onclick="flipAndResetSchedule(event, 'light', '{{ loop_index }}', 'set next side', '.schedule.list.side')">
+                        <a class="left floated"
+                           onclick="flipAndResetSchedule(event, 'light', '{{ loop_index }}', 'set next side', '.schedule.list.side')">
                             <i class="arrow alternate circle left outline icon"></i>
                             Cancel
                         </a>
@@ -144,7 +151,8 @@
                                     {% for location in locations %}
                                         <div class="field">
                                             <div class="ui checkbox">
-                                                <input type="radio" name="location" value="{{ location.value }}" class="hidden" required>
+                                                <input type="radio" name="location" value="{{ location.value }}"
+                                                       class="hidden" required>
                                                 <label>{{ location.display }}</label>
                                             </div>
                                         </div>
@@ -157,7 +165,8 @@
                                     {% for type in device_types %}
                                         <div class="field">
                                             <div class="ui checkbox">
-                                                <input type="radio" name="type" tabindex="0" value="{{ type.value }}" class="hidden" required>
+                                                <input type="radio" name="type" tabindex="0" value="{{ type.value }}"
+                                                       class="hidden" required>
                                                 <label>{{ type.display }}</label>
                                             </div>
                                         </div>
@@ -169,7 +178,8 @@
                     <div class="content">
                         <div class="disabled field">
                             <label>Id</label>
-                            <input name="id" type="text" readonly=""  placeholder="Device id" required value="{{ d.device_id }}">
+                            <input name="id" type="text" readonly="" placeholder="Device id" required
+                                   value="{{ d.device_id }}">
                         </div>
                         <div class="field">
                             <label>Name</label>
@@ -180,7 +190,8 @@
                         <button class="ui teal button right floated" type="submit">
                             Save
                         </button>
-                        <a class="left floated" onclick="flipAndResetSchedule(event, 'light', '{{ loop_index }}', 'set next side', '.first.side')">
+                        <a class="left floated"
+                           onclick="flipAndResetSchedule(event, 'light', '{{ loop_index }}', 'set next side', '.first.side')">
                             <button class="ui button" type="button">
                                 Cancel
                             </button>
@@ -190,6 +201,7 @@
             </form>
         </div>
 
-    </div> {# sides end#}
+    </div>
+    {# sides end#}
 </div>
 <script src="{{ url_for('static', filename='js/shapeCard.js') }}"></script>

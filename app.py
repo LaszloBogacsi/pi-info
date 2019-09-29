@@ -64,7 +64,14 @@ def create_app(config_file='config.cfg'):
         if value is None:
             return "-"
         try:
-            return ", ".join([Weekday(int(day)).name for day in value.split(',')])
+            days = value.split(',')
+            if len(days) == len(Weekday):
+                return 'Everyday'
+            if len(days) == 5 and all(str(d) in days for d in range(1, 6)):
+                return 'Weekdays'
+            if len(days) == 2 and all(str(d) in days for d in range(6, 8)):
+                return 'Weekends'
+            return ", ".join([Weekday(int(day)).name for day in days])
         except:
             return value
 

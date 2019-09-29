@@ -13,3 +13,9 @@ class Weekday(Enum):
     @staticmethod
     def get_all_weekdays():
         return [dict(key=v.value, value=v.name) for k, v in enumerate(Weekday)]
+
+    def weekdays(self):
+        pass
+
+    def weekends(self):
+        pass
