@@ -39,13 +39,13 @@ def get_buttons(selected):
                    "button_text": "LIST"}
     groups_button = {"url": url_for('lights.show_lights', page='groups'),
                    "active_status": 'active' if selected == 'groups' else '', "icon_type": 'object group outline icon',
-                   "button_text": "LIST"}
-    add_new_button = {"url": url_for('lights.new_device'),
+                   "button_text": "GROUPS"}
+    add_new_button = {"url": url_for('lights.new_device') if selected == 'status' or selected == 'list' else url_for('lights.new_group'),
                       "active_status": 'teal',
                       "icon_type": '',
                       "button_text": "ADD"
                       }
-    return [status_button, list_button, add_new_button]
+    return [status_button, list_button, groups_button, add_new_button]
 
 
 @lights.route('/lights', defaults={'page': 'status'})
@@ -148,6 +148,16 @@ def new_device():
         next_id = sorted_devices[0].device_id + 1 if len(load_all_devices()) > 0 else 500
 
         return render_template('lights/new.html', active='lights', device_types=device_types, id=next_id, locations=locations, statusbar=statusbar)
+    except TemplateNotFound:
+        abort(404)
+
+
+@lights.route('/lights/groups/new', methods=['GET'])
+def new_group():
+    try:
+        statusbar = refresh_statusbar()
+        all_devices: [Device] = [device.as_dict() for device in load_all_devices()]
+        return render_template('lights/new_group.html', active='lights', devices=all_devices, statusbar=statusbar)
     except TemplateNotFound:
         abort(404)
 
