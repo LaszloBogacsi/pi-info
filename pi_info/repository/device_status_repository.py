@@ -17,6 +17,10 @@ def update_device_status(device_status: DeviceStatus):
     query = "UPDATE device_status SET status='{}' WHERE device_id={}".format(device_status.status.value, device_status.device_id)
     save(query)
 
+def delete_device_status_for(device_id: int):
+    query = "DELETE FROM device_status WHERE device_id={}".format(device_id)
+    save(query)
+
 
 def cast_device_status(value) -> DeviceStatus or None:
     if value is None:

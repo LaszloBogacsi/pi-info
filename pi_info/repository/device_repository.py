@@ -37,6 +37,11 @@ def load_device_by(device_id: int) -> Device:
     return load_one(sql, cast_device)
 
 
+def delete_device_by(device_id: int):
+    query = 'DELETE FROM device WHERE device_id={}'.format(device_id)
+    save(query)
+
+
 def cast_device(value) -> Device or None:
     if value is None:
         return None

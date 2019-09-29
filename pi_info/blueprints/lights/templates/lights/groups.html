@@ -7,15 +7,15 @@
 </div>
 
 <div class="four column doubling stackable padded ui grid">
-    {% for d in lights %}
+    {% for g in groups %}
     {% with %}
     {% set loop_index=loop.index %}
     <div class="column">
-        {% include "light_card.html" %}
+        {% include "group_card.html" %}
     </div>
     {% endwith %}
     {% else %}
-    <p><em>No lights or other devices </em> could be found, click on the "ADD" button add one</p>
+    <p><em>No groups </em> could be found, click on the "ADD" button add one</p>
     {% endfor %}
 </div>
 <script>var BASE_URL = '{{api_base_url}}';</script>

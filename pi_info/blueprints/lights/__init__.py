@@ -14,9 +14,11 @@ from pi_info.repository.DeviceStatus import DeviceStatus, Status
 from pi_info.repository.DeviceWithStatus import DeviceWithStatus
 from pi_info.repository.Schedule import Schedule
 from pi_info.repository.device_repository import load_all_devices, save_device, load_all_devices_with_status, \
-    update_device
-from pi_info.repository.device_status_repository import save_device_status, update_device_status
-from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule
+    update_device, delete_device_by
+from pi_info.repository.device_status_repository import save_device_status, update_device_status, \
+    delete_device_status_for
+from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule, \
+    load_schedules_for
 from pi_info.statusbar import refresh_statusbar
 
 logger = logging.getLogger('lights blueprint')
@@ -25,8 +27,7 @@ lights = Blueprint('lights', __name__,
                    template_folder='templates')
 
 
-# TODO: delete device form, delete scheduled times for device
-# TODO: create group, edit group, delete group, group schedules
+# TODO: create group, edit group, delete group, group schedules, use group button below
 
 
 def get_buttons(selected):
@@ -35,6 +36,9 @@ def get_buttons(selected):
                      "button_text": "STATUS"}
     list_button = {"url": url_for('lights.show_lights', page='list'),
                    "active_status": 'active' if selected == 'list' else '', "icon_type": 'list icon',
+                   "button_text": "LIST"}
+    groups_button = {"url": url_for('lights.show_lights', page='groups'),
+                   "active_status": 'active' if selected == 'groups' else '', "icon_type": 'object group outline icon',
                    "button_text": "LIST"}
     add_new_button = {"url": url_for('lights.new_device'),
                       "active_status": 'teal',
@@ -112,6 +116,23 @@ def delete_light_schedule():
         delete_schedule(schedule_id)
         get_scheduler().cancel_task("{}-{}".format(device_id, schedule_id))
         print(len(get_scheduler().schedules))
+        return redirect(url_for('lights.show_lights', _method='GET'))
+    except TemplateNotFound:
+        abort(404)
+
+
+
+@lights.route('/lights/light/delete', methods=['GET'])
+def remove_device():
+    try:
+        device_id = int(request.args['device_id'])
+        schedules_to_remove: [Schedule] = load_schedules_for(device_id)
+        for schedule in schedules_to_remove:
+            delete_schedule(schedule.schedule_id)
+            get_scheduler().cancel_task("{}-{}".format(device_id, schedule.schedule_id))
+        delete_device_status_for(device_id)
+        delete_device_by(device_id)
+
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
