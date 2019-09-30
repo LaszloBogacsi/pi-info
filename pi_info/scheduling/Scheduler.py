@@ -58,7 +58,7 @@ class Scheduler(object):
             for day in weekdays:
                 deltas.append(abs(day - current_weekday) if day - current_weekday != 0 else 7)
             closest_day_diff = weekdays[max([i for i, v in enumerate(deltas) if v == min(deltas)])] - current_weekday
-        return scheduled_time.replace(day=current_time.day + closest_day_diff if closest_day_diff > 0 else closest_day_diff + one_week_offset)
+        return scheduled_time.replace(day=current_time.day) + datetime.timedelta(days=closest_day_diff if closest_day_diff > 0 else closest_day_diff + one_week_offset)
 
     def _reschedule_task(self, task):
         new_delay = self._delay_until_run(task.time, task.weekdays)
