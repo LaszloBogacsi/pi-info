@@ -12,11 +12,13 @@ from pi_info.data.room import Room
 from pi_info.repository.Device import Device
 from pi_info.repository.DeviceStatus import DeviceStatus, Status
 from pi_info.repository.DeviceWithStatus import DeviceWithStatus
+from pi_info.repository.Group import Group
 from pi_info.repository.Schedule import Schedule
 from pi_info.repository.device_repository import load_all_devices, save_device, load_all_devices_with_status, \
     update_device, delete_device_by
 from pi_info.repository.device_status_repository import save_device_status, update_device_status, \
     delete_device_status_for
+from pi_info.repository.group_repository import save_group, load_all_groups
 from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule, \
     load_schedules_for
 from pi_info.statusbar import refresh_statusbar
@@ -65,9 +67,10 @@ def show_lights(page):
                 if schedule.device_id == id:
                     schedules_by_ids[id].append(schedule.__dict__)
         all_devices: [DeviceWithStatus] = [device.as_dict() for device in load_all_devices_with_status()]
+        groups: [Group] = load_all_groups()
         return render_template('lights/%s.html' % page, active='lights', lights=all_devices, statusbar=statusbar,
                                buttons=buttons, devices_schedules=schedules_by_ids, weekdays=Weekday.get_all_weekdays(),
-                               locations=locations, device_types=device_types, api_base_url=current_app.config["API_BASE_URL"])
+                               locations=locations, device_types=device_types, groups=groups, api_base_url=current_app.config["API_BASE_URL"])
     except TemplateNotFound:
         abort(404)
 
@@ -162,12 +165,18 @@ def new_group():
         abort(404)
 
 
+def make_group_from(form) -> Group:
+    ids = [int(id) for id in form['ids'].split(',')]
+    delay = int(form['delay-in-ms'])
+    return Group(group_id=None, name=form['group-name'], delay_in_ms=delay, ids=ids)
+
 
 @lights.route('/lights/groups/save-new', methods=['POST'])
 def save_new_group():
     try:
-        req = request
-        return redirect(url_for('lights.show_lights', page='groups'))
+        group: Group = make_group_from(request.form)
+        save_group(group)
+        return redirect(url_for('lights.show_lights', _method='GET', page='groups'))
     except TemplateNotFound:
         abort(404)
 

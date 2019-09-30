@@ -1,4 +1,3 @@
-<h1>NOT implemented yet</h1>
 <div class="ui people shape container with shape-light-{{ loop_index }}">
     <div class="sides">
         <div class="active first side">
@@ -7,18 +6,17 @@
                 </div>
             </div>
             <div class="ui card">
-                <div onclick="switchHandler('{{ d.device_id }}', '{{ d.status }}', '{{ loop_index }}')"
+                <div onclick="console.log('Implement me!')"
                      class="ui button">
                     <div class="center aligned image">
                         <i id="light-status-{{ loop_index }}"
-                           class="huge {% if d.status == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
+                           class="huge {% if g == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
                     </div>
                 </div>
                 <div class="content">
-                    <div class="header">{{ d.name }}</div>
+                    <div class="header">{{ g.name }}</div>
                     <div class="meta">
-                        <span>  {{ d.location.value }}</span>
-                        <span>  {{ d.device_type }}</span>
+                        <span>  {{ g.delay_in_ms }}</span>
                     </div>
                 </div>
                 <div class="extra content">
@@ -28,7 +26,7 @@
                         Schedule
                     </a>
                     <a class="right floated"
-                       onclick="flipAndPrefillDeviceDetailsSide(event,'light','{{ loop_index }}', {{ d }}, 'set next side', '.device.edit.side' )">
+                       onclick="flipAndPrefillDeviceDetailsSide(event,'light','{{ loop_index }}', {{ g }}, 'set next side', '.device.edit.side' )">
                         <i class="edit icon"></i>
                         Edit...
                     </a>
@@ -37,176 +35,176 @@
         </div>
 
         <!--        Schedule list side -->
-        <div class="schedule list side">
-            <div class="ui card">
-                <div class="content">
-                    <div class="ui middle aligned divided list">
-                        {% for schedule in devices_schedules[d.device_id] %}
-                            <div class="item">
-                                <div class="right floated content">
-                                    <a class="ui basic mini red icon button" title="delete"
-                                       href="{{ url_for('lights.delete_light_schedule', schedule_id=schedule.schedule_id, device_id=schedule.device_id ) }}">
-                                        <i class="trash icon"></i>
-                                    </a>
-                                </div>
-                                <div class="content"
-                                     onclick="flipAndPrefillScheduleDetailsSide(event, 'light', '{{ loop_index }}', {{ schedule }}, 'set next side', '.schedule.detail.side')">
-                                    <a class="header">{{ schedule.status }} | {{ schedule.time }}</a>
-                                    <div class="description">{{ schedule.days | toWeekday }}</div>
-                                </div>
-                            </div>
-                        {% else %}
-                            <p>No schedules set yet, click on <strong>ADD</strong> to setup one</p>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="extra content">
-                    <a class="left floated"
-                       onclick="flip(event, 'light', '{{ loop_index }}', 'set next side', '.first.side')">
-                        <i class="arrow alternate circle left outline icon"></i>
-                        Back
-                    </a>
-                    <a class="ui right floated"
-                       onclick="flipAndResetSchedule(event, 'light', '{{ loop_index }}', 'set next side', '.schedule.detail.side')">
-                        <i class="teal plus icon"></i>
-                        ADD
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!--        Schedule detail side -->
-        <div id="schedule-edit-light-{{ loop_index }}" class="schedule detail side">
-            <form class="ui form" method="post"
-                  action="{{ url_for('lights.save_new_light_schedule', device_id=d.device_id) }}">
-                <div class="ui {% if d.is_active %}green{% else %}red{% endif %} card">
-                    <input type="hidden" name="schedule-id" value=""/>
-                    <div class="content">
-                        <div class="field">
-                            <label>Time</label>
-                            <input name="time" type="time" placeholder="Select time" value="18:00" required>
-                        </div>
-                    </div>
-                    <div class="content">
-                        <div class="ui grid container">
-                            <div class="row">
-                                <div class="fields">
-                                    <label for="state">Select a type:</label>
-                                    <div class="field">
-                                        <div class="ui radio checkbox">
-                                            <input type="radio" name="state" tabindex="0" value="ON" class="hidden"
-                                                   required>
-                                            <label>ON</label>
-                                        </div>
-                                        <div class="field">
-                                            <div class="ui radio checkbox">
-                                                <input type="radio" name="state" tabindex="0" value="OFF" class="hidden"
-                                                       required>
-                                                <label>OFF</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="grouped fields">
-                                    <div class="description">Select days:</div>
-                                    {% for weekday in weekdays %}
-                                        <div class="field">
-                                            <div class="ui checkbox">
-                                                <input type="checkbox" name="weekday" tabindex="0"
-                                                       value="{{ weekday.key }}" class="hidden">
-                                                <label>{{ weekday.value }}</label>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="extra content">
-                        <button class="ui teal button right floated" type="submit">
-                            Save
-                        </button>
-                        <a class="left floated"
-                           onclick="flipAndResetSchedule(event, 'light', '{{ loop_index }}', 'set next side', '.schedule.list.side')">
-                            <i class="arrow alternate circle left outline icon"></i>
-                            Cancel
-                        </a>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!--        Device edit detail side -->
-        <div id="device-edit-light-{{ loop_index }}" class="device edit side">
-            <form class="ui form" method="post"
-                  action="{{ url_for('lights.edit_device') }}">
-                <div class="ui card">
-                    <input type="hidden" name="device_id" value=""/>
-                    <div class="content">
-                        <div class="ui two column padded grid container">
-                            <div class="column">
-                                <div class="grouped fields">
-                                    <label for="location">Select a location:</label>
-                                    {% for location in locations %}
-                                        <div class="field">
-                                            <div class="ui checkbox">
-                                                <input type="radio" name="location" value="{{ location.value }}"
-                                                       class="hidden" required>
-                                                <label>{{ location.display }}</label>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <div class="column">
-                                <div class="grouped fields">
-                                    <label for="type">Select a type:</label>
-                                    {% for type in device_types %}
-                                        <div class="field">
-                                            <div class="ui checkbox">
-                                                <input type="radio" name="type" tabindex="0" value="{{ type.value }}"
-                                                       class="hidden" required>
-                                                <label>{{ type.display }}</label>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="content">
-                        <div class="disabled field">
-                            <label>Id</label>
-                            <input name="id" type="text" readonly="" placeholder="Device id" required
-                                   value="{{ d.device_id }}">
-                        </div>
-                        <div class="field">
-                            <label>Name</label>
-                            <input name="name" type="text" placeholder="Device name..." required>
-                        </div>
-                    </div>
-                    <div class="extra content">
-                        <button class="ui teal button right floated" type="submit">
-                            Save
-                        </button>
-                        <a class="left floated"
-                           onclick="flipAndResetSchedule(event, 'light', '{{ loop_index }}', 'set next side', '.first.side')">
-                            <button class="ui button" type="button">
-                                Cancel
-                            </button>
-                        </a>
-                    </div>
-                    <div class="extra content">
-                        <a class="ui basic mini red right floated button"
-                           href="{{ url_for('lights.remove_device', device_id=d.device_id) }}">
-                            DELETE
-                        </a>
-                    </div>
-                </div>
-            </form>
-        </div>
+{#        <div class="schedule list side">#}
+{#            <div class="ui card">#}
+{#                <div class="content">#}
+{#                    <div class="ui middle aligned divided list">#}
+{#                        {% for schedule in devices_schedules[d.device_id] %}#}
+{#                            <div class="item">#}
+{#                                <div class="right floated content">#}
+{#                                    <a class="ui basic mini red icon button" title="delete"#}
+{#                                       href="{{ url_for('lights.delete_light_schedule', schedule_id=schedule.schedule_id, device_id=schedule.device_id ) }}">#}
+{#                                        <i class="trash icon"></i>#}
+{#                                    </a>#}
+{#                                </div>#}
+{#                                <div class="content"#}
+{#                                     onclick="flipAndPrefillScheduleDetailsSide(event, 'light', '{{ loop_index }}', {{ schedule }}, 'set next side', '.schedule.detail.side')">#}
+{#                                    <a class="header">{{ schedule.status }} | {{ schedule.time }}</a>#}
+{#                                    <div class="description">{{ schedule.days | toWeekday }}</div>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        {% else %}#}
+{#                            <p>No schedules set yet, click on <strong>ADD</strong> to setup one</p>#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="extra content">#}
+{#                    <a class="left floated"#}
+{#                       onclick="flip(event, 'light', '{{ loop_index }}', 'set next side', '.first.side')">#}
+{#                        <i class="arrow alternate circle left outline icon"></i>#}
+{#                        Back#}
+{#                    </a>#}
+{#                    <a class="ui right floated"#}
+{#                       onclick="flipAndResetSchedule(event, 'light', '{{ loop_index }}', 'set next side', '.schedule.detail.side')">#}
+{#                        <i class="teal plus icon"></i>#}
+{#                        ADD#}
+{#                    </a>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{##}
+{#        <!--        Schedule detail side -->#}
+{#        <div id="schedule-edit-light-{{ loop_index }}" class="schedule detail side">#}
+{#            <form class="ui form" method="post"#}
+{#                  action="{{ url_for('lights.save_new_light_schedule', device_id=d.device_id) }}">#}
+{#                <div class="ui {% if d.is_active %}green{% else %}red{% endif %} card">#}
+{#                    <input type="hidden" name="schedule-id" value=""/>#}
+{#                    <div class="content">#}
+{#                        <div class="field">#}
+{#                            <label>Time</label>#}
+{#                            <input name="time" type="time" placeholder="Select time" value="18:00" required>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="content">#}
+{#                        <div class="ui grid container">#}
+{#                            <div class="row">#}
+{#                                <div class="fields">#}
+{#                                    <label for="state">Select a type:</label>#}
+{#                                    <div class="field">#}
+{#                                        <div class="ui radio checkbox">#}
+{#                                            <input type="radio" name="state" tabindex="0" value="ON" class="hidden"#}
+{#                                                   required>#}
+{#                                            <label>ON</label>#}
+{#                                        </div>#}
+{#                                        <div class="field">#}
+{#                                            <div class="ui radio checkbox">#}
+{#                                                <input type="radio" name="state" tabindex="0" value="OFF" class="hidden"#}
+{#                                                       required>#}
+{#                                                <label>OFF</label>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                            <div class="row">#}
+{#                                <div class="grouped fields">#}
+{#                                    <div class="description">Select days:</div>#}
+{#                                    {% for weekday in weekdays %}#}
+{#                                        <div class="field">#}
+{#                                            <div class="ui checkbox">#}
+{#                                                <input type="checkbox" name="weekday" tabindex="0"#}
+{#                                                       value="{{ weekday.key }}" class="hidden">#}
+{#                                                <label>{{ weekday.value }}</label>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    {% endfor %}#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="extra content">#}
+{#                        <button class="ui teal button right floated" type="submit">#}
+{#                            Save#}
+{#                        </button>#}
+{#                        <a class="left floated"#}
+{#                           onclick="flipAndResetSchedule(event, 'light', '{{ loop_index }}', 'set next side', '.schedule.list.side')">#}
+{#                            <i class="arrow alternate circle left outline icon"></i>#}
+{#                            Cancel#}
+{#                        </a>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </form>#}
+{#        </div>#}
+{##}
+{#        <!--        Device edit detail side -->#}
+{#        <div id="device-edit-light-{{ loop_index }}" class="device edit side">#}
+{#            <form class="ui form" method="post"#}
+{#                  action="{{ url_for('lights.edit_device') }}">#}
+{#                <div class="ui card">#}
+{#                    <input type="hidden" name="device_id" value=""/>#}
+{#                    <div class="content">#}
+{#                        <div class="ui two column padded grid container">#}
+{#                            <div class="column">#}
+{#                                <div class="grouped fields">#}
+{#                                    <label for="location">Select a location:</label>#}
+{#                                    {% for location in locations %}#}
+{#                                        <div class="field">#}
+{#                                            <div class="ui checkbox">#}
+{#                                                <input type="radio" name="location" value="{{ location.value }}"#}
+{#                                                       class="hidden" required>#}
+{#                                                <label>{{ location.display }}</label>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    {% endfor %}#}
+{#                                </div>#}
+{#                            </div>#}
+{#                            <div class="column">#}
+{#                                <div class="grouped fields">#}
+{#                                    <label for="type">Select a type:</label>#}
+{#                                    {% for type in device_types %}#}
+{#                                        <div class="field">#}
+{#                                            <div class="ui checkbox">#}
+{#                                                <input type="radio" name="type" tabindex="0" value="{{ type.value }}"#}
+{#                                                       class="hidden" required>#}
+{#                                                <label>{{ type.display }}</label>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    {% endfor %}#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="content">#}
+{#                        <div class="disabled field">#}
+{#                            <label>Id</label>#}
+{#                            <input name="id" type="text" readonly="" placeholder="Device id" required#}
+{#                                   value="{{ d.device_id }}">#}
+{#                        </div>#}
+{#                        <div class="field">#}
+{#                            <label>Name</label>#}
+{#                            <input name="name" type="text" placeholder="Device name..." required>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="extra content">#}
+{#                        <button class="ui teal button right floated" type="submit">#}
+{#                            Save#}
+{#                        </button>#}
+{#                        <a class="left floated"#}
+{#                           onclick="flipAndResetSchedule(event, 'light', '{{ loop_index }}', 'set next side', '.first.side')">#}
+{#                            <button class="ui button" type="button">#}
+{#                                Cancel#}
+{#                            </button>#}
+{#                        </a>#}
+{#                    </div>#}
+{#                    <div class="extra content">#}
+{#                        <a class="ui basic mini red right floated button"#}
+{#                           href="{{ url_for('lights.remove_device', device_id=d.device_id) }}">#}
+{#                            DELETE#}
+{#                        </a>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </form>#}
+{#        </div>#}
 
     </div>
     {# sides end#}

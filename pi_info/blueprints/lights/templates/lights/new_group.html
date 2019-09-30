@@ -3,7 +3,7 @@
 {% block content %}
 <h2 class="ui centered header">Create new group</h2>
 <div id="new-group" class="ui container">
-    <div class="ui fluid form">
+    <form class="ui fluid form" method="post" action="{{ url_for('lights.save_new_group') }}">
         <div class="field">
             <label>Group Name</label>
             <input type="text" name="group-name" placeholder="Group name..." required>
@@ -12,7 +12,7 @@
             <label>Delay [ms]</label>
             <input type="number" name="delay-in-ms" placeholder="Delay in ms" required>
         </div>
-    </div>
+    </form>
     <table class="ui compact celled definition table">
         <thead class="full-width">
         <tr>

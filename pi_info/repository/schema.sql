@@ -23,22 +23,30 @@ CREATE TABLE IF NOT EXISTS sensor
 CREATE TABLE IF NOT EXISTS device
 (
     device_id INTEGER PRIMARY KEY,
-    name     VARCHAR(50),
-    location VARCHAR(50),
-    type     VARCHAR(50)
+    name      VARCHAR(50),
+    location  VARCHAR(50),
+    type      VARCHAR(50)
 );
 
 CREATE TABLE IF NOT EXISTS device_status
 (
-    device_id  INTEGER PRIMARY KEY,
+    device_id INTEGER PRIMARY KEY,
     status    VARCHAR(5)
 );
 
 CREATE TABLE IF NOT EXISTS schedule
 (
-    schedule_id   SERIAL PRIMARY KEY,
-    device_id      INTEGER,
-    status        VARCHAR(10),
-    days          VARCHAR(50),
-    time          TIME
+    schedule_id SERIAL PRIMARY KEY,
+    device_id   INTEGER,
+    status      VARCHAR(10),
+    days        VARCHAR(50),
+    time        TIME
+);
+
+CREATE TABLE IF NOT EXISTS device_group
+(
+    group_id SERIAL PRIMARY KEY,
+    name     VARCHAR(50),
+    delay    INTEGER,
+    ids      VARCHAR(500)
 );
