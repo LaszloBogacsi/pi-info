@@ -79,8 +79,3 @@ function setInputElementValue(parentElement, inputName, value) {
     const inputElement = parentElement.querySelector(`input[name=${inputName}]`);
     inputElement.value = value;
 }
-
-function setTime(containingElement, value) {
-    const timeInputElement = containingElement.querySelector('input[name=time]');
-    timeInputElement.value = value;
-}
