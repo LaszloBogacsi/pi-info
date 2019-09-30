@@ -157,7 +157,17 @@ def new_group():
     try:
         statusbar = refresh_statusbar()
         all_devices: [Device] = [device.as_dict() for device in load_all_devices()]
-        return render_template('lights/new_group.html', active='lights', devices=all_devices, statusbar=statusbar)
+        return render_template('lights/new_group.html', active='lights', devices=all_devices, statusbar=statusbar, api_base_url=current_app.config['API_BASE_URL'])
+    except TemplateNotFound:
+        abort(404)
+
+
+
+@lights.route('/lights/groups/save-new', methods=['POST'])
+def save_new_group():
+    try:
+        req = request
+        return redirect(url_for('lights.show_lights', page='groups'))
     except TemplateNotFound:
         abort(404)
 
