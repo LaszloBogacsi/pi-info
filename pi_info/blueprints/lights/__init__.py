@@ -28,7 +28,8 @@ lights = Blueprint('lights', __name__,
                    template_folder='templates')
 
 
-# TODO: create group, edit group, delete group, group schedules, use group button below
+# TODO: create group, edit group, delete group, group schedules
+# TODO: group toggle status, group set schedule
 
 
 def get_buttons(selected):
