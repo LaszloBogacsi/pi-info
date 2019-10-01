@@ -1,4 +1,6 @@
+import json
 import logging
+import time
 from enum import Enum
 
 from flask import Blueprint, render_template, abort, request, redirect, url_for, make_response, current_app
@@ -14,10 +16,10 @@ from pi_info.repository.DeviceWithStatus import DeviceWithStatus
 from pi_info.repository.Group import Group
 from pi_info.repository.Schedule import Schedule
 from pi_info.repository.device_repository import load_all_devices, save_device, load_all_devices_with_status, \
-    update_device, delete_device_by
+    update_device, delete_device_by, load_device_with_status_by
 from pi_info.repository.device_status_repository import save_device_status, update_device_status, \
     delete_device_status_for
-from pi_info.repository.group_repository import save_group, load_all_groups
+from pi_info.repository.group_repository import save_group, load_all_groups, load_group_by, update_group
 from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule, \
     load_schedules_for
 from pi_info.statusbar import refresh_statusbar
@@ -29,7 +31,7 @@ lights = Blueprint('lights', __name__,
 
 
 # TODO: create group, edit group, delete group, group schedules
-# TODO: group toggle status, group set schedule
+# TODO: group set schedule
 
 
 def get_buttons(selected):
@@ -167,7 +169,7 @@ def new_group():
 def make_group_from(form) -> Group:
     ids = [int(id) for id in form['ids'].split(',')]
     delay = int(form['delay-in-ms'])
-    return Group(group_id=None, name=form['group-name'], delay_in_ms=delay, ids=ids)
+    return Group(group_id=None, name=form['group-name'], delay_in_ms=delay, ids=ids, status=Status.OFF)
 
 
 @lights.route('/lights/groups/save-new', methods=['POST'])
@@ -204,14 +206,48 @@ def publish(client, topic, payload):
 
 @lights.route('/lights/light-control')
 def light_control():
-    light_id = request.args.get('light_id', "1")
+    light_ids = json.loads(request.args.get('light_ids', []))
+    if not isinstance(light_ids, list):
+        light_ids = [light_ids]
+    delay = int(request.args.get('delay', 0))
+    group_id = request.args.get('group_id', None)
     status = request.args.get('status', 'OFF')
     updated_status = "ON" if status == "OFF" else "OFF"
-    payload = "{\"status\":\"" + updated_status + "\",\"device_id\":\"" + light_id + "\"}"
-    publish(get_mqtt_client(), "switch/relay", payload)
-    if light_id is not None:
-        print("updating light status id:", light_id, "to ", updated_status)
-        update_device_status(DeviceStatus(int(light_id), Status(updated_status)))
+    payloads = []
+    for id in light_ids:
+        payload = "{{\"status\":\"{}\",\"device_id\":\"{}\"}}".format(updated_status, id)
+        json_payload = json.dumps(payload)
+        publish(get_mqtt_client(), "switch/relay", json_payload)
+        print("updating light status id:", id, "to ", updated_status)
+        update_device_status(DeviceStatus(id, Status(updated_status)))
+        payloads.append(payload)
+        time.sleep(delay/1000.0)
+    if group_id:
+        group = load_group_by(int(group_id))
+        updated_group = Group(group.group_id, group.name, group.delay_in_ms, group.ids, Status(updated_status))
+        update_group(updated_group)
+
+    print(payloads)
+    response = make_response(json.dumps(payloads), 200)
+    response.headers['Access-Control-Allow-Origin'] = '*'
+
+    return response
+
+
+@lights.route('/lights/data')
+def lights_data():
+    light_id = request.args.get('light_id', None)
+    group_id = request.args.get('group_id', None)
+    payload = {
+        'group_status': None,
+        'single_device_status': None
+    }
+    if group_id:
+        group = load_group_by(int(group_id))
+        payload['group_status'] = group.status.value
+    if light_id:
+        device = load_device_with_status_by(int(light_id))
+        payload['single_device_status'] = device.status.value
 
     print(payload)
     response = make_response(payload, 200)

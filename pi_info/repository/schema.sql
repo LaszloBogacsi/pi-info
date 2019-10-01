@@ -48,5 +48,6 @@ CREATE TABLE IF NOT EXISTS device_group
     group_id SERIAL PRIMARY KEY,
     name     VARCHAR(50),
     delay    INTEGER,
-    ids      VARCHAR(500)
+    ids      VARCHAR(500),
+    status   VARCHAR(10)
 );

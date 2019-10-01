@@ -1,4 +1,4 @@
-<div class="ui people shape container with shape-light-{{ loop_index }}">
+<div class="ui people shape with shape-light-{{ loop_index }}">
     <div class="sides">
         <div class="active first side">
             <div id="dimmer-{{ loop_index }}" class="ui dimmer">
@@ -6,11 +6,11 @@
                 </div>
             </div>
             <div class="ui card">
-                <div onclick="console.log('Implement me!')"
+                <div onclick="switchHandler('{{ g.ids }}', '{{ g.status.value }}', '{{ loop_index }}', '{{ g.delay_in_ms }}', '{{ g.group_id }}')"
                      class="ui button">
                     <div class="center aligned image">
                         <i id="light-status-{{ loop_index }}"
-                           class="huge {% if g == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
+                           class="huge {% if g.status.value == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
                     </div>
                 </div>
                 <div class="content">
@@ -26,7 +26,7 @@
                         Schedule
                     </a>
                     <a class="right floated"
-                       onclick="flipAndPrefillDeviceDetailsSide(event,'light','{{ loop_index }}', {{ g }}, 'set next side', '.device.edit.side' )">
+                       onclick="flipAndPrefillDeviceDetailsSide(event,'light','{{ loop_index }}', '{{ g }}', 'set next side', '.device.edit.side' )">
                         <i class="edit icon"></i>
                         Edit...
                     </a>
@@ -48,7 +48,7 @@
 {#                                    </a>#}
 {#                                </div>#}
 {#                                <div class="content"#}
-{#                                     onclick="flipAndPrefillScheduleDetailsSide(event, 'light', '{{ loop_index }}', {{ schedule }}, 'set next side', '.schedule.detail.side')">#}
+{#                                     onclick="flipAndPrefillScheduleDetailsSide(event, 'light', '{{ loop_index }}', '{{ schedule }}', 'set next side', '.schedule.detail.side')">#}
 {#                                    <a class="header">{{ schedule.status }} | {{ schedule.time }}</a>#}
 {#                                    <div class="description">{{ schedule.days | toWeekday }}</div>#}
 {#                                </div>#}
