@@ -7,7 +7,6 @@ from jinja2 import TemplateNotFound
 from app import get_mqtt_client, get_scheduler
 from pi_info.blueprints.Weekday import Weekday
 from pi_info.data.DeviceType import DeviceType
-from pi_info.data.lights import LIGHTS, LightStatus, get_light_by_id
 from pi_info.data.room import Room
 from pi_info.repository.Device import Device
 from pi_info.repository.DeviceStatus import DeviceStatus, Status
@@ -40,8 +39,8 @@ def get_buttons(selected):
                    "active_status": 'active' if selected == 'list' else '', "icon_type": 'list icon',
                    "button_text": "LIST"}
     groups_button = {"url": url_for('lights.show_lights', page='groups'),
-                   "active_status": 'active' if selected == 'groups' else '', "icon_type": 'object group outline icon',
-                   "button_text": "GROUPS"}
+                     "active_status": 'active' if selected == 'groups' else '', "icon_type": 'object group outline icon',
+                     "button_text": "GROUPS"}
     add_new_button = {"url": url_for('lights.new_device') if selected == 'status' or selected == 'list' else url_for('lights.new_group'),
                       "active_status": 'teal',
                       "icon_type": '',
@@ -124,7 +123,6 @@ def delete_light_schedule():
         abort(404)
 
 
-
 @lights.route('/lights/light/delete', methods=['GET'])
 def remove_device():
     try:
@@ -201,26 +199,6 @@ def publish(client, topic, payload):
         client.publish(topic=topic, payload=payload)
     else:
         logger.warning("can not publish message, client is not defined")
-
-
-@lights.route('/lights/light', defaults={'page': ''})
-@lights.route('/lights/light/<page>')
-def light_status(page):
-    light_id = request.args.get('light_id', "1")
-    referer = request.args.get('referer', "lights.show_lights")
-    status = request.args.get('status', 'OFF')
-    status = "ON" if status == "OFF" else "OFF"
-    payload = "{\"status\":\"" + status + "\",\"relay_id\":\"" + light_id + "\"}"
-    publish(get_mqtt_client(), "switch/relay", payload)
-    if light_id is not None:
-        next(light for light in LIGHTS if light["light_id"] == light_id)["current_status"] = LightStatus(status)
-    if page == 'list':
-        return redirect(url_for(referer, page='list', status=status, light_id=light_id,
-                                filter=get_light_by_id(light_id)["location"].name))
-    return redirect(url_for(referer, filter=get_light_by_id(light_id)["location"].name))
-
-
-current_light_status = LightStatus.OFF
 
 
 @lights.route('/lights/light-control')

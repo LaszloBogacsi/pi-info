@@ -1,7 +1,8 @@
 import math
 from datetime import datetime
 
-from pi_info.data.lights import LIGHTS, LightStatus
+from pi_info.repository.DeviceStatus import Status
+from pi_info.repository.device_repository import load_all_devices_with_status
 from pi_info.repository.sensor_data_repository import load_current_sensor_data
 from pi_info.third_party.openweather import get_current_weather_info
 from pi_info.third_party.tfl_tube_status import get_current_tube_status, central
@@ -53,7 +54,7 @@ def get_current_weather(data):
 
 
 def get_any_light_status():
-    return True if next((light for light in LIGHTS if light["current_status"] == LightStatus.ON), None) is not None else False
+    return any(light for light in load_all_devices_with_status() if light.status == Status.ON)
 
 
 def reload_data():

@@ -5,34 +5,41 @@
         {% include "view_button_bar.html" %}
     </div>
 </div>
+<div class="dimmable">
+    <div id="dimmer-{{ loop_index }}" class="ui dimmer">
+        <div class="ui loader">
+        </div>
+    </div>
+    <table class="ui celled selectable table">
+        <thead>
+        <tr>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for d in lights %}
+        <tr onclick="switchHandler('{{ d.device_id }}', '{{ d.status }}', '{{ loop_index }}')">
 
-<script>
-    function rowClickHandler(url) {
-        window.location = url;
-    }
-</script>
-<table class="ui celled selectable table">
-    <thead>
-    <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Location</th>
-        <th>Status</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for light in lights %}
-    <tr onclick=rowClickHandler("{{url_for('lights.light_status',page='list',light_id=light.light_id,status=light.current_status.value,referer='lights.show_lights')}}")>
-        <td data-label="Type"><i class="lightbulb outline icon"></i></td>
-        <td data-label="Name">{{ light.name }}</td>
-        <td data-label="Location">{{ light.location.value }}</td>
-        <td data-label="Status">
-            <div class="center aligned image">
-                <i class="large {% if light.current_status.value == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
-            </div>
-        </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
+            <td data-label="Type"><i class="lightbulb outline icon"></i></td>
+            <td data-label="Name">{{ d.name }}</td>
+            <td data-label="Location">{{ d.location.display }}</td>
+            <td data-label="Status">
+                <div class="center aligned image">
+                    <i id="light-status-{{ loop_index }}"
+                       class="large {% if d.status == 'ON' %}yellow{% endif %} lightbulb outline icon"></i>
+                </div>
+            </td>
+        </tr>
+
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>var BASE_URL = '{{api_base_url}}';</script>
+<script src="{{ url_for('static', filename='js/light-control-handler.js') }}"></script>
+
 {% endblock %}
