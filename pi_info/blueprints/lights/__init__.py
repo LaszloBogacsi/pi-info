@@ -42,9 +42,11 @@ def get_buttons(selected):
                    "active_status": 'active' if selected == 'list' else '', "icon_type": 'list icon',
                    "button_text": "LIST"}
     groups_button = {"url": url_for('lights.show_lights', page='groups'),
-                     "active_status": 'active' if selected == 'groups' else '', "icon_type": 'object group outline icon',
+                     "active_status": 'active' if selected == 'groups' else '',
+                     "icon_type": 'object group outline icon',
                      "button_text": "GROUPS"}
-    add_new_button = {"url": url_for('lights.new_device') if selected == 'status' or selected == 'list' else url_for('lights.new_group'),
+    add_new_button = {"url": url_for('lights.new_device') if selected == 'status' or selected == 'list' else url_for(
+        'lights.new_group'),
                       "active_status": 'teal',
                       "icon_type": '',
                       "button_text": "ADD"
@@ -72,7 +74,8 @@ def show_lights(page):
         groups: [Group] = load_all_groups()
         return render_template('lights/%s.html' % page, active='lights', lights=all_devices, statusbar=statusbar,
                                buttons=buttons, devices_schedules=schedules_by_ids, weekdays=Weekday.get_all_weekdays(),
-                               locations=locations, device_types=device_types, groups=groups, api_base_url=current_app.config["API_BASE_URL"])
+                               locations=locations, device_types=device_types, groups=groups,
+                               api_base_url=current_app.config["API_BASE_URL"])
     except TemplateNotFound:
         abort(404)
 
@@ -151,7 +154,8 @@ def new_device():
         sorted_devices = sorted(load_all_devices(), key=lambda s: s.device_id, reverse=True)
         next_id = sorted_devices[0].device_id + 1 if len(load_all_devices()) > 0 else 500
 
-        return render_template('lights/new.html', active='lights', device_types=device_types, id=next_id, locations=locations, statusbar=statusbar)
+        return render_template('lights/new.html', active='lights', device_types=device_types, id=next_id,
+                               locations=locations, statusbar=statusbar)
     except TemplateNotFound:
         abort(404)
 
@@ -161,7 +165,23 @@ def new_group():
     try:
         statusbar = refresh_statusbar()
         all_devices: [Device] = [device.as_dict() for device in load_all_devices()]
-        return render_template('lights/new_group.html', active='lights', devices=all_devices, statusbar=statusbar, api_base_url=current_app.config['API_BASE_URL'])
+        return render_template('lights/new_group.html', active='lights', devices=all_devices, statusbar=statusbar,
+                               api_base_url=current_app.config['API_BASE_URL'])
+    except TemplateNotFound:
+        abort(404)
+
+
+@lights.route('/lights/groups/group/edit', methods=['GET'])
+def edit_group():
+    try:
+        group_id = int(request.args['group_id'])
+        statusbar = refresh_statusbar()
+        group_to_edit: Group = load_group_by(group_id)
+        all_devices: [Device] = [device.as_dict() for device in load_all_devices()]
+
+        return render_template('lights/edit_group.html', active='lights', group=group_to_edit,
+                               devices=all_devices, statusbar=statusbar,
+                               api_base_url=current_app.config['API_BASE_URL'])
     except TemplateNotFound:
         abort(404)
 
@@ -169,7 +189,8 @@ def new_group():
 def make_group_from(form) -> Group:
     ids = [int(id) for id in form['ids'].split(',')]
     delay = int(form['delay-in-ms'])
-    return Group(group_id=None, name=form['group-name'], delay_in_ms=delay, ids=ids, status=Status.OFF)
+    group_id = form.get('group_id', None)
+    return Group(group_id=group_id, name=form['group-name'], delay_in_ms=delay, ids=ids, status=Status.OFF)
 
 
 @lights.route('/lights/groups/save-new', methods=['POST'])
@@ -177,6 +198,15 @@ def save_new_group():
     try:
         group: Group = make_group_from(request.form)
         save_group(group)
+        return redirect(url_for('lights.show_lights', _method='GET', page='groups'))
+    except TemplateNotFound:
+        abort(404)
+
+@lights.route('/lights/groups/group/update', methods=['POST'])
+def save_edit_group():
+    try:
+        group: Group = make_group_from(request.form)
+        update_group(group)
         return redirect(url_for('lights.show_lights', _method='GET', page='groups'))
     except TemplateNotFound:
         abort(404)
@@ -221,7 +251,7 @@ def light_control():
         print("updating light status id:", id, "to ", updated_status)
         update_device_status(DeviceStatus(id, Status(updated_status)))
         payloads.append(payload)
-        time.sleep(delay/1000.0)
+        time.sleep(delay / 1000.0)
     if group_id:
         group = load_group_by(int(group_id))
         updated_group = Group(group.group_id, group.name, group.delay_in_ms, group.ids, Status(updated_status))
@@ -262,4 +292,5 @@ def make_device_from_form(form):
 
 def get_schedule_from_form(req):
     sched_id = int(req.form['schedule-id']) if req.form['schedule-id'] != '' else None
-    return Schedule(sched_id, int(req.args['device_id']), req.form['state'], ",".join(req.form.getlist('weekday')), req.form['time'])
+    return Schedule(sched_id, int(req.args['device_id']), req.form['state'], ",".join(req.form.getlist('weekday')),
+                    req.form['time'])

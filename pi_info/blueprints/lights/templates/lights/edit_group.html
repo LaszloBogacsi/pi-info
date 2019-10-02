@@ -1,16 +1,18 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<h2 class="ui centered header">Create new group</h2>
-<div id="new-group" class="ui container">
-    <form class="ui fluid form" method="post" action="{{ url_for('lights.save_new_group') }}">
+<h2 class="ui centered header">Edit new group</h2>
+<div id="edit-group" class="ui container">
+    <form class="ui fluid form" method="post" action="{{ url_for('lights.save_edit_group') }}">
+        <input type="hidden" name="group_id" value="{{ group.group_id }}"/>
+
         <div class="field">
             <label>Group Name</label>
-            <input type="text" name="group-name" placeholder="Group name..." required>
+            <input type="text" name="group-name" placeholder="Group name..." value="{{ group.name }}" required>
         </div>
         <div class="field">
             <label>Delay [ms]</label>
-            <input type="number" name="delay-in-ms" placeholder="Delay in ms" required>
+            <input type="number" name="delay-in-ms" placeholder="Delay in ms" value="{{ group.delay_in_ms }}" required>
         </div>
     </form>
     <table class="ui compact celled definition table">
@@ -42,7 +44,7 @@
 
             <th colspan="3">
                 <div class="ui small deselect button"
-                     >
+                     onclick="deselectAll()">
                     Deselect All
                 </div>
                 <div class="ui right floated small teal labeled icon button"
@@ -61,5 +63,7 @@
 </div>
 <script>var BASE_URL = '{{api_base_url}}';</script>
 <script src="{{ url_for('static', filename='js/groups.js') }}"></script>
+
+    <script>preselectSome('{{group.ids}}')</script>
 
 {% endblock %}
