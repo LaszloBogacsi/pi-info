@@ -55,6 +55,10 @@
                    href="{{ url_for('lights.show_lights', page='groups') }}">
                     Cancel
                 </a>
+                <a class="ui basic small red button"
+                   href="{{ url_for('lights.remove_group', group_id=group.group_id) }}">
+                    Delete Group
+                </a>
             </th>
 
         </tr>

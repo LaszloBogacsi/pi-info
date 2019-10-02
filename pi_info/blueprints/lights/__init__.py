@@ -19,7 +19,7 @@ from pi_info.repository.device_repository import load_all_devices, save_device, 
     update_device, delete_device_by, load_device_with_status_by
 from pi_info.repository.device_status_repository import save_device_status, update_device_status, \
     delete_device_status_for
-from pi_info.repository.group_repository import save_group, load_all_groups, load_group_by, update_group
+from pi_info.repository.group_repository import save_group, load_all_groups, load_group_by, update_group, delete_group
 from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule, \
     load_schedules_for
 from pi_info.statusbar import refresh_statusbar
@@ -30,8 +30,7 @@ lights = Blueprint('lights', __name__,
                    template_folder='templates')
 
 
-# TODO: create group, edit group, delete group, group schedules
-# TODO: group set schedule
+# TODO: group schedules
 
 
 def get_buttons(selected):
@@ -182,6 +181,15 @@ def edit_group():
         return render_template('lights/edit_group.html', active='lights', group=group_to_edit,
                                devices=all_devices, statusbar=statusbar,
                                api_base_url=current_app.config['API_BASE_URL'])
+    except TemplateNotFound:
+        abort(404)
+
+@lights.route('/lights/groups/group/delete', methods=['GET'])
+def remove_group():
+    try:
+        group_id = int(request.args['group_id'])
+        delete_group(group_id)
+        return redirect(url_for('lights.show_lights', _method='GET', page='groups'))
     except TemplateNotFound:
         abort(404)
 
