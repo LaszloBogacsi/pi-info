@@ -88,7 +88,7 @@ def create_action(status: str, device_id: str, client, publisher):
         payload = "{\"status\":\"" + status + "\",\"relay_id\":\"" + device_id + "\"}"
         publisher(client, "switch/relay", payload)
 
-    return create_payload_and_publish
+    return [create_payload_and_publish]
 
 
 def init_task_scheduler(schedules: [Schedule]):

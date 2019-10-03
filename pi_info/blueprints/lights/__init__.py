@@ -30,7 +30,7 @@ lights = Blueprint('lights', __name__,
                    template_folder='templates')
 
 
-# TODO: group schedules
+# TODO: create unique group ids (not clashing with device_ids that should remain human readable
 
 
 def get_buttons(selected):
@@ -71,8 +71,9 @@ def show_lights(page):
                     schedules_by_ids[id].append(schedule.__dict__)
         all_devices: [DeviceWithStatus] = [device.as_dict() for device in load_all_devices_with_status()]
         groups: [Group] = load_all_groups()
+        group_schedules = []
         return render_template('lights/%s.html' % page, active='lights', lights=all_devices, statusbar=statusbar,
-                               buttons=buttons, devices_schedules=schedules_by_ids, weekdays=Weekday.get_all_weekdays(),
+                               buttons=buttons, devices_schedules=schedules_by_ids, groups_schedules=group_schedules, weekdays=Weekday.get_all_weekdays(),
                                locations=locations, device_types=device_types, groups=groups,
                                api_base_url=current_app.config["API_BASE_URL"])
     except TemplateNotFound:
@@ -99,7 +100,22 @@ def save_new_light_schedule():
         schedule: Schedule = get_schedule_from_form(request)
         sched_id = save_schedule(schedule) if schedule.schedule_id is None else update_schedule(schedule)
         action = make_action_func(schedule.status, str(schedule.device_id), get_mqtt_client(), publish)
-        get_scheduler().schedule_task_from_form(schedule.device_id, sched_id, schedule.time, schedule.days, action)
+        get_scheduler().schedule_task_from_form(schedule.device_id, sched_id, schedule.time, schedule.days, [action])
+        return redirect(url_for('lights.show_lights', _method='GET'))
+    except TemplateNotFound:
+        abort(404)
+
+
+@lights.route('/lights/group/schedule', methods=['POST'])
+def save_new_group_schedule():
+    try:
+        schedule: Schedule = get_schedule_from_form(request)
+        ids = json.loads(request.form['device-ids'])
+        sched_id = save_schedule(schedule) if schedule.schedule_id is None else update_schedule(schedule)
+        actions = []
+        for device_id in ids:
+            actions.append(make_action_func(schedule.status, "{}".format(device_id), get_mqtt_client(), publish))
+        get_scheduler().schedule_task_from_form(schedule.device_id, sched_id, schedule.time, schedule.days, actions)
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
