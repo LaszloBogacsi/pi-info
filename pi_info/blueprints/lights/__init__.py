@@ -31,7 +31,7 @@ lights = Blueprint('lights', __name__,
 
 
 # TODO: create unique group ids (not clashing with device_ids that should remain human readable
-
+# TODO: make group schedules re-creatable when loading from db.
 
 def get_buttons(selected):
     status_button = {"url": url_for('lights.show_lights', page='status'),
@@ -62,7 +62,7 @@ def show_lights(page):
         locations = [{"display": room.value.title(), "value": room.value} for room in Room]
         device_types = [{"display": type.value.title(), "value": type.value} for type in DeviceType]
         all_schedules = load_all_schedules()
-        device_ids = set(map(lambda i: i.device_id, all_schedules))
+        device_ids = set(map(lambda i: i.group_id, all_schedules))
         schedules_by_ids = {}
         for id in device_ids:
             schedules_by_ids[id] = []
@@ -88,7 +88,7 @@ def default_conv(o):
 
 def make_action_func(status: str, device_id: str, client, publisher):
     def create_payload_and_publish():
-        payload = "{\"status\":\"" + status + "\",\"relay_id\":\"" + device_id + "\"}"
+        payload = "{{\"status\":\"{}\",\"device_id\":\"{}\"}}".format(status, device_id)
         publisher(client, "switch/relay", payload)
 
     return create_payload_and_publish
@@ -97,7 +97,7 @@ def make_action_func(status: str, device_id: str, client, publisher):
 @lights.route('/lights/light/schedule', methods=['POST'])
 def save_new_light_schedule():
     try:
-        schedule: Schedule = get_schedule_from_form(request)
+        schedule: Schedule = get_schedule_from_form(request, is_group=False)
         sched_id = save_schedule(schedule) if schedule.schedule_id is None else update_schedule(schedule)
         action = make_action_func(schedule.status, str(schedule.device_id), get_mqtt_client(), publish)
         get_scheduler().schedule_task_from_form(schedule.device_id, sched_id, schedule.time, schedule.days, [action])
@@ -109,13 +109,12 @@ def save_new_light_schedule():
 @lights.route('/lights/group/schedule', methods=['POST'])
 def save_new_group_schedule():
     try:
-        schedule: Schedule = get_schedule_from_form(request)
-        ids = json.loads(request.form['device-ids'])
+        schedule: Schedule = get_schedule_from_form(request, is_group=True)
         sched_id = save_schedule(schedule) if schedule.schedule_id is None else update_schedule(schedule)
         actions = []
-        for device_id in ids:
+        for device_id in schedule.device_id:
             actions.append(make_action_func(schedule.status, "{}".format(device_id), get_mqtt_client(), publish))
-        get_scheduler().schedule_task_from_form(schedule.device_id, sched_id, schedule.time, schedule.days, actions)
+        get_scheduler().schedule_task_from_form(schedule.group_id, sched_id, schedule.time, schedule.days, actions)
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -147,13 +146,13 @@ def delete_light_schedule():
 @lights.route('/lights/light/delete', methods=['GET'])
 def remove_device():
     try:
-        device_id = int(request.args['device_id'])
-        schedules_to_remove: [Schedule] = load_schedules_for(device_id)
+        group_id = int(request.args['group_id'])
+        schedules_to_remove: [Schedule] = load_schedules_for(group_id)
         for schedule in schedules_to_remove:
             delete_schedule(schedule.schedule_id)
-            get_scheduler().cancel_task("{}-{}".format(device_id, schedule.schedule_id))
-        delete_device_status_for(device_id)
-        delete_device_by(device_id)
+            get_scheduler().cancel_task("{}-{}".format(group_id, schedule.schedule_id))
+        delete_device_status_for(group_id)
+        delete_device_by(group_id)
 
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
@@ -314,7 +313,9 @@ def make_device_from_form(form):
     return Device(int(form['device_id']), form['name'], form['location'].lower(), form['type'].lower())
 
 
-def get_schedule_from_form(req):
+def get_schedule_from_form(req, is_group=False):
+    group_id = int(req.args['group_id']) if is_group else int(req.args['device_id'])
+    device_id = json.loads(req.form['device-ids']) if is_group else [int(req.args['device_id'])]
     sched_id = int(req.form['schedule-id']) if req.form['schedule-id'] != '' else None
-    return Schedule(sched_id, int(req.args['device_id']), req.form['state'], ",".join(req.form.getlist('weekday')),
+    return Schedule(sched_id, group_id, device_id, req.form['state'], ",".join(req.form.getlist('weekday')),
                     req.form['time'])

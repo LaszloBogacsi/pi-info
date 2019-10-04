@@ -75,7 +75,7 @@
         <!--        Schedule detail side -->
         <div id="schedule-edit-light-{{ loop_index }}" class="schedule detail side">
             <form class="ui form" method="post"
-                  action="{{ url_for('lights.save_new_group_schedule', device_id=g.group_id) }}">
+                  action="{{ url_for('lights.save_new_group_schedule', group_id=g.group_id) }}">
                 <div class="ui card">
                     <input type="hidden" name="schedule-id" value=""/>
                     <input type="hidden" name="device-ids" value="{{ g.ids }}"/>

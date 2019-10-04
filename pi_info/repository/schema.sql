@@ -37,7 +37,8 @@ CREATE TABLE IF NOT EXISTS device_status
 CREATE TABLE IF NOT EXISTS schedule
 (
     schedule_id SERIAL PRIMARY KEY,
-    device_id   INTEGER,
+    group_id   INTEGER,
+    device_id   VARCHAR(500),
     status      VARCHAR(10),
     days        VARCHAR(50),
     time        TIME

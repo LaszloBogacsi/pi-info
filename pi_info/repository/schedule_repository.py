@@ -3,8 +3,8 @@ from pi_info.repository.repository import save, load_all, save_and_get_id
 
 
 def save_schedule(schedule: Schedule):
-    query = "INSERT INTO schedule(device_id, status, days, time) VALUES ({}, '{}', '{}', '{}') RETURNING schedule_id".format(
-        schedule.device_id, schedule.status, schedule.days, schedule.time)
+    query = "INSERT INTO schedule(group_id, device_id, status, days, time) VALUES ({}, '{}', '{}', '{}', '{}') RETURNING schedule_id".format(
+        schedule.group_id, ','.join(map(str, schedule.device_id)), schedule.status, schedule.days, schedule.time)
     return save_and_get_id(query)
 
 
@@ -25,12 +25,12 @@ def load_all_schedules() -> [Schedule]:
     return load_all(sql, cast_schedule)
 
 
-def load_schedules_for(device_id) -> [Schedule]:
-    sql = 'SELECT * FROM schedule WHERE device_id={}'.format(device_id)
+def load_schedules_for(group_id) -> [Schedule]:
+    sql = 'SELECT * FROM schedule WHERE device_id={}'.format(group_id)
     return load_all(sql, cast_schedule)
 
 
 def cast_schedule(value) -> Schedule or None:
     if value is None:
         return None
-    return Schedule(schedule_id=value[0], device_id=value[1], status=value[2], days=value[3], time=str(value[4]))
+    return Schedule(schedule_id=value[0], group_id=value[1], device_id=[int(v) for v in value[2].split(',')], status=value[3], days=value[4], time=str(value[5]))

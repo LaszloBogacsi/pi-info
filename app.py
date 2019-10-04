@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 
@@ -83,12 +84,15 @@ def init_mqtt(app) -> MqttClient:
     return MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)
 
 
-def create_action(status: str, device_id: str, client, publisher):
-    def create_payload_and_publish():
-        payload = "{\"status\":\"" + status + "\",\"relay_id\":\"" + device_id + "\"}"
-        publisher(client, "switch/relay", payload)
-
-    return [create_payload_and_publish]
+def create_action(status: str, device_ids: str, client, publisher):
+    device_ids_arr = json.loads(device_ids)
+    actions = []
+    for device_id in device_ids_arr:
+        def create_payload_and_publish():
+            payload = "{{\"status\":\"{}\",\"device_id\":\"{}\"}}".format(status, device_id)
+            publisher(client, "switch/relay", payload)
+        actions.append(create_payload_and_publish)
+    return actions
 
 
 def init_task_scheduler(schedules: [Schedule]):
