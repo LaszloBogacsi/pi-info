@@ -6,6 +6,7 @@ from flask import Flask
 
 from pi_info.Credentials import Credentials
 from pi_info.scheduling.Scheduler import Scheduler
+from pi_info.scheduling.SchedulingManager import SchedulingManager
 
 
 def get_mqtt_client():
@@ -35,7 +36,7 @@ template_dir = os.path.join(project_folder, 'templates')
 static_dir = os.path.join(project_folder, 'static')
 
 mqtt_client = None
-scheduler = Scheduler()
+scheduler = SchedulingManager()
 
 
 def create_app(config_file='config.cfg'):

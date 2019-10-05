@@ -73,8 +73,9 @@ class Scheduler(object):
 
         while deadline is not None:
             deadline = self.scheduler.run(blocking=False)
+            print(deadline, threading.current_thread().name)
             time.sleep(1)
-
+        print("finished")
         self._reschedule_task(task)
 
     def _find_closest_time(self, time, days) -> datetime:
