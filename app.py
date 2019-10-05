@@ -1,10 +1,12 @@
 import json
 import logging
 import os
+import time
 
 from flask import Flask
 
 from pi_info.Credentials import Credentials
+from pi_info.repository.group_repository import load_group_by
 from pi_info.scheduling.SchedulingManager import SchedulingManager
 
 
@@ -84,13 +86,15 @@ def init_mqtt(app) -> MqttClient:
     return MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)
 
 
-def create_action(status: str, device_ids: str, client, publisher):
+def create_action(status: str, device_ids: str, client, publisher, delay_in_ms):
     device_ids_arr = json.loads(device_ids)
     actions = []
     for device_id in device_ids_arr:
         def create_payload_and_publish():
             payload = "{{\"status\":\"{}\",\"device_id\":\"{}\"}}".format(status, device_id)
             publisher(client, "switch/relay", payload)
+            print('waiting {} ms'.format(delay_in_ms))
+            time.sleep(delay_in_ms/1000)
         actions.append(create_payload_and_publish)
     return actions
 
@@ -104,5 +108,6 @@ def init_task_scheduler(schedules: [Schedule]):
                 client.publish(topic=topic, payload=payload)
             else:
                 logger.error('can not publish message, client is not defined')
-
-        scheduler.schedule_task_from_db(schedule, create_action(schedule.status, str(schedule.device_id), get_mqtt_client(), publisher))
+        group = load_group_by(schedule.group_id)
+        delay_in_ms = group.delay_in_ms if group is not None else 0
+        scheduler.schedule_task_from_db(schedule, create_action(schedule.status, str(schedule.device_id), get_mqtt_client(), publisher, delay_in_ms))

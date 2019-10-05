@@ -31,7 +31,6 @@ lights = Blueprint('lights', __name__,
 
 
 # TODO: create unique group ids (not clashing with device_ids that should remain human readable
-# TODO: when updating a single device or a group, should cancel all the schedule tasks for the devoce or group and re enter them with the new situation
 
 def get_buttons(selected):
     status_button = {"url": url_for('lights.show_lights', page='status'),
@@ -85,12 +84,15 @@ def default_conv(o):
     return o.__dict__
 
 
-def make_action_func(status: str, device_id: str, client, publisher):
+def make_action_func(status: str, device_id: str, client, publisher, delay_in_ms):
     def create_payload_and_publish():
         payload = "{{\"status\":\"{}\",\"device_id\":\"{}\"}}".format(status, device_id)
         publisher(client, "switch/relay", payload)
+        print('waiting {} ms'.format(delay_in_ms))
+        time.sleep(delay_in_ms/1000)
 
     return create_payload_and_publish
+
 
 
 @lights.route('/lights/light/schedule', methods=['POST'])
@@ -98,8 +100,8 @@ def save_new_light_schedule():
     try:
         schedule: Schedule = get_schedule_from_form(request, is_group=False)
         is_update = schedule.schedule_id is not None
-        action = make_action_func(schedule.status, str(schedule.device_id), get_mqtt_client(), publish)
-        save_new_or_update_schedule([action], is_update, schedule)
+        actions = create_actions(schedule, group_delay_in_ms=0)
+        save_new_or_update_schedule(actions, is_update, schedule)
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -110,15 +112,21 @@ def save_new_group_schedule():
     try:
         schedule: Schedule = get_schedule_from_form(request, is_group=True)
         is_update = schedule.schedule_id is not None
-        actions = []
-        for device_id in schedule.device_id:
-            actions.append(make_action_func(schedule.status, "{}".format(device_id), get_mqtt_client(), publish))
+        group = load_group_by(schedule.group_id)
+        actions = create_actions(schedule, group.delay_in_ms)
 
         save_new_or_update_schedule(actions, is_update, schedule)
 
         return redirect(url_for('lights.show_lights', _method='GET', page='groups'))
     except TemplateNotFound:
         abort(404)
+
+
+def create_actions(schedule, group_delay_in_ms=0):
+    actions = []
+    for device_id in schedule.device_id:
+        actions.append(make_action_func(schedule.status, "{}".format(device_id), get_mqtt_client(), publish, group_delay_in_ms))
+    return actions
 
 
 def save_new_or_update_schedule(actions, is_update, schedule):
@@ -158,16 +166,20 @@ def delete_light_schedule(page):
 def remove_device():
     try:
         group_id = int(request.args['group_id'])
-        schedules_to_remove: [Schedule] = load_schedules_for(group_id)
-        for schedule in schedules_to_remove:
-            delete_schedule(schedule.schedule_id)
-            get_scheduler().cancel_task("{}-{}".format(group_id, schedule.schedule_id))
+        remove_associated_schedules_for(group_id)
         delete_device_status_for(group_id)
         delete_device_by(group_id)
 
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
+
+
+def remove_associated_schedules_for(group_id):
+    schedules_to_remove: [Schedule] = load_schedules_for(group_id)
+    for schedule in schedules_to_remove:
+        delete_schedule(schedule.schedule_id)
+        get_scheduler().cancel_task("{}-{}".format(group_id, schedule.schedule_id))
 
 
 @lights.route('/lights/new', methods=['GET'])
@@ -215,6 +227,7 @@ def remove_group():
     try:
         group_id = int(request.args['group_id'])
         delete_group(group_id)
+        remove_associated_schedules_for(group_id)
         return redirect(url_for('lights.show_lights', _method='GET', page='groups'))
     except TemplateNotFound:
         abort(404)
@@ -236,11 +249,16 @@ def save_new_group():
     except TemplateNotFound:
         abort(404)
 
+
 @lights.route('/lights/groups/group/update', methods=['POST'])
 def save_edit_group():
     try:
         group: Group = make_group_from(request.form)
         update_group(group)
+        schedules_for_group = load_schedules_for(group.group_id)
+        for schedule in schedules_for_group:
+            new_schedule = Schedule(schedule.schedule_id, schedule.group_id, group.ids, schedule.status, schedule.days, schedule.time)
+            save_new_or_update_schedule(create_actions(new_schedule, group.delay_in_ms), is_update=True, schedule=new_schedule)
         return redirect(url_for('lights.show_lights', _method='GET', page='groups'))
     except TemplateNotFound:
         abort(404)

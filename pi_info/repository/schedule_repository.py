@@ -26,7 +26,7 @@ def load_all_schedules() -> [Schedule]:
 
 
 def load_schedules_for(group_id) -> [Schedule]:
-    sql = 'SELECT * FROM schedule WHERE device_id={}'.format(group_id)
+    sql = 'SELECT * FROM schedule WHERE group_id={}'.format(group_id)
     return load_all(sql, cast_schedule)
 
 
