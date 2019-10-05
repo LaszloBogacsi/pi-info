@@ -98,7 +98,7 @@ def save_new_light_schedule():
         schedule: Schedule = get_schedule_from_form(request, is_group=False)
         sched_id = save_schedule(schedule) if schedule.schedule_id is None else update_schedule(schedule)
         action = make_action_func(schedule.status, str(schedule.device_id), get_mqtt_client(), publish)
-        get_scheduler().schedule_task_from_form(schedule.device_id, sched_id, schedule.time, schedule.days, [action])
+        get_scheduler().schedule_task_from_form(schedule.group_id, sched_id, schedule.time, schedule.days, [action])
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -135,7 +135,7 @@ def delete_light_schedule():
         device_id = int(request.args['device_id'])
         delete_schedule(schedule_id)
         get_scheduler().cancel_task("{}-{}".format(device_id, schedule_id))
-        print(len(get_scheduler().schedules))
+        print(len(get_scheduler().schedulers))
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)

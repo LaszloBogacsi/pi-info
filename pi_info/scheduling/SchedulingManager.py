@@ -5,7 +5,7 @@ import time
 from typing import List
 
 from pi_info.repository.Schedule import Schedule
-from pi_info.scheduling.Scheduler import Scheduler2
+from pi_info.scheduling.Scheduler import Scheduler
 from pi_info.scheduling.Task import Task
 from pi_info.scheduling.Time import Time
 
@@ -13,12 +13,14 @@ logger = logging.getLogger('SchedulingManager')
 
 
 class SchedulingManager:
+    schedulers: [(int, Scheduler)]
+
     def __init__(self) -> None:
-        self.schedulers: [(int, Scheduler2)] = []
-        pass
+        self.schedulers = []
+
 
     def schedule_task_from_db(self, schedule: Schedule, action):
-        id = "{}-{}".format(schedule.device_id, schedule.schedule_id)
+        id = "{}-{}".format(schedule.group_id, schedule.schedule_id)
         delay = self._delay_until_run(schedule.time, schedule.days)
         self.schedule_task(Task(id, schedule.time, schedule.days, delay, action))
 
@@ -28,14 +30,20 @@ class SchedulingManager:
         self.schedule_task(Task(id, s_time, weekdays, delay, action))
 
     def schedule_task(self, task: Task):
-        scheduler = Scheduler2(time.time, time.sleep)
+        scheduler = Scheduler(time.time, time.sleep)
         t = threading.Thread(target=scheduler.worker, args=(task, self._reschedule_task))
         t.start()
         self.schedulers.append((task.id, scheduler))
 
     def cancel_task(self, task_id):
-        scheduler = next((scheduler[1] for scheduler in self.schedulers if scheduler[0] == task_id), None)
-        scheduler.cancel_task() if scheduler is not None else logger.debug('Can not find scheduler to cancel with id: {}'.format(task_id))
+        id_to_scheduler = next((scheduler for scheduler in self.schedulers if scheduler[0] == task_id), None)
+        if id_to_scheduler is not None:
+            scheduler: Scheduler = id_to_scheduler[1]
+            scheduler.cancel_task()
+            self.schedulers.remove(id_to_scheduler)
+        else:
+            logger.debug('Can not find scheduler to cancel with id: {}'.format(task_id))
+        print('debug')
 
     def _reschedule_task(self, scheduler, task):
         new_delay = self._delay_until_run(task.time, task.weekdays)
