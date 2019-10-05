@@ -90,13 +90,13 @@ def show_room(page):
         device_types = [{"display": type.value.title(), "value": type.value} for type in DeviceType]
         buttons = get_buttons(selected=page, room_filter=room.name)
         all_schedules = load_all_schedules()
-        device_ids = set(map(lambda i: i.device_id, all_schedules))
+        group_ids = set(map(lambda i: i.device_id, all_schedules))
         schedules_by_ids = {}
-        for id in device_ids:
-            schedules_by_ids[id] = []
+        for group_id in group_ids:
+            schedules_by_ids[group_id] = []
             for schedule in all_schedules:
-                if schedule.device_id == id:
-                    schedules_by_ids[id].append(schedule.__dict__)
+                if schedule.group_id == group_id:
+                    schedules_by_ids[group_id].append(schedule.__dict__)
 
         return render_template('room/%s.html' % page, active='home', room=room.value, things=all_thing_per_room,
                                devices_schedules=schedules_by_ids, weekdays=Weekday.get_all_weekdays(), statusbar=statusbar,
