@@ -148,7 +148,7 @@ def edit_device():
         abort(404)
 
 
-@lights.route('/lights', defaults={'page': 'status'})
+@lights.route('/lights/light/schedule/', defaults={'page': 'status'})
 @lights.route('/lights/light/schedule/<page>', methods=['GET'])
 def delete_light_schedule(page):
     try:
