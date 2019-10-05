@@ -31,6 +31,7 @@ lights = Blueprint('lights', __name__,
 
 
 # TODO: create unique group ids (not clashing with device_ids that should remain human readable
+# TODO: when updating a single device or a group, should cancel all the schedule tasks for the devoce or group and re enter them with the new situation
 
 def get_buttons(selected):
     status_button = {"url": url_for('lights.show_lights', page='status'),
@@ -115,7 +116,7 @@ def save_new_group_schedule():
 
         save_new_or_update_schedule(actions, is_update, schedule)
 
-        return redirect(url_for('lights.show_lights', _method='GET'))
+        return redirect(url_for('lights.show_lights', _method='GET', page='groups'))
     except TemplateNotFound:
         abort(404)
 
@@ -139,15 +140,16 @@ def edit_device():
         abort(404)
 
 
-@lights.route('/lights/light/schedule', methods=['GET'])
-def delete_light_schedule():
+@lights.route('/lights', defaults={'page': 'status'})
+@lights.route('/lights/light/schedule/<page>', methods=['GET'])
+def delete_light_schedule(page):
     try:
         schedule_id = int(request.args['schedule_id'])
         device_id = int(request.args['device_id'])
         delete_schedule(schedule_id)
         get_scheduler().cancel_task("{}-{}".format(device_id, schedule_id))
         print(len(get_scheduler().schedulers))
-        return redirect(url_for('lights.show_lights', _method='GET'))
+        return redirect(url_for('lights.show_lights', _method='GET', page=page))
     except TemplateNotFound:
         abort(404)
 

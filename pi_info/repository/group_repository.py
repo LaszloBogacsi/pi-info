@@ -5,13 +5,13 @@ from pi_info.repository.repository import load_all, save, save_and_get_id, load_
 
 def save_group(group: Group):
     query = "INSERT INTO device_group(name, delay, ids, status) VALUES ('{}', {}, '{}', '{}') RETURNING group_id".format(
-        group.name, group.delay_in_ms, group.ids, group.status.value)
+        group.name, group.delay_in_ms, ','.join(map(str, group.ids)), group.status.value)
     return save_and_get_id(query)
 
 
 def update_group(group: Group):
     query = "UPDATE device_group SET name='{}', delay={}, ids='{}', status='{}' WHERE group_id={}".format(
-        group.name, group.delay_in_ms, group.ids, group.status.value, group.group_id)
+        group.name, group.delay_in_ms,','.join(map(str, group.ids)), group.status.value, group.group_id)
     save(query)
     return group.group_id
 
@@ -34,4 +34,4 @@ def load_group_by(group_id: int) -> Group:
 def cast_group(value) -> Group or None:
     if value is None:
         return None
-    return Group(group_id=value[0], name=value[1], delay_in_ms=value[2], ids=value[3], status=Status(value[4]))
+    return Group(group_id=value[0], name=value[1], delay_in_ms=value[2], ids=[int(v) for v in value[3].split(',')], status=Status(value[4]))

@@ -18,6 +18,9 @@
                     <div class="meta">
                         <span>  {{ g.delay_in_ms }}</span>
                     </div>
+                    <div class="meta">
+                        <span>  {{ g.ids | length }} devices in group</span>
+                    </div>
                 </div>
                 <div class="extra content">
                     <a class="left floated"
@@ -42,7 +45,7 @@
                             <div class="item">
                                 <div class="right floated content">
                                     <a class="ui basic mini red icon button" title="delete"
-                                       href="{{ url_for('lights.delete_light_schedule', schedule_id=schedule.schedule_id, device_id=schedule.group_id ) }}">
+                                       href="{{ url_for('lights.delete_light_schedule', page=groups, schedule_id=schedule.schedule_id, device_id=schedule.group_id ) }}">
                                         <i class="trash icon"></i>
                                     </a>
                                 </div>
