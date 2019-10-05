@@ -5,7 +5,7 @@ import time
 from typing import List
 
 from pi_info.repository.Schedule import Schedule
-from pi_info.scheduling.Scheduler2 import Scheduler2
+from pi_info.scheduling.Scheduler import Scheduler2
 from pi_info.scheduling.Task import Task
 from pi_info.scheduling.Time import Time
 

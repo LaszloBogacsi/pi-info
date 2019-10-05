@@ -5,7 +5,6 @@ import os
 from flask import Flask
 
 from pi_info.Credentials import Credentials
-from pi_info.scheduling.Scheduler import Scheduler
 from pi_info.scheduling.SchedulingManager import SchedulingManager
 
 

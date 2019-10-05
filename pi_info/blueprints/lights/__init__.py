@@ -31,7 +31,6 @@ lights = Blueprint('lights', __name__,
 
 
 # TODO: create unique group ids (not clashing with device_ids that should remain human readable
-# TODO: make group schedules re-creatable when loading from db.
 
 def get_buttons(selected):
     status_button = {"url": url_for('lights.show_lights', page='status'),
@@ -62,18 +61,17 @@ def show_lights(page):
         locations = [{"display": room.value.title(), "value": room.value} for room in Room]
         device_types = [{"display": type.value.title(), "value": type.value} for type in DeviceType]
         all_schedules = load_all_schedules()
-        device_ids = set(map(lambda i: i.group_id, all_schedules))
+        group_ids = set(map(lambda i: i.group_id, all_schedules))
         schedules_by_ids = {}
-        for id in device_ids:
-            schedules_by_ids[id] = []
+        for group_id in group_ids:
+            schedules_by_ids[group_id] = []
             for schedule in all_schedules:
-                if schedule.device_id == id:
-                    schedules_by_ids[id].append(schedule.__dict__)
+                if schedule.group_id == group_id:
+                    schedules_by_ids[group_id].append(schedule.__dict__)
         all_devices: [DeviceWithStatus] = [device.as_dict() for device in load_all_devices_with_status()]
         groups: [Group] = load_all_groups()
-        group_schedules = []
         return render_template('lights/%s.html' % page, active='lights', lights=all_devices, statusbar=statusbar,
-                               buttons=buttons, devices_schedules=schedules_by_ids, groups_schedules=group_schedules, weekdays=Weekday.get_all_weekdays(),
+                               buttons=buttons, devices_schedules=schedules_by_ids, weekdays=Weekday.get_all_weekdays(),
                                locations=locations, device_types=device_types, groups=groups,
                                api_base_url=current_app.config["API_BASE_URL"])
     except TemplateNotFound:

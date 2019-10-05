@@ -1,11 +1,11 @@
 import time
 import unittest
 
-from pi_info.scheduling.Scheduler import Scheduler
+from pi_info.scheduling.SchedulingManager import SchedulingManager
 
 
 class SchedulerTest(unittest.TestCase):
-    scheduler = Scheduler()
+    scheduler = SchedulingManager()
     class Task():
         def __init__(self, id, a, delay):
             self.id = id
