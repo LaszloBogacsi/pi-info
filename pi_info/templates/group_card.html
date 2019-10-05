@@ -47,7 +47,7 @@
                                     </a>
                                 </div>
                                 <div class="content"
-                                     onclick="flipAndPrefillScheduleDetailsSide(event, 'light', '{{ loop_index }}', '{{ schedule }}', 'set next side', '.schedule.detail.side')">
+                                     onclick="flipAndPrefillScheduleDetailsSide(event, 'light', '{{ loop_index }}', {{ schedule }}, 'set next side', '.schedule.detail.side')">
                                     <a class="header">{{ schedule.status }} | {{ schedule.time }}</a>
                                     <div class="description">{{ schedule.days | toWeekday }}</div>
                                 </div>

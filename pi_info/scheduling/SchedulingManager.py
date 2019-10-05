@@ -18,32 +18,37 @@ class SchedulingManager:
     def __init__(self) -> None:
         self.schedulers = []
 
-
-    def schedule_task_from_db(self, schedule: Schedule, action):
+    def schedule_task_from_db(self, schedule: Schedule, actions):
         id = "{}-{}".format(schedule.group_id, schedule.schedule_id)
         delay = self._delay_until_run(schedule.time, schedule.days)
-        self.schedule_task(Task(id, schedule.time, schedule.days, delay, action))
+        self._schedule_task(Task(id, schedule.time, schedule.days, delay, actions))
 
-    def schedule_task_from_form(self, device_id, schedule_id, s_time, weekdays, action):
+    def schedule_task_from_form(self, device_id, schedule_id, s_time, weekdays, actions):
         id = "{}-{}".format(device_id, schedule_id)
         delay = self._delay_until_run(s_time, weekdays)
-        self.schedule_task(Task(id, s_time, weekdays, delay, action))
+        task = Task(id, s_time, weekdays, delay, actions)
+        self._schedule_task(task)
+        return task
 
-    def schedule_task(self, task: Task):
-        scheduler = Scheduler(time.time, time.sleep)
-        t = threading.Thread(target=scheduler.worker, args=(task, self._reschedule_task))
-        t.start()
-        self.schedulers.append((task.id, scheduler))
+    def update_task_from_form(self, device_id, schedule_id, s_time, weekdays, action):
+        task_id = "{}-{}".format(device_id, schedule_id)
+        self.cancel_task(task_id)
+        self.schedule_task_from_form(device_id, schedule_id, s_time, weekdays, action)
 
     def cancel_task(self, task_id):
         id_to_scheduler = next((scheduler for scheduler in self.schedulers if scheduler[0] == task_id), None)
         if id_to_scheduler is not None:
             scheduler: Scheduler = id_to_scheduler[1]
-            scheduler.cancel_task()
             self.schedulers.remove(id_to_scheduler)
+            scheduler.cancel_task()
         else:
             logger.debug('Can not find scheduler to cancel with id: {}'.format(task_id))
-        print('debug')
+
+    def _schedule_task(self, task: Task):
+        scheduler = Scheduler(time.time, time.sleep)
+        t = threading.Thread(target=scheduler.worker, args=(task, self._reschedule_task))
+        t.start()
+        self.schedulers.append((task.id, scheduler))
 
     def _reschedule_task(self, scheduler, task):
         new_delay = self._delay_until_run(task.time, task.weekdays)

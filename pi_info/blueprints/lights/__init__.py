@@ -96,9 +96,9 @@ def make_action_func(status: str, device_id: str, client, publisher):
 def save_new_light_schedule():
     try:
         schedule: Schedule = get_schedule_from_form(request, is_group=False)
-        sched_id = save_schedule(schedule) if schedule.schedule_id is None else update_schedule(schedule)
+        is_update = schedule.schedule_id is not None
         action = make_action_func(schedule.status, str(schedule.device_id), get_mqtt_client(), publish)
-        get_scheduler().schedule_task_from_form(schedule.group_id, sched_id, schedule.time, schedule.days, [action])
+        save_new_or_update_schedule([action], is_update, schedule)
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -108,14 +108,25 @@ def save_new_light_schedule():
 def save_new_group_schedule():
     try:
         schedule: Schedule = get_schedule_from_form(request, is_group=True)
-        sched_id = save_schedule(schedule) if schedule.schedule_id is None else update_schedule(schedule)
+        is_update = schedule.schedule_id is not None
         actions = []
         for device_id in schedule.device_id:
             actions.append(make_action_func(schedule.status, "{}".format(device_id), get_mqtt_client(), publish))
-        get_scheduler().schedule_task_from_form(schedule.group_id, sched_id, schedule.time, schedule.days, actions)
+
+        save_new_or_update_schedule(actions, is_update, schedule)
+
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
+
+
+def save_new_or_update_schedule(actions, is_update, schedule):
+    if is_update:
+        sched_id = update_schedule(schedule)
+        get_scheduler().update_task_from_form(schedule.group_id, sched_id, schedule.time, schedule.days, actions)
+    else:
+        sched_id = save_schedule(schedule)
+        get_scheduler().schedule_task_from_form(schedule.group_id, sched_id, schedule.time, schedule.days, actions)
 
 
 @lights.route('/lights/light/edit', methods=['POST'])

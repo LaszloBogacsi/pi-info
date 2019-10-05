@@ -22,9 +22,7 @@ class Scheduler(object):
 
         while deadline is not None:
             deadline = self.scheduler.run(blocking=False)
-            print(deadline, threading.current_thread().name)
             time.sleep(1)
-        print("finished")
         if self.should_reschedule:
             rescheduler(self, task)  # all tasks to be rescheduled until canceled
 

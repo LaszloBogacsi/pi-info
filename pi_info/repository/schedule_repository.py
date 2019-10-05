@@ -9,8 +9,8 @@ def save_schedule(schedule: Schedule):
 
 
 def update_schedule(schedule: Schedule):
-    query = "UPDATE schedule SET device_id={}, status='{}', days='{}', time='{}' WHERE schedule_id={}".format(
-        schedule.device_id, schedule.status, schedule.days, schedule.time, schedule.schedule_id)
+    query = "UPDATE schedule SET device_id='{}', status='{}', days='{}', time='{}' WHERE schedule_id={}".format(
+        ','.join(map(str, schedule.device_id)), schedule.status, schedule.days, schedule.time, schedule.schedule_id)
     save(query)
     return schedule.schedule_id
 
