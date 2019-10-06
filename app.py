@@ -91,7 +91,7 @@ def create_action(status: str, device_ids: str, client, publisher, delay_in_ms):
     actions = []
     for device_id in device_ids_arr:
         def create_payload_and_publish():
-            payload = "{{\"status\":\"{}\",\"device_id\":\"{}\"}}".format(status, device_id)
+            payload = "{\"status\":\"" + status + "\",\"device_id\":\"" + str(device_id) + "\"}"
             publisher(client, "switch/relay", payload)
             print('waiting {} ms'.format(delay_in_ms))
             time.sleep(delay_in_ms/1000)

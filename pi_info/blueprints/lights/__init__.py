@@ -86,7 +86,7 @@ def default_conv(o):
 
 def make_action_func(status: str, device_id: str, client, publisher, delay_in_ms):
     def create_payload_and_publish():
-        payload = "{{\"status\":\"{}\",\"device_id\":\"{}\"}}".format(status, device_id)
+        payload = "{\"status\":\"" + status + "\",\"device_id\":\"" + str(device_id) + "\"}"
         publisher(client, "switch/relay", payload)
         print('waiting {} ms'.format(delay_in_ms))
         time.sleep(delay_in_ms/1000)
@@ -296,12 +296,13 @@ def light_control():
     status = request.args.get('status', 'OFF')
     updated_status = "ON" if status == "OFF" else "OFF"
     payloads = []
-    for id in light_ids:
-        payload = "{{\"status\":\"{}\",\"device_id\":\"{}\"}}".format(updated_status, id)
+    for light_id in light_ids:
+        # payload = "{{\"status\":\"{}\",\"device_id\":\"{}\"}}".format(updated_status, light_id)
+        payload = "{\"status\":\"" + updated_status + "\",\"device_id\":\"" + str(light_id) + "\"}"
         json_payload = json.dumps(payload)
-        publish(get_mqtt_client(), "switch/relay", json_payload)
-        print("updating light status id:", id, "to ", updated_status)
-        update_device_status(DeviceStatus(id, Status(updated_status)))
+        publish(get_mqtt_client(), "switch/relay", payload)
+        print("updating light status id:", light_id, "to ", updated_status)
+        update_device_status(DeviceStatus(light_id, Status(updated_status)))
         payloads.append(payload)
         time.sleep(delay / 1000.0)
     if group_id:
