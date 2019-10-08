@@ -1,4 +1,4 @@
-# Home-Hub <img alt="logo" src="./pi_info/static/home_hub_logo.svg" height="24" width="24" >
+# Home-Hub <img alt="logo" src="./pi_info/static/home_hub_logo.svg" height="48" width="48" >
  
  Home automation project  
  
