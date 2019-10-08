@@ -90,7 +90,7 @@ def show_room(page):
         device_types = [{"display": type.value.title(), "value": type.value} for type in DeviceType]
         buttons = get_buttons(selected=page, room_filter=room.name)
         all_schedules = load_all_schedules()
-        group_ids = set(map(lambda i: i.device_id, all_schedules))
+        group_ids = set(map(lambda i: i.group_id, all_schedules))
         schedules_by_ids = {}
         for group_id in group_ids:
             schedules_by_ids[group_id] = []
