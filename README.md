@@ -1,4 +1,4 @@
-# Pi-Info 
+# Home-Hub ![logo](pi_info/static/home_hub_logo.svg =50x50) 
  Home automation project  
  
  *using raspberry pi 3B+ and*  
