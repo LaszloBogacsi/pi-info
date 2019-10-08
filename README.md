@@ -1,4 +1,5 @@
-# Home-Hub ![logo](pi_info/static/home_hub_logo.svg =50x50) 
+# Home-Hub <img alt="logo" src="./pi_info/static/home_hub_logo.svg" height="24" width="24" >
+ 
  Home automation project  
  
  *using raspberry pi 3B+ and*  
