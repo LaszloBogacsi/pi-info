@@ -57,10 +57,11 @@ Requires local AWS cli credentials
  ___  
  ### Project Setup: 
  
+ Requirement: Python 3.7  
  install pipenv: `pip install pipenv`    
  clone the project `cd pi-info`    
  install the dependencies with dev dependencies: `pipenv install --dev`   
- form the **Pipfile** this will create a virtual env with a version of python installed (3.7+) 
+ form the **Pipfile** this will create a virtual env with a version of python installed (3.7+)   
  start the flask server: `pipenv run python pi-info.py`  
  
  ### Local Development:  

@@ -8,10 +8,12 @@ table = dynamodb.Table(table_name)
 
 response = table.put_item(
     Item={
-        'group_id': '113',
-        'device_id': '113',
-        'name': 'one light',
+        'group_id': '222',
+        'device_id': '22',
+        'name': 'one lights',
         'is_group': False,
+        'location': 'living room',
+        'delay': 0
     }
 )
 
