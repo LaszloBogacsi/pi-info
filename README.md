@@ -37,6 +37,8 @@
 `sudo apt-get install python-psycopg2`  
 `sudo apt-get install libpq-dev`  
 then run `./database-setup.sh` script to set up db 
+
+Requires local AWS cli credentials
  
  
  ___ 
