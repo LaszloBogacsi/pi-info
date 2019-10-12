@@ -86,16 +86,21 @@ def init_mqtt(app) -> MqttClient:
     return MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)
 
 
+def make_function(status: str, device_id: str, client, publisher, delay_in_ms):
+    def create_payload_and_publish():
+        payload = "{\"status\":\"" + status + "\",\"device_id\":\"" + str(device_id) + "\"}"
+        publisher(client, "switch/relay", payload)
+        print('waiting {} ms'.format(delay_in_ms))
+        time.sleep(delay_in_ms/1000)
+
+    return create_payload_and_publish
+
+
 def create_action(status: str, device_ids: str, client, publisher, delay_in_ms):
     device_ids_arr = json.loads(device_ids)
     actions = []
     for device_id in device_ids_arr:
-        def create_payload_and_publish():
-            payload = "{\"status\":\"" + status + "\",\"device_id\":\"" + str(device_id) + "\"}"
-            publisher(client, "switch/relay", payload)
-            print('waiting {} ms'.format(delay_in_ms))
-            time.sleep(delay_in_ms/1000)
-        actions.append(create_payload_and_publish)
+        actions.append(make_function(status, device_id, client, publisher, delay_in_ms))
     return actions
 
 
