@@ -11,7 +11,7 @@ paho-mqtt = "*"
 psycopg2 = "*"
 python-dateutil = "*"
 mqttclient = "*"
-gunicorn = {extras = ["gevent"],version = "*"}
+gunicorn = "*"
 prometheus-flask-exporter = "*"
 boto3 = "*"
 
