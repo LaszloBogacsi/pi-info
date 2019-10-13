@@ -6,7 +6,13 @@ import time
 from flask import Flask
 
 from pi_info.Credentials import Credentials
-from pi_info.repository.group_repository import load_group_by
+from pi_info.repository.Device import Device
+from pi_info.repository.DynamoDBTable import DynamoDBTable
+from pi_info.repository.Group import Group
+from pi_info.repository.GroupDeviceDTO import GroupDeviceDTO
+from pi_info.repository.device_repository import load_all_devices
+from pi_info.repository.dynamoDBRepository import put_item_batch
+from pi_info.repository.group_repository import load_group_by, load_all_groups
 from pi_info.scheduling.SchedulingManager import SchedulingManager
 
 
@@ -43,11 +49,16 @@ scheduler = SchedulingManager()
 def create_app(config_file='config.cfg'):
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir, root_path=root_folder)
     app.config.from_pyfile(config_file)
+
     with app.app_context():
+        init_app_db(app)
         if app.config['ONLINE']:
             global mqtt_client
+            print(app.config['DEVICES_TABLE_NAME'])
             mqtt_client = init_mqtt(app)
-        init_app_db(app)
+
+            init_dynamodb(app.config['DEVICES_TABLE_NAME'])
+
     init_task_scheduler(load_all_schedules())
     app.register_blueprint(home)
     app.register_blueprint(lights)
@@ -64,6 +75,11 @@ def create_app(config_file='config.cfg'):
 def init_mqtt(app) -> MqttClient:
     handlers = [MessageHandler('sensor/temperature', save_sensor_data)]
     return MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)
+
+
+def init_dynamodb(table_name: str):
+    dev_devices_table = DynamoDBTable(table_name)
+    update_remote_data_store_from_lodal_db(dev_devices_table)
 
 
 def make_function(status: str, device_id: str, client, publisher, delay_in_ms):
@@ -96,3 +112,14 @@ def init_task_scheduler(schedules: [Schedule]):
         group = load_group_by(schedule.group_id)
         delay_in_ms = group.delay_in_ms if group is not None else 0
         scheduler.schedule_task_from_db(schedule, create_action(schedule.status, str(schedule.device_id), get_mqtt_client(), publisher, delay_in_ms))
+
+
+def update_remote_data_store_from_lodal_db(table):
+    logger.debug('Updating remote datastore from local db...')
+    put_item_batch(table, merge(load_all_groups(), load_all_devices()))
+
+
+def merge(groups: [Group], devices: [Device]) -> [GroupDeviceDTO]:
+    new_groups = [GroupDeviceDTO(g.group_id, ",".join(map(str, g.ids)), g.name, True, "None", g.delay_in_ms) for g in groups]
+    new_devices = [GroupDeviceDTO(d.device_id, d.device_id, d.name, False, d.location.value, 0) for d in devices]
+    return new_groups + new_devices

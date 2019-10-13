@@ -1,22 +1,12 @@
-import boto3
-import json
+import logging
 
-dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+from pi_info.repository.GroupDeviceDTO import GroupDeviceDTO
+logger = logging.getLogger('dynamoDBRepository')
 
-table_name = 'dev-devices'
-table = dynamodb.Table(table_name)
 
-response = table.put_item(
-    Item={
-        'group_id': '222',
-        'device_id': '22',
-        'name': 'one lights',
-        'is_group': False,
-        'location': 'living room',
-        'delay': 0
-    }
-)
+def put_item(table, item: GroupDeviceDTO):
+    table.put_item(item)
 
-print("PutItem succeeded:")
-print(json.dumps(response, indent=4))
 
+def put_item_batch(table, items: [GroupDeviceDTO]):
+    table.batch_write(items)
