@@ -24,6 +24,10 @@ def get_scheduler():
     return scheduler
 
 
+def get_dynamoDb_conn_instance():
+    return dynamo_db_table
+
+
 from pi_info.blueprints.home import home
 from pi_info.blueprints.lights import lights, Weekday
 from pi_info.blueprints.rooms import rooms
@@ -44,6 +48,7 @@ static_dir = os.path.join(project_folder, 'static')
 
 mqtt_client = None
 scheduler = SchedulingManager()
+dynamo_db_table = None
 
 
 def create_app(config_file='config.cfg'):
@@ -56,8 +61,8 @@ def create_app(config_file='config.cfg'):
             global mqtt_client
             print(app.config['DEVICES_TABLE_NAME'])
             mqtt_client = init_mqtt(app)
-
-            init_dynamodb(app.config['DEVICES_TABLE_NAME'])
+            global dynamo_db_table
+            dynamo_db_table = init_dynamodb(app.config['DEVICES_TABLE_NAME'])
 
     init_task_scheduler(load_all_schedules())
     app.register_blueprint(home)
@@ -77,9 +82,10 @@ def init_mqtt(app) -> MqttClient:
     return MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)
 
 
-def init_dynamodb(table_name: str):
+def init_dynamodb(table_name: str) -> DynamoDBTable:
     dev_devices_table = DynamoDBTable(table_name)
     update_remote_data_store_from_lodal_db(dev_devices_table)
+    return dev_devices_table
 
 
 def make_function(status: str, device_id: str, client, publisher, delay_in_ms):
@@ -120,6 +126,6 @@ def update_remote_data_store_from_lodal_db(table):
 
 
 def merge(groups: [Group], devices: [Device]) -> [GroupDeviceDTO]:
-    new_groups = [GroupDeviceDTO(g.group_id, ",".join(map(str, g.ids)), g.name, True, "None", g.delay_in_ms) for g in groups]
-    new_devices = [GroupDeviceDTO(d.device_id, d.device_id, d.name, False, d.location.value, 0) for d in devices]
+    new_groups = [GroupDeviceDTO.convert_from(group) for group in groups]
+    new_devices = [GroupDeviceDTO.convert_from(device) for device in devices]
     return new_groups + new_devices

@@ -10,3 +10,7 @@ def put_item(table, item: GroupDeviceDTO):
 
 def put_item_batch(table, items: [GroupDeviceDTO]):
     table.batch_write(items)
+
+
+def update_item(table, item):
+    table.update_item(item)

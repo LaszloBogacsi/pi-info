@@ -25,6 +25,24 @@ class DynamoDBTable:
                 for item in b:
                     batch_writer.put_item(Item=item.__dict__)
 
+    def update_item(self, item: GroupDeviceDTO):
+        response = self.table.update_item(
+            Key={
+                'group_id': item.group_id,
+                'device_id': item.device_id
+            },
+            UpdateExpression="set name = :name, location=:location, delay=:delay",
+            ExpressionAttributeValues={
+                ':name': item.name,
+                ':location': item.location,
+                ':delay': item.delay
+            },
+            ReturnValues="UPDATED_NEW"
+        )
+
+        print("UpdateItem succeeded:")
+        print(json.dumps(response, indent=4))
+
 def batch(iterable, n=1):
     l = len(iterable)
     for ndx in range(0, l, n):

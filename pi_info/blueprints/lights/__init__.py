@@ -6,7 +6,7 @@ from enum import Enum
 from flask import Blueprint, render_template, abort, request, redirect, url_for, make_response, current_app
 from jinja2 import TemplateNotFound
 
-from app import get_mqtt_client, get_scheduler
+from app import get_mqtt_client, get_scheduler, get_dynamoDb_conn_instance
 from pi_info.blueprints.Weekday import Weekday
 from pi_info.data.DeviceType import DeviceType
 from pi_info.data.room import Room
@@ -14,11 +14,13 @@ from pi_info.repository.Device import Device
 from pi_info.repository.DeviceStatus import DeviceStatus, Status
 from pi_info.repository.DeviceWithStatus import DeviceWithStatus
 from pi_info.repository.Group import Group
+from pi_info.repository.GroupDeviceDTO import GroupDeviceDTO
 from pi_info.repository.Schedule import Schedule
 from pi_info.repository.device_repository import load_all_devices, save_device, load_all_devices_with_status, \
     update_device, delete_device_by, load_device_with_status_by
 from pi_info.repository.device_status_repository import save_device_status, update_device_status, \
     delete_device_status_for
+from pi_info.repository.dynamoDBRepository import put_item, update_item
 from pi_info.repository.group_repository import save_group, load_all_groups, load_group_by, update_group, delete_group
 from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule, \
     load_schedules_for
@@ -89,10 +91,9 @@ def make_action_func(status: str, device_id: str, client, publisher, delay_in_ms
         payload = "{\"status\":\"" + status + "\",\"device_id\":\"" + str(device_id) + "\"}"
         publisher(client, "switch/relay", payload)
         print('waiting {} ms'.format(delay_in_ms))
-        time.sleep(delay_in_ms/1000)
+        time.sleep(delay_in_ms / 1000)
 
     return create_payload_and_publish
-
 
 
 @lights.route('/lights/light/schedule', methods=['POST'])
@@ -143,6 +144,7 @@ def edit_device():
     try:
         device: Device = make_device_from_form(request.form)
         update_device(device)
+        update_dynamo_devices(device)
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -169,7 +171,7 @@ def remove_device():
         remove_associated_schedules_for(group_id)
         delete_device_status_for(group_id)
         delete_device_by(group_id)
-
+        # TODO: Remove dynamo device
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -222,12 +224,14 @@ def edit_group():
     except TemplateNotFound:
         abort(404)
 
+
 @lights.route('/lights/groups/group/delete', methods=['GET'])
 def remove_group():
     try:
         group_id = int(request.args['group_id'])
         delete_group(group_id)
         remove_associated_schedules_for(group_id)
+        # TODO: Remove dynamo group
         return redirect(url_for('lights.show_lights', _method='GET', page='groups'))
     except TemplateNotFound:
         abort(404)
@@ -245,6 +249,7 @@ def save_new_group():
     try:
         group: Group = make_group_from(request.form)
         save_group(group)
+        create_dynamo_devices(group)
         return redirect(url_for('lights.show_lights', _method='GET', page='groups'))
     except TemplateNotFound:
         abort(404)
@@ -259,6 +264,8 @@ def save_edit_group():
         for schedule in schedules_for_group:
             new_schedule = Schedule(schedule.schedule_id, schedule.group_id, group.ids, schedule.status, schedule.days, schedule.time)
             save_new_or_update_schedule(create_actions(new_schedule, group.delay_in_ms), is_update=True, schedule=new_schedule)
+
+        update_dynamo_devices(group)
         return redirect(url_for('lights.show_lights', _method='GET', page='groups'))
     except TemplateNotFound:
         abort(404)
@@ -274,6 +281,8 @@ def save_new():
     try:
         device = make_device_from_form(request.form)
         save_device_and_initial_status(device)
+        create_dynamo_devices(device)
+
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -284,6 +293,21 @@ def publish(client, topic, payload):
         client.publish(topic=topic, payload=payload)
     else:
         logger.warning("can not publish message, client is not defined")
+
+
+def publish_with_delay(client, topic, payload, delay_in_sec):
+    publish(client, topic, payload)
+    time.sleep(delay_in_sec)
+
+
+def create_dynamo_devices(item: Device or Group):
+    table = get_dynamoDb_conn_instance()
+    put_item(table, GroupDeviceDTO.convert_from(item))
+
+
+def update_dynamo_devices(item: Device or Group):
+    table = get_dynamoDb_conn_instance()
+    update_item(table, GroupDeviceDTO.convert_from(item))
 
 
 @lights.route('/lights/light-control')
@@ -297,14 +321,11 @@ def light_control():
     updated_status = "ON" if status == "OFF" else "OFF"
     payloads = []
     for light_id in light_ids:
-        # payload = "{{\"status\":\"{}\",\"device_id\":\"{}\"}}".format(updated_status, light_id)
         payload = "{\"status\":\"" + updated_status + "\",\"device_id\":\"" + str(light_id) + "\"}"
-        json_payload = json.dumps(payload)
-        publish(get_mqtt_client(), "switch/relay", payload)
+        publish_with_delay(get_mqtt_client(), "switch/relay", payload, delay / 1000)
         print("updating light status id:", light_id, "to ", updated_status)
         update_device_status(DeviceStatus(light_id, Status(updated_status)))
         payloads.append(payload)
-        time.sleep(delay / 1000.0)
     if group_id:
         group = load_group_by(int(group_id))
         updated_group = Group(group.group_id, group.name, group.delay_in_ms, group.ids, Status(updated_status))
