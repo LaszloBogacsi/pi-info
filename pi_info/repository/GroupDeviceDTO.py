@@ -3,6 +3,12 @@ from pi_info.repository.Group import Group
 
 
 class GroupDeviceDTO(object):
+    group_id: str
+    device_id: str
+    name: str
+    is_group: bool
+    location: str
+    delay: int
 
     def __init__(self, group_id, device_id, name, is_group, location, delay) -> None:
         self.group_id = group_id
@@ -17,5 +23,5 @@ class GroupDeviceDTO(object):
         if isinstance(entity, Group):
             return cls(entity.group_id, ",".join(map(str, entity.ids)), entity.name, True, "None", entity.delay_in_ms)
         if isinstance(entity, Device):
-            return cls(entity.device_id, entity.device_id, entity.name, False, entity.location.value, 0)
+            return cls(str(entity.device_id), str(entity.device_id), entity.name, False, entity.location.value, 0)
 

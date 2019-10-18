@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+import uuid
 from enum import Enum
 
 from flask import Blueprint, render_template, abort, request, redirect, url_for, make_response, current_app
@@ -213,7 +214,7 @@ def new_group():
 @lights.route('/lights/groups/group/edit', methods=['GET'])
 def edit_group():
     try:
-        group_id = int(request.args['group_id'])
+        group_id = request.args['group_id']
         statusbar = refresh_statusbar()
         group_to_edit: Group = load_group_by(group_id)
         all_devices: [Device] = [device.as_dict() for device in load_all_devices()]
@@ -228,7 +229,7 @@ def edit_group():
 @lights.route('/lights/groups/group/delete', methods=['GET'])
 def remove_group():
     try:
-        group_id = int(request.args['group_id'])
+        group_id = request.args['group_id']
         delete_group(group_id)
         remove_associated_schedules_for(group_id)
         # TODO: Remove dynamo group
@@ -237,10 +238,16 @@ def remove_group():
         abort(404)
 
 
+def generate_id() -> str:
+    return str(uuid.uuid4())
+
+
 def make_group_from(form) -> Group:
     ids = [int(id) for id in form['ids'].split(',')]
     delay = int(form['delay-in-ms'])
     group_id = form.get('group_id', None)
+    if group_id is None:
+        group_id = generate_id()
     return Group(group_id=group_id, name=form['group-name'], delay_in_ms=delay, ids=ids, status=Status.OFF)
 
 
@@ -327,7 +334,7 @@ def light_control():
         update_device_status(DeviceStatus(light_id, Status(updated_status)))
         payloads.append(payload)
     if group_id:
-        group = load_group_by(int(group_id))
+        group = load_group_by(group_id)
         updated_group = Group(group.group_id, group.name, group.delay_in_ms, group.ids, Status(updated_status))
         update_group(updated_group)
 
@@ -347,7 +354,7 @@ def lights_data():
         'single_device_status': None
     }
     if group_id:
-        group = load_group_by(int(group_id))
+        group = load_group_by(group_id)
         payload['group_status'] = group.status.value
     if light_id:
         device = load_device_with_status_by(int(light_id))

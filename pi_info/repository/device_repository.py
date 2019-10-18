@@ -50,7 +50,7 @@ def delete_device_by(device_id: int):
 def cast_device(value) -> Device or None:
     if value is None:
         return None
-    return Device(device_id=value[0], name=value[1], location=Room(value[2]), type=DeviceType(value[3]))
+    return Device(device_id=value[0], name=value[1], location=Room(value[2]), device_type=DeviceType(value[3]))
 
 
 def cast_device_with_status(value) -> DeviceWithStatus or None:

@@ -84,7 +84,7 @@ def init_mqtt(app) -> MqttClient:
 
 def init_dynamodb(table_name: str) -> DynamoDBTable:
     dev_devices_table = DynamoDBTable(table_name)
-    # update_remote_data_store_from_lodal_db(dev_devices_table)
+    update_remote_data_store_from_lodal_db(dev_devices_table)
     return dev_devices_table
 
 

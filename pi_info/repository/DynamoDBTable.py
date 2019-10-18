@@ -23,14 +23,13 @@ class DynamoDBTable:
         with self.table.batch_writer() as batch_writer:
             for b in batch(items, self.MAX_BATCH_REQUEST_SIZE):
                 for item in b:
-                    item.group_id = str(item.group_id)
                     item_to_put = item.__dict__
                     batch_writer.put_item(Item=item_to_put)
 
     def update_item(self, item: GroupDeviceDTO):
         response = self.table.update_item(
             Key={
-                'group_id': str(item.group_id),
+                'group_id': item.group_id,
                 'device_id': str(item.device_id)
             },
             UpdateExpression="set d_name = :name, d_location=:location, delay=:delay",

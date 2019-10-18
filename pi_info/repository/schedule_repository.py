@@ -3,7 +3,7 @@ from pi_info.repository.repository import save, load_all, save_and_get_id
 
 
 def save_schedule(schedule: Schedule):
-    query = "INSERT INTO schedule(group_id, device_id, status, days, time) VALUES ({}, '{}', '{}', '{}', '{}') RETURNING schedule_id".format(
+    query = "INSERT INTO schedule(group_id, device_id, status, days, time) VALUES ('{}', '{}', '{}', '{}', '{}') RETURNING schedule_id".format(
         schedule.group_id, ','.join(map(str, schedule.device_id)), schedule.status, schedule.days, schedule.time)
     return save_and_get_id(query)
 
@@ -25,8 +25,8 @@ def load_all_schedules() -> [Schedule]:
     return load_all(sql, cast_schedule)
 
 
-def load_schedules_for(group_id) -> [Schedule]:
-    sql = 'SELECT * FROM schedule WHERE group_id={}'.format(group_id)
+def load_schedules_for(group_id: str) -> [Schedule]:
+    sql = "SELECT * FROM schedule WHERE group_id='{}'".format(group_id)
     return load_all(sql, cast_schedule)
 
 
