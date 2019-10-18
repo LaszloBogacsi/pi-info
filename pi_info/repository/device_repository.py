@@ -8,13 +8,13 @@ from pi_info.repository.repository import save, load_all, load_one
 
 def save_device(device: Device):
     query = "INSERT INTO device(device_id, name, location, type) VALUES ({}, '{}', '{}', '{}')".format(
-        device.device_id, device.name, device.location, device.device_type)
+        device.device_id, device.name, device.location.value, device.device_type.value)
     save(query)
 
 
 def update_device(device: Device):
     query = "UPDATE device SET name='{}', location='{}', type='{}' WHERE device_id={}".format(
-        device.name, device.location, device.device_type, device.device_id)
+        device.name, device.location.value, device.device_type.value, device.device_id)
     save(query)
 
 

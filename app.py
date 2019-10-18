@@ -61,8 +61,8 @@ def create_app(config_file='config.cfg'):
             global mqtt_client
             print(app.config['DEVICES_TABLE_NAME'])
             mqtt_client = init_mqtt(app)
-            global dynamo_db_table
-            dynamo_db_table = init_dynamodb(app.config['DEVICES_TABLE_NAME'])
+        global dynamo_db_table
+        dynamo_db_table = init_dynamodb(app.config['DEVICES_TABLE_NAME'])
 
     init_task_scheduler(load_all_schedules())
     app.register_blueprint(home)
@@ -84,7 +84,7 @@ def init_mqtt(app) -> MqttClient:
 
 def init_dynamodb(table_name: str) -> DynamoDBTable:
     dev_devices_table = DynamoDBTable(table_name)
-    update_remote_data_store_from_lodal_db(dev_devices_table)
+    # update_remote_data_store_from_lodal_db(dev_devices_table)
     return dev_devices_table
 
 

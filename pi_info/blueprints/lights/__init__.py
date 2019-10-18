@@ -361,7 +361,7 @@ def lights_data():
 
 
 def make_device_from_form(form):
-    return Device(int(form['device_id']), form['name'], form['location'].lower(), form['type'].lower())
+    return Device(int(form['device_id']), form['name'], Room(form['location'].lower()), DeviceType(form['type'].lower()))
 
 
 def get_schedule_from_form(req, is_group=False):

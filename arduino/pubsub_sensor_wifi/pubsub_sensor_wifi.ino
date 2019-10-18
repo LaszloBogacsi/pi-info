@@ -18,7 +18,7 @@ void setup() {
 
 
 long lastMsg = 0;
-int sensor_id = 101;
+int sensor_id = 100;
 long sleeptimeInSeconds = 1200; // 20 mins
 void onConnectionEstablished() {
    float newTemp = dht.getTemperature();
