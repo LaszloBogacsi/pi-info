@@ -78,7 +78,8 @@ def create_app(config_file='config.cfg'):
 
 
 def init_mqtt(app) -> MqttClient:
-    handlers = [MessageHandler('sensor/temperature', save_sensor_data)]
+    handlers = [MessageHandler('sensor/temperature', save_sensor_data), MessageHandler('switch/relay', print)]
+
     return MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)
 
 

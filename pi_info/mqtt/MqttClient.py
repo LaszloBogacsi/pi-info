@@ -38,7 +38,7 @@ class MqttClient:
         json_message["topic_origin"] = message.topic
         if message.topic in self.topic_handler:
             handler = self.topic_handler[message.topic].handler
-            handler(self.get_message(json_message))
+            handler(self.get_message(json_message)) # TODO: the handler should know how to read the message, if not this is the only message format it van read.
         else:
             raise RuntimeError('no handler found for topic: ' + message.topic)
 
