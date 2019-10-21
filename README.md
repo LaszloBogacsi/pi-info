@@ -40,6 +40,15 @@ then run `./database-setup.sh` script to set up db
 
 Requires local AWS cli credentials
  
+To see Supervisor and the app logs:
+```
+http://<r-pi-host>:9001
+```
+after adding the following to the supervisor config:
+```
+[inet_http_server]
+port=0.0.0.0:9001
+```
  
  ___ 
  ### Arduino IDE setup:  
