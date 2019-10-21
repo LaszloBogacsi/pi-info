@@ -4,10 +4,16 @@
  
  *using raspberry pi 3B+ and*  
  
- - D1 mini esp8266 devboard 
+ - D1 mini esp8266 wifi devboard 
  - DHT22 temp and humidity sensor on breakout board 
+ - Sonoff Basic R2
  - Mosquitto MQTT - Arduino language 
- - Python with flask  
+ - Python with Flask
+ - D3.js for visualisations
+ - Gunicorn wsgi
+ - Supervisor
+ - Nginx
+ - AWS DynamoDB for remote state storage (Alexa integration)  
  
  ___ 
  ### Raspberry Pi setup:  
@@ -23,7 +29,21 @@
  ```  
  create an encrypted password for a username at the specified password file location   
  `sudo mosquitto_passwd -c /etc/mosquitto/pwfile <username>`    
- 
+ Bridging with remote mqtt service
+ ```properties
+ # mosquitto.conf
+ # Connection to RemoteMQTT
+
+connection <connection name>
+address <host:port>
+topic <topic/name> both 0 "" remote/ # remote/ is a forwarded rename eg "topic/name" will be forwarded as "remote/topic/name"
+remote_username <username>
+remote_password <password>
+try_private true
+notifications false
+cleansession true
+start_type automatic
+ ```
  reboot the pi: `sudo reboot`  
  Mosquitto is ready,  
  to verify: 
@@ -48,6 +68,23 @@ after adding the following to the supervisor config:
 ```
 [inet_http_server]
 port=0.0.0.0:9001
+```
+
+Nginx config in `sites-enabled` in `home-hub.conf`
+```
+server {                                                                  
+    listen 80;                                                           
+     server_name <r-pi-host>;                                          
+                                                                         
+     location /static/ {                                                 
+            alias /path/to/static/; 
+                                                                         
+     }                                                                   
+     location / {                                                        
+             include proxy_params;                                       
+             proxy_pass http://localhost:5000;                           
+     }                                                                   
+}                                                                        
 ```
  
  ___ 
