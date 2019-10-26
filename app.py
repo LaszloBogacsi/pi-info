@@ -6,6 +6,7 @@ import time
 from flask import Flask
 
 from pi_info.Credentials import Credentials
+from pi_info.mqtt.handlers import SensorMessageHandler, RelayStatusMessageHandler, RelayMessageHandler
 from pi_info.repository.Device import Device
 from pi_info.repository.DynamoDBTable import DynamoDBTable
 from pi_info.repository.Group import Group
@@ -29,14 +30,12 @@ def get_dynamoDb_conn_instance():
 
 
 from pi_info.blueprints.home import home
-from pi_info.blueprints.lights import lights, Weekday
+from pi_info.blueprints.lights import lights
 from pi_info.blueprints.rooms import rooms
 from pi_info.blueprints.sensors import sensors
 from pi_info.blueprints.tube_status import tube_status
 from pi_info.mqtt.MqttClient import MqttClient
-from pi_info.mqtt.message_handler import MessageHandler
 from pi_info.repository import init_app_db, Schedule
-from pi_info.repository.sensor_data_repository import save_sensor_data
 from pi_info.repository.schedule_repository import load_all_schedules
 
 logger = logging.getLogger('app')
@@ -78,15 +77,7 @@ def create_app(config_file='config.cfg'):
 
 
 def init_mqtt(app) -> MqttClient:
-    def get_sensor_message(self, message):
-        return {"timestamp": message['timestamp'],
-                "values" : [
-                    {"type": "temperature", "value":  message['temperature']},
-                    {"type": "humidity", "value":  message['humidity']}
-                ],
-                "status": message['status'],
-                "sensor_id": message['sensor_id']}
-    handlers = [MessageHandler('sensor/temperature', save_sensor_data, get_sensor_message), MessageHandler('switch/relay', print, lambda message: message), MessageHandler('switch/status', print, lambda message: message)]
+    handlers = [SensorMessageHandler(), RelayMessageHandler(), RelayStatusMessageHandler()]
 
     return MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)
 
@@ -102,7 +93,7 @@ def make_function(status: str, device_id: str, client, publisher, delay_in_ms):
         payload = "{\"status\":\"" + status + "\",\"device_id\":\"" + str(device_id) + "\"}"
         publisher(client, "switch/relay", payload)
         print('waiting {} ms'.format(delay_in_ms))
-        time.sleep(delay_in_ms/1000)
+        time.sleep(delay_in_ms / 1000)
 
     return create_payload_and_publish
 
@@ -124,6 +115,7 @@ def init_task_scheduler(schedules: [Schedule]):
                 client.publish(topic=topic, payload=payload)
             else:
                 logger.error('can not publish message, client is not defined')
+
         group = load_group_by(schedule.group_id)
         delay_in_ms = group.delay_in_ms if group is not None else 0
         scheduler.schedule_task_from_db(schedule, create_action(schedule.status, str(schedule.device_id), get_mqtt_client(), publisher, delay_in_ms))
