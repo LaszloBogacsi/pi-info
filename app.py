@@ -78,14 +78,15 @@ def create_app(config_file='config.cfg'):
 
 def init_mqtt(app) -> MqttClient:
     handlers = [SensorMessageHandler(), RelayMessageHandler(), RelayStatusMessageHandler()]
-
+    # TODO: pass only the credentials in not app.
     return MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)
 
 
 def init_dynamodb(table_name: str) -> DynamoDBTable:
-    dev_devices_table = DynamoDBTable(table_name)
-    update_remote_data_store_from_lodal_db(dev_devices_table)
-    return dev_devices_table
+    # TODO create one liner init
+    devices_table = DynamoDBTable(table_name)
+    update_remote_data_store_from_lodal_db(devices_table)
+    return devices_table
 
 
 def make_function(status: str, device_id: str, client, publisher, delay_in_ms):
@@ -107,6 +108,7 @@ def create_action(status: str, device_ids: str, client, publisher, delay_in_ms):
 
 
 def init_task_scheduler(schedules: [Schedule]):
+    # TODO create one liner init
     logger.debug('Initializing {} tasks'.format(len(schedules)))
 
     for schedule in schedules:
