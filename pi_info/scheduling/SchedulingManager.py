@@ -18,12 +18,13 @@ class SchedulingManager:
     def __init__(self) -> None:
         self.schedulers = []
 
-    def schedule_task_from_db(self, schedule: Schedule, actions):
+    def schedule_task_from_db(self, schedule: Schedule, actions: list):
         task_id = "{}-{}".format(schedule.group_id, schedule.schedule_id)
         delay = self._delay_until_next_run(schedule.time, schedule.days)
-        self._schedule_task(Task(task_id, schedule.time, schedule.days, delay, actions))
+        task = Task(task_id, schedule.time, schedule.days, delay, actions)
+        self._schedule_task(task)
 
-    def schedule_task_from_form(self, device_id, schedule_id, s_time, weekdays, actions):
+    def schedule_task_from_form(self, device_id, schedule_id, s_time, weekdays, actions: list):
         task_id = "{}-{}".format(device_id, schedule_id)
         delay = self._delay_until_next_run(s_time, weekdays)
         task = Task(task_id, s_time, weekdays, delay, actions)
@@ -51,10 +52,10 @@ class SchedulingManager:
 
         self.schedulers.append((task.id, scheduler))
 
-    def _reschedule_task(self, scheduler, task):
+    def _reschedule_task(self, scheduler, task: Task):
         new_delay = self._delay_until_next_run(task.time, task.weekdays)
         logger.debug(('Event will reschedule with id: {} in {} seconds'.format(task.id, new_delay)))
-        scheduler.worker(Task(task.id, task.time, task.weekdays, new_delay, task.run), self._reschedule_task,)
+        scheduler.worker(Task(task.id, task.time, task.weekdays, new_delay, [task.run]), self._reschedule_task, )
 
     def _find_closest_schedule_time(self, time, days) -> datetime:
         time_to_run = time.split(':')

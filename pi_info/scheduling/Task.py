@@ -1,12 +1,10 @@
-from typing import List
+class Task:
 
-
-class Task():
-    def __init__(self, id: str, time: str, weekdays: str, delay_in_sec: int, actions: List) -> None:
+    def __init__(self, task_id: str, time: str, weekdays: str, delay_in_sec: int, actions: list) -> None:
         self.delay = delay_in_sec
         self.weekdays = weekdays
         self.actions = actions
-        self.id = id
+        self.id = task_id
         self.time = time
 
     def run(self):
