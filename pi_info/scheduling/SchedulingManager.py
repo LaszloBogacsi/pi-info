@@ -19,14 +19,14 @@ class SchedulingManager:
         self.schedulers = []
 
     def schedule_task_from_db(self, schedule: Schedule, actions):
-        id = "{}-{}".format(schedule.group_id, schedule.schedule_id)
-        delay = self._delay_until_run(schedule.time, schedule.days)
-        self._schedule_task(Task(id, schedule.time, schedule.days, delay, actions))
+        task_id = "{}-{}".format(schedule.group_id, schedule.schedule_id)
+        delay = self._delay_until_next_run(schedule.time, schedule.days)
+        self._schedule_task(Task(task_id, schedule.time, schedule.days, delay, actions))
 
     def schedule_task_from_form(self, device_id, schedule_id, s_time, weekdays, actions):
-        id = "{}-{}".format(device_id, schedule_id)
-        delay = self._delay_until_run(s_time, weekdays)
-        task = Task(id, s_time, weekdays, delay, actions)
+        task_id = "{}-{}".format(device_id, schedule_id)
+        delay = self._delay_until_next_run(s_time, weekdays)
+        task = Task(task_id, s_time, weekdays, delay, actions)
         self._schedule_task(task)
         return task
 
@@ -51,19 +51,19 @@ class SchedulingManager:
         self.schedulers.append((task.id, scheduler))
 
     def _reschedule_task(self, scheduler, task):
-        new_delay = self._delay_until_run(task.time, task.weekdays)
+        new_delay = self._delay_until_next_run(task.time, task.weekdays)
         logger.debug(('Event will reschedule with id: {} in {} seconds'.format(task.id, new_delay)))
         scheduler.worker(Task(task.id, task.time, task.weekdays, new_delay, task.run), self._reschedule_task,)
 
-    def _find_closest_time(self, time, days) -> datetime:
+    def _find_closest_schedule_time(self, time, days) -> datetime:
         time_to_run = time.split(':')
         schedule_time = Time(int(time_to_run[0]), int(time_to_run[1]))
         weekdays = list(int(day) for day in days.split(','))
         return self._calculate_next_run(datetime.datetime.now(), datetime.datetime.today().weekday() + 1, weekdays, schedule_time)
 
-    def _delay_until_run(self, time, weekdays) -> int:
+    def _delay_until_next_run(self, time, weekdays) -> int:
         current_time = datetime.datetime.now()
-        closest_time = self._find_closest_time(time, weekdays)
+        closest_time = self._find_closest_schedule_time(time, weekdays)
         return int((closest_time - current_time).total_seconds())
 
     @staticmethod
