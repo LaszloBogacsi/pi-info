@@ -59,7 +59,8 @@ def create_app(config_file='config.cfg'):
         if app.config['ONLINE']:
             global mqtt_client
             print(app.config['DEVICES_TABLE_NAME'])
-            mqtt_client = init_mqtt(app)
+            handlers = [SensorMessageHandler(), RelayMessageHandler(), RelayStatusMessageHandler()]
+            mqtt_client = init_mqtt(app.config, handlers)
         global dynamo_db_table
         dynamo_db_table = init_dynamodb(app.config['DEVICES_TABLE_NAME'])
 
@@ -76,10 +77,9 @@ def create_app(config_file='config.cfg'):
     return app
 
 
-def init_mqtt(app) -> MqttClient:
-    handlers = [SensorMessageHandler(), RelayMessageHandler(), RelayStatusMessageHandler()]
-    # TODO: pass only the credentials in not app.
-    return MqttClient(Credentials(app.config['MQTT_USERNAME'], app.config['MQTT_PASSWORD']), app.config['MQTT_HOST'], handlers)
+def init_mqtt(config, handlers) -> MqttClient:
+    credentials = Credentials(config['MQTT_USERNAME'], config['MQTT_PASSWORD'])
+    return MqttClient(credentials, config['MQTT_HOST'], handlers)
 
 
 def init_dynamodb(table_name: str) -> DynamoDBTable:

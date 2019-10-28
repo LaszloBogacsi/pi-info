@@ -14,3 +14,7 @@ def put_item_batch(table, items: [GroupDeviceDTO]):
 
 def update_item(table, item):
     table.update_item(item)
+
+
+def delete_item(table, item):
+    table.delete_item(item)

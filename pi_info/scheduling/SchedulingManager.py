@@ -48,6 +48,7 @@ class SchedulingManager:
         scheduler = Scheduler(time.time, time.sleep)
         t = threading.Thread(target=scheduler.worker, args=(task, self._reschedule_task))
         t.start()
+
         self.schedulers.append((task.id, scheduler))
 
     def _reschedule_task(self, scheduler, task):

@@ -18,10 +18,10 @@ from pi_info.repository.Group import Group
 from pi_info.repository.GroupDeviceDTO import GroupDeviceDTO
 from pi_info.repository.Schedule import Schedule
 from pi_info.repository.device_repository import load_all_devices, save_device, load_all_devices_with_status, \
-    update_device, delete_device_by, load_device_with_status_by
+    update_device, delete_device_by, load_device_with_status_by, load_device_by
 from pi_info.repository.device_status_repository import save_device_status, update_device_status, \
     delete_device_status_for
-from pi_info.repository.dynamoDBRepository import put_item, update_item
+from pi_info.repository.dynamoDBRepository import put_item, update_item, delete_item
 from pi_info.repository.group_repository import save_group, load_all_groups, load_group_by, update_group, delete_group
 from pi_info.repository.schedule_repository import save_schedule, load_all_schedules, update_schedule, delete_schedule, \
     load_schedules_for
@@ -169,10 +169,11 @@ def delete_light_schedule(page):
 def remove_device():
     try:
         group_id = int(request.args['group_id'])
+        device = load_device_by(group_id)
         remove_associated_schedules_for(group_id)
         delete_device_status_for(group_id)
         delete_device_by(group_id)
-        # TODO: Remove dynamo device
+        delete_dynamo_devices(device)
         return redirect(url_for('lights.show_lights', _method='GET'))
     except TemplateNotFound:
         abort(404)
@@ -230,9 +231,10 @@ def edit_group():
 def remove_group():
     try:
         group_id = request.args['group_id']
+        group = load_group_by(group_id)
         delete_group(group_id)
         remove_associated_schedules_for(group_id)
-        # TODO: Remove dynamo group
+        delete_dynamo_devices(group)
         return redirect(url_for('lights.show_lights', _method='GET', page='groups'))
     except TemplateNotFound:
         abort(404)
@@ -316,6 +318,10 @@ def update_dynamo_devices(item: Device or Group):
     table = get_dynamoDb_conn_instance()
     update_item(table, GroupDeviceDTO.convert_from(item))
 
+
+def delete_dynamo_devices(item: Device or Group):
+    table = get_dynamoDb_conn_instance()
+    delete_item(table, GroupDeviceDTO.convert_from(item))
 
 @lights.route('/lights/light-control')
 def light_control():

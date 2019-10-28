@@ -1,5 +1,6 @@
 import json
 import boto3
+from botocore.exceptions import ClientError
 
 from pi_info.repository.GroupDeviceDTO import GroupDeviceDTO
 
@@ -43,6 +44,22 @@ class DynamoDBTable:
 
         print("UpdateItem succeeded:")
         print(json.dumps(response, indent=4))
+
+    def delete_item(self, item: GroupDeviceDTO):
+        try:
+            response = self.table.delete_item(
+                Key={
+                    'group_id': item.group_id,
+                    'device_id': str(item.device_id)
+                }
+            )
+            print("DeleteItem succeeded:")
+            print(json.dumps(response, indent=4))
+        except ClientError as e:
+            if e.response['Error']['Code'] == "ConditionalCheckFailedException":
+                print(e.response['Error']['Message'])
+            else:
+                raise
 
 
 def batch(iterable, n=1):
