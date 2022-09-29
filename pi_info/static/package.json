@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/LaszloBogacsi/pi-info#readme",
   "dependencies": {
-    "d3": "^5.9.2",
+    "d3": "^7.6.1",
     "image-map-resizer": "^1.0.10",
     "semantic-ui": "^2.4.2"
   }
