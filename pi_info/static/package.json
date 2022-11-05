@@ -20,6 +20,6 @@
   "dependencies": {
     "d3": "^5.9.2",
     "image-map-resizer": "^1.0.10",
-    "semantic-ui": "^2.4.2"
+    "semantic-ui": "^2.5.0"
   }
 }
